@@ -24,61 +24,12 @@ const healthConcerns = [
     image: "🩸",
     bgColor: "bg-blue-100",
     textColor: "text-blue-800"
-  },
-  {
-    id: 4,
-    name: "Fever & Infection",
-    image: "🌡️",
-    bgColor: "bg-red-100",
-    textColor: "text-red-800"
-  },
-  {
-    id: 5,
-    name: "Hair & Skin Care",
-    image: "💆‍♀️",
-    bgColor: "bg-pink-100",
-    textColor: "text-pink-800"
-  },
-  {
-    id: 6,
-    name: "Thyroid",
-    image: "🔬",
-    bgColor: "bg-purple-100",
-    textColor: "text-purple-800"
-  },
-  {
-    id: 7,
-    name: "Women Care",
-    image: "👩‍⚕️",
-    bgColor: "bg-rose-100",
-    textColor: "text-rose-800"
-  },
-  {
-    id: 8,
-    name: "Heart Care",
-    image: "❤️",
-    bgColor: "bg-red-100",
-    textColor: "text-red-800"
-  },
-  {
-    id: 9,
-    name: "Blood Pressure",
-    image: "📊",
-    bgColor: "bg-indigo-100",
-    textColor: "text-indigo-800"
-  },
-  {
-    id: 10,
-    name: "Lifestyle",
-    image: "🏃‍♂️",
-    bgColor: "bg-teal-100",
-    textColor: "text-teal-800"
   }
 ];
 
 const HealthConcernSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerView = 6;
+  const itemsPerView = 3;
   const maxIndex = Math.max(0, healthConcerns.length - itemsPerView);
 
   const scrollLeft = () => {

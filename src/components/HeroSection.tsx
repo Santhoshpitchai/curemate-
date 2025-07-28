@@ -80,10 +80,10 @@ const HeroSection = () => {
           </p>
         </div>
 
-        {/* Main Search Bar */}
+        {/* Main Search Bar with Prescription Upload */}
         <div className="max-w-4xl mx-auto mb-8 animate-slide-up">
           <Card className="p-6 shadow-strong">
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
@@ -95,7 +95,7 @@ const HeroSection = () => {
                 />
               </div>
               
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   variant="outline"
                   size="lg"
@@ -115,25 +115,27 @@ const HeroSection = () => {
                 </Button>
               </div>
             </div>
-          </Card>
-        </div>
-
-        {/* Order with Prescription CTA */}
-        <div className="max-w-4xl mx-auto animate-bounce-in">
-          <Card className="p-4 bg-accent/10 border-accent/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-accent p-2 rounded-lg">
-                  <FileText className="h-5 w-5 text-accent-foreground" />
+            
+            {/* Order with Prescription inline */}
+            <div className="mt-4 pt-4 border-t border-border/20">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-accent p-2 rounded-lg">
+                    <FileText className="h-5 w-5 text-accent-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Order with prescription</h3>
+                    <p className="text-sm text-muted-foreground">Upload prescription and we will deliver your medicines</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Order with prescription</h3>
-                  <p className="text-sm text-muted-foreground">Upload prescription and we will deliver your medicines</p>
-                </div>
+                <Button 
+                  variant="outline" 
+                  className="hover-lift"
+                  onClick={() => setIsUploadModalOpen(true)}
+                >
+                  UPLOAD NOW
+                </Button>
               </div>
-              <Button variant="outline" className="hover-lift">
-                UPLOAD NOW
-              </Button>
             </div>
           </Card>
         </div>
