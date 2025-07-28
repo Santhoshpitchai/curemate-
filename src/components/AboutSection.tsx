@@ -59,13 +59,8 @@ const features = [
     title: "24/7 Support",
     description: "Round the clock customer support available",
     icon: Clock
-  },
-  {
-    id: 4,
-    title: "Mobile App",
-    description: "Download our app for seamless experience",
-    icon: Smartphone
   }
+  // Removed Mobile App feature
 ];
 
 const AboutSection = () => {
@@ -139,9 +134,6 @@ const AboutSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button size="lg" className="bg-primary hover:bg-primary/90">
-                Download the App for Free
-              </Button>
               <Button variant="outline" size="lg">
                 Learn More About Us
               </Button>
@@ -178,25 +170,6 @@ const AboutSection = () => {
                   </Card>
                 );
               })}
-            </div>
-
-            {/* App Download Mockup */}
-            <div className="bg-hero-gradient rounded-2xl p-6 text-center">
-              <div className="text-6xl mb-4">📱</div>
-              <h4 className="font-semibold text-foreground mb-2">
-                Get the Mobile App
-              </h4>
-              <p className="text-muted-foreground text-sm mb-4">
-                Download our app for a better mobile experience
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                <Button variant="outline" size="sm" className="text-xs">
-                  📱 App Store
-                </Button>
-                <Button variant="outline" size="sm" className="text-xs">
-                  🤖 Google Play
-                </Button>
-              </div>
             </div>
           </div>
         </div>

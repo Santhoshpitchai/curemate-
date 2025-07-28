@@ -116,27 +116,7 @@ const HeroSection = () => {
               </div>
             </div>
             
-            {/* Order with Prescription inline */}
-            <div className="mt-4 pt-4 border-t border-border/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-accent p-2 rounded-lg">
-                    <FileText className="h-5 w-5 text-accent-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">Order with prescription</h3>
-                    <p className="text-sm text-muted-foreground">Upload prescription and we will deliver your medicines</p>
-                  </div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  className="hover-lift"
-                  onClick={() => setIsUploadModalOpen(true)}
-                >
-                  UPLOAD NOW
-                </Button>
-              </div>
-            </div>
+            {/* Order with Prescription section removed */}
           </Card>
         </div>
       </div>

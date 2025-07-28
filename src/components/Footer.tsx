@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { 
   Facebook, 
@@ -7,8 +6,7 @@ import {
   Youtube, 
   Twitter, 
   MessageCircle,
-  Heart,
-  Mail
+  Heart
 } from "lucide-react";
 
 const footerSections = {
@@ -16,8 +14,7 @@ const footerSections = {
     "About Us",
     "Careers", 
     "Blog",
-    "Partner with Curemate",
-    "Sell at Curemate"
+    "Partner with Curemate"
   ],
   services: [
     "Order Medicine",
@@ -29,41 +26,24 @@ const footerSections = {
     "Must Haves",
     "Diabetes Essentials",
     "Vitamins & Supplements", 
-    "Monsoon Store",
     "Heart Care",
     "Ayurvedic Care",
-    "Sports Nutrition",
-    "Skin Care",
-    "Mobility & Elderly Care",
-    "Health Food and Drinks",
-    "Mother and Baby Care",
-    "Personal Care",
-    "Sexual Wellness",
-    "Health Concerns",
-    "Healthcare Devices",
-    "Explore More"
+    "Sports Nutrition"
   ],
   help: [
     "Browse All Medicines",
-    "Browse All Molecules", 
     "Browse All Cities",
-    "Browse All Areas",
-    "Browse All Stores",
     "FAQs"
   ],
   policy: [
-    "Editorial Policy",
     "Privacy Policy",
-    "Vulnerability Disclosure Policy",
     "Terms and Conditions", 
-    "Customer Support Policy",
-    "Return Policy",
-    "Smartbuy Policy"
+    "Return Policy"
   ]
 };
 
 const paymentPartners = [
-  "💳", "💰", "🏦", "💸", "🔒", "💎", "💵", "🏧"
+  "💳", "💰", "🏦", "💎"
 ];
 
 const Footer = () => {
@@ -80,28 +60,6 @@ const Footer = () => {
       </div>
 
       <div className="container mx-auto px-4 py-12">
-        {/* Newsletter Section */}
-        <div className="bg-primary/5 rounded-2xl p-8 mb-12">
-          <div className="text-center max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-foreground mb-4">
-              Stay Updated with Health Tips & Offers
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Subscribe to our newsletter for the latest health insights and exclusive deals
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <Input 
-                placeholder="Enter your email address"
-                className="flex-1"
-              />
-              <Button className="bg-primary hover:bg-primary/90">
-                <Mail className="h-4 w-4 mr-2" />
-                Subscribe
-              </Button>
-            </div>
-          </div>
-        </div>
-
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Company */}
@@ -136,7 +94,7 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-foreground mb-4">Featured Categories</h4>
             <ul className="space-y-2">
-              {footerSections.categories.slice(0, 8).map((item, index) => (
+              {footerSections.categories.map((item, index) => (
                 <li key={index}>
                   <Button variant="link" className="p-0 h-auto text-muted-foreground hover:text-primary text-left">
                     {item}
@@ -198,9 +156,9 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Payment Partners */}
+          {/* Payment Partners - Simplified */}
           <div className="text-center">
-            <h4 className="font-semibold text-foreground mb-4">Our Payment Partners</h4>
+            <h4 className="font-semibold text-foreground mb-4">Payment Options</h4>
             <div className="flex justify-center items-center space-x-4 flex-wrap gap-2">
               {paymentPartners.map((icon, index) => (
                 <div 

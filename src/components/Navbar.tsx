@@ -26,16 +26,49 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      {/* Top Bar */}
+      {/* Main Navigation */}
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between py-2 text-sm">
-          <div className="flex items-center space-x-4 text-muted-foreground">
-            <div className="flex items-center space-x-1">
-              <Gift className="h-4 w-4 text-accent" />
-              <span className="font-medium">Offers</span>
+        <div className="flex items-center justify-between py-4">
+          {/* Logo */}
+          <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-2">
+              <div className="bg-primary p-2 rounded-lg">
+                <Heart className="h-6 w-6 text-primary-foreground fill-current" />
+              </div>
+              <span className="text-xl font-bold text-primary">Curemate</span>
             </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center space-x-6">
+              <Button variant="ghost" className="hover:text-primary">
+                About Us
+              </Button>
+            </nav>
           </div>
+
+
+          {/* Right Actions */}
           <div className="flex items-center space-x-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="hidden md:flex items-center space-x-1">
+                  <MapPin className="h-4 w-4" />
+                  <span>Find a Store</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Mumbai Stores</DropdownMenuItem>
+                <DropdownMenuItem>Delhi Stores</DropdownMenuItem>
+                <DropdownMenuItem>Bangalore Stores</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="ghost" className="hidden md:flex items-center space-x-1">
+              <Phone className="h-4 w-4" />
+              <span>Contact Us</span>
+            </Button>
+
+            {/* Cart Icon */}
             <div className="relative">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
@@ -44,71 +77,24 @@ const Navbar = () => {
                 </Badge>
               )}
             </div>
+
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <User className="h-4 w-4 mr-2" />
+              Login
+            </Button>
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
           </div>
         </div>
-      </div>
 
-      {/* Main Navigation */}
-      <div className="border-t border-border/50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between py-4">
-            {/* Logo */}
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-2">
-                <div className="bg-primary p-2 rounded-lg">
-                  <Heart className="h-6 w-6 text-primary-foreground fill-current" />
-                </div>
-                <span className="text-xl font-bold text-primary">Curemate</span>
-              </div>
-
-              {/* Desktop Navigation */}
-              <nav className="hidden lg:flex items-center space-x-6">
-                <Button variant="ghost" className="hover:text-primary">
-                  About Us
-                </Button>
-              </nav>
-            </div>
-
-
-            {/* Right Actions */}
-            <div className="flex items-center space-x-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="hidden md:flex items-center space-x-1">
-                    <MapPin className="h-4 w-4" />
-                    <span>Find a Store</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>Mumbai Stores</DropdownMenuItem>
-                  <DropdownMenuItem>Delhi Stores</DropdownMenuItem>
-                  <DropdownMenuItem>Bangalore Stores</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Button variant="ghost" className="hidden md:flex items-center space-x-1">
-                <Phone className="h-4 w-4" />
-                <span>Contact Us</span>
-              </Button>
-
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <User className="h-4 w-4 mr-2" />
-                Login
-              </Button>
-
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="lg:hidden"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            </div>
-          </div>
-
-        </div>
       </div>
 
       {/* Mobile Menu */}

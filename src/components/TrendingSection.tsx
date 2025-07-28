@@ -83,6 +83,85 @@ const trendingProducts = [
     image: "🔵",
     inStock: true,
     prescription: false
+  },
+  // New products added below
+  {
+    id: 7,
+    name: "Protein Powder",
+    dosage: "Jar of 500g",
+    originalPrice: 1200.00,
+    discountedPrice: 960.00,
+    discount: 20,
+    rating: 4.8,
+    reviews: 723,
+    image: "🥛",
+    inStock: true,
+    prescription: false
+  },
+  {
+    id: 8,
+    name: "Vitamin C Tablets",
+    dosage: "Strip of 30 tablets",
+    originalPrice: 220.00,
+    discountedPrice: 154.00,
+    discount: 30,
+    rating: 4.5,
+    reviews: 412,
+    image: "🍊",
+    inStock: true,
+    prescription: false
+  },
+  {
+    id: 9,
+    name: "Blood Glucose Monitor",
+    dosage: "Device with 10 strips",
+    originalPrice: 1500.00,
+    discountedPrice: 1125.00,
+    discount: 25,
+    rating: 4.7,
+    reviews: 328,
+    image: "📱",
+    inStock: true,
+    prescription: false
+  },
+  {
+    id: 10,
+    name: "Ayurvedic Immunity Booster",
+    dosage: "Bottle of 60 capsules",
+    originalPrice: 350.00,
+    discountedPrice: 280.00,
+    discount: 20,
+    rating: 4.4,
+    reviews: 189,
+    image: "🌿",
+    inStock: true,
+    prescription: false
+  },
+  {
+    id: 11,
+    name: "Digital Thermometer",
+    dosage: "1 Unit",
+    originalPrice: 250.00,
+    discountedPrice: 175.00,
+    discount: 30,
+    rating: 4.6,
+    reviews: 276,
+    image: "🌡️",
+    inStock: true,
+    prescription: false
+  },
+  {
+    id: 12,
+    name: "N95 Face Masks",
+    dosage: "Pack of 10",
+    originalPrice: 400.00,
+    discountedPrice: 320.00,
+    discount: 20,
+    rating: 4.5,
+    reviews: 512,
+    image: "😷",
+    inStock: true,
+    prescription: false
   }
 ];
 
