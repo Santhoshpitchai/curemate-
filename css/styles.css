@@ -1,0 +1,356 @@
+/* Curemate Healthcare Design System */
+
+:root {
+  /* Healthcare Brand Colors */
+  --background: 0 0% 100%;
+  --foreground: 215 25% 27%;
+  
+  /* Medical Teal Primary */
+  --primary: #00BFB3;
+  --primary-foreground: #FFFFFF;
+  --primary-light: #B3F5F0;
+  --primary-dark: #00807A;
+  
+  /* Healthcare Secondary */
+  --secondary: #EBF8FF;
+  --secondary-foreground: #00807A;
+  
+  /* Medical Gray Palette */
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  
+  /* Accent Orange for CTAs */
+  --accent: #FF9933;
+  --accent-foreground: #FFFFFF;
+  --accent-light: #FFDFBF;
+  
+  /* Support Colors */
+  --success: #22C55E;
+  --success-foreground: #FFFFFF;
+  --warning: #FFC107;
+  --warning-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  
+  /* UI Elements */
+  --card: #FFFFFF;
+  --card-foreground: #334155;
+  --border: #E2E8F0;
+  --input: #F1F5F9;
+  --ring: #00BFB3;
+  
+  /* Shadows */
+  --shadow-soft: 0 2px 8px rgba(0, 191, 179, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 191, 179, 0.12);
+  --shadow-strong: 0 8px 32px rgba(0, 191, 179, 0.16);
+  
+  /* Border Radius */
+  --radius: 0.75rem;
+}
+
+/* Global Styles */
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #334155;
+  background-color: #FFFFFF;
+}
+
+/* Override Bootstrap Colors */
+.bg-primary {
+  background-color: var(--primary) !important;
+}
+
+.bg-primary-light {
+  background-color: var(--primary-light) !important;
+}
+
+.bg-accent {
+  background-color: var(--accent) !important;
+}
+
+.text-primary {
+  color: var(--primary) !important;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Gradients */
+.bg-hero-gradient {
+  background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+}
+
+.bg-primary-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+
+/* Section Styles */
+.section-title {
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 2rem;
+}
+
+/* Navbar */
+.navbar {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+/* Category Cards */
+.category-card {
+  background-color: #FFFFFF;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+  height: 100%;
+}
+
+.category-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.5rem;
+}
+
+.category-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.category-count {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+/* Product Cards */
+.product-card {
+  background-color: #FFFFFF;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+  height: 100%;
+  position: relative;
+}
+
+.product-card .card-body {
+  padding: 1.25rem;
+}
+
+.product-card .card-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.product-card .card-text {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.product-card .price {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--primary);
+}
+
+/* Health Concern Cards */
+.health-concern-card {
+  background-color: #FFFFFF;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+  height: 100%;
+}
+
+.concern-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.5rem;
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.concern-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Feature Items */
+.feature-item {
+  margin-bottom: 1.5rem;
+}
+
+.feature-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.feature-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Footer */
+.footer {
+  background-color: #1E293B;
+}
+
+.footer .text-primary {
+  color: var(--primary) !important;
+}
+
+/* Hover Effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Carousel Controls */
+.carousel-control-prev,
+.carousel-control-next {
+  width: 10%;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: var(--primary);
+  border-radius: 50%;
+  padding: 1.5rem;
+  background-size: 50%;
+}
+
+/* 404 Page */
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .category-icon, .concern-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+  
+  .category-title, .concern-title {
+    font-size: 1rem;
+  }
+  
+  .product-card .card-title {
+    font-size: 1rem;
+  }
+  
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .feature-title {
+    font-size: 1rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.8s ease-out;
+} 
