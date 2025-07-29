@@ -1,6 +1,6 @@
 # Curemate Health Hub
 
-This project is a responsive healthcare e-commerce website built with HTML, CSS, JavaScript, and Bootstrap. It features a clean, modern design with interactive components for an engaging user experience.
+A modern healthcare e-commerce website built with vanilla HTML, CSS, and JavaScript. This project showcases a clean, responsive design with interactive components for an engaging user experience.
 
 ## Features
 
@@ -35,10 +35,6 @@ curemate-health-hub/
 ├── js/
 │   └── main.js         # JavaScript functionality
 ├── img/                # Image assets
-│   ├── hero-medical.jpg
-│   ├── promo-banner-1.jpg
-│   ├── promo-banner-2.jpg
-│   └── promo-banner-3.jpg
 ├── favicon.ico         # Website favicon
 ├── robots.txt          # Search engine instructions
 └── README.md           # Project documentation
@@ -46,7 +42,7 @@ curemate-health-hub/
 
 ## Technologies Used
 
-- **HTML5**: Structure of the website
+- **HTML5**: Structure and semantic markup
 - **CSS3**: Custom styling and animations
 - **JavaScript**: Interactive elements and functionality
 - **Bootstrap 5**: Responsive grid system and components
