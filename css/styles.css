@@ -410,6 +410,17 @@ body {
   font-weight: 500;
 }
 
+.upload-btn {
+  color: var(--primary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.upload-btn i {
+  margin-left: 0.5rem;
+} 
+
 /* Prescription Upload */
 .prescription-upload {
   background-color: rgba(255, 255, 255, 0.9);
