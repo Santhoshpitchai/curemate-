@@ -557,3 +557,41 @@ body {
 .modal-lg {
   max-width: 600px;
 }
+
+/* Shopping Cart Styles */
+.cart-item {
+  transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+  background-color: var(--muted);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+}
+
+.cart-item img {
+  border: 1px solid var(--border);
+}
+
+.cart-item .input-group-sm .form-control {
+  max-width: 60px;
+}
+
+.cart-item .btn-outline-danger {
+  border: none;
+  color: var(--destructive);
+}
+
+.cart-item .btn-outline-danger:hover {
+  background-color: var(--destructive);
+  color: white;
+}
+
+#cartCount {
+  font-size: 0.75rem;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
