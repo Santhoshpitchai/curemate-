@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Signup - Curemate Health Hub</title>
+    <meta name="description" content="Vendor Signup - Curemate Health Hub">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <div class="bg-primary p-2 rounded-3 me-2">
+                    <i class="fa-solid fa-heart text-white"></i>
+                </div>
+                <span class="fw-bold text-primary">Curemate</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="index.html" class="btn btn-outline-primary me-2">
+                    <i class="fa-solid fa-home me-1"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            <!-- Left Side - Branding -->
+            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-primary">
+                <div class="text-center text-white p-5">
+                    <div class="mb-4">
+                        <i class="fa-solid fa-handshake display-1 mb-3"></i>
+                        <h1 class="display-4 fw-bold mb-3">Join Our Network</h1>
+                        <p class="lead mb-4">Partner with Curemate and expand your healthcare business reach</p>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <i class="fa-solid fa-rocket display-6 mb-2"></i>
+                            <p class="small">Quick Setup</p>
+                        </div>
+                        <div class="col-6">
+                            <i class="fa-solid fa-money-bill-wave display-6 mb-2"></i>
+                            <p class="small">Competitive Rates</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Signup Form -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center py-5">
+                <div class="w-100" style="max-width: 500px;">
+                    <div class="card shadow-lg border-0">
+                        <div class="card-body p-5">
+                            <div class="text-center mb-4">
+                                <h2 class="fw-bold text-primary mb-2">Create Vendor Account</h2>
+                                <p class="text-muted">Join our healthcare network today</p>
+                            </div>
+
+                            <form id="vendorSignupForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="businessName" class="form-label">Business Name *</label>
+                                        <input type="text" class="form-control" id="businessName" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="businessType" class="form-label">Business Type *</label>
+                                        <select class="form-select" id="businessType" required>
+                                            <option value="">Select type</option>
+                                            <option value="pharmacy">Pharmacy</option>
+                                            <option value="clinic">Clinic</option>
+                                            <option value="hospital">Hospital</option>
+                                            <option value="diagnostic">Diagnostic Center</option>
+                                            <option value="supplier">Medical Supplier</option>
+                                            <option value="laboratory">Laboratory</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="contactPerson" class="form-label">Contact Person *</label>
+                                        <input type="text" class="form-control" id="contactPerson" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phoneNumber" class="form-label">Phone Number *</label>
+                                        <input type="tel" class="form-control" id="phoneNumber" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="businessEmail" class="form-label">Business Email *</label>
+                                    <input type="email" class="form-control" id="businessEmail" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="businessAddress" class="form-label">Business Address *</label>
+                                    <textarea class="form-control" id="businessAddress" rows="2" required></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="licenseNumber" class="form-label">License Number *</label>
+                                        <input type="text" class="form-control" id="licenseNumber" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="gstNumber" class="form-label">GST Number</label>
+                                        <input type="text" class="form-control" id="gstNumber">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="vendorPassword" class="form-label">Password *</label>
+                                        <input type="password" class="form-control" id="vendorPassword" required minlength="8">
+                                        <div class="form-text">Minimum 8 characters</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="confirmVendorPassword" class="form-label">Confirm Password *</label>
+                                        <input type="password" class="form-control" id="confirmVendorPassword" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                    <label class="form-check-label" for="agreeTerms">
+                                        I agree to the <a href="#" class="text-primary">Terms and Conditions</a> and <a href="#" class="text-primary">Privacy Policy</a>
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 mb-3">
+                                    <i class="fa-solid fa-user-plus me-2"></i>Create Vendor Account
+                                </button>
+                            </form>
+
+                            <hr class="my-4">
+
+                            <div class="text-center">
+                                <p class="mb-2">Already have a vendor account?</p>
+                                <a href="vendor-login.html" class="btn btn-outline-primary w-100">
+                                    <i class="fa-solid fa-sign-in-alt me-2"></i>Login to Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="text-center mt-4">
+                        <p class="small text-muted">
+                            Questions? <a href="#" class="text-primary">Contact our vendor support team</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/vendor-auth.js"></script>
+</body>
+</html>

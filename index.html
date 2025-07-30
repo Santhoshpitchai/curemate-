@@ -60,14 +60,14 @@
               <i class="fa-solid fa-location-dot me-1"></i> Find a Store
             </a>
             
-            <a href="#" class="btn btn-outline-primary d-none d-md-flex align-items-center">
+            <a href="vendor-login.html" class="btn btn-outline-primary d-none d-md-flex align-items-center">
               <i class="fa-solid fa-store me-1"></i> Vendor Signup/Login
             </a>
-            
+
             <a href="#" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center">
               <i class="fa-solid fa-phone me-1"></i> Contact Us
             </a>
-            
+
             <!-- Cart Icon -->
             <div class="position-relative">
               <i class="fa-solid fa-cart-shopping"></i>
@@ -75,10 +75,13 @@
                 3
               </span>
             </div>
-            
-            <a href="#" class="btn btn-primary d-flex align-items-center">
-              <i class="fa-solid fa-user me-2"></i> Login
-            </a>
+
+            <!-- User Authentication Section -->
+            <div id="userAuthSection">
+              <a href="#" class="btn btn-primary d-flex align-items-center" id="loginBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="fa-solid fa-user me-2"></i> Login
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -595,6 +598,143 @@
           <h1 class="display-1 fw-bold">404</h1>
           <p class="fs-4 text-secondary mb-4">Oops! Page not found</p>
           <a href="index.html" class="btn btn-primary">Return to Home</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">
+              <i class="fa-solid fa-user me-2"></i>Login to Curemate
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Login Type Selection -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="btn-group w-100" role="group" aria-label="Login type">
+                  <input type="radio" class="btn-check" name="loginType" id="customerLogin" value="customer" checked>
+                  <label class="btn btn-outline-primary" for="customerLogin">
+                    <i class="fa-solid fa-user me-2"></i>Customer Login
+                  </label>
+
+                  <input type="radio" class="btn-check" name="loginType" id="vendorLogin" value="vendor">
+                  <label class="btn btn-outline-primary" for="vendorLogin">
+                    <i class="fa-solid fa-store me-2"></i>Vendor Login
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Login Form -->
+            <div id="customerLoginForm" class="login-form-section">
+              <form id="loginForm">
+                <div class="mb-3">
+                  <label for="loginEmail" class="form-label">Email address</label>
+                  <input type="email" class="form-control" id="loginEmail" required>
+                </div>
+                <div class="mb-3">
+                  <label for="loginPassword" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="loginPassword" required>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="rememberMe">
+                  <label class="form-check-label" for="rememberMe">
+                    Remember me
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login as Customer</button>
+              </form>
+              <hr>
+              <div class="text-center">
+                <p class="mb-2">Don't have a customer account?</p>
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#signupModal">
+                  Create Customer Account
+                </button>
+              </div>
+            </div>
+
+            <!-- Vendor Login Form -->
+            <div id="vendorLoginForm" class="login-form-section" style="display: none;">
+              <form id="vendorLoginFormModal">
+                <div class="mb-3">
+                  <label for="vendorLoginEmail" class="form-label">Business Email</label>
+                  <input type="email" class="form-control" id="vendorLoginEmail" required>
+                </div>
+                <div class="mb-3">
+                  <label for="vendorLoginPassword" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="vendorLoginPassword" required>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="vendorRememberMe">
+                  <label class="form-check-label" for="vendorRememberMe">
+                    Remember me
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login to Vendor Dashboard</button>
+              </form>
+              <hr>
+              <div class="text-center">
+                <p class="mb-2">Don't have a vendor account?</p>
+                <a href="vendor-signup.html" class="btn btn-outline-primary" onclick="closeModal()">
+                  Create Vendor Account
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="signupModalLabel">
+              <i class="fa-solid fa-user-plus me-2"></i>Create Account
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="signupForm">
+              <div class="mb-3">
+                <label for="signupName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="signupName" required>
+              </div>
+              <div class="mb-3">
+                <label for="signupEmail" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="signupEmail" required>
+              </div>
+              <div class="mb-3">
+                <label for="signupPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="signupPassword" required minlength="6">
+                <div class="form-text">Password must be at least 6 characters long.</div>
+              </div>
+              <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" required>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                <label class="form-check-label" for="agreeTerms">
+                  I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
+                </label>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Create Account</button>
+            </form>
+            <hr>
+            <div class="text-center">
+              <p class="mb-2">Already have an account?</p>
+              <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">
+                Login
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

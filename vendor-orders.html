@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management - Vendor Dashboard</title>
+    <meta name="description" content="Vendor Order Management - Curemate Health Hub">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="vendor-dashboard.html">
+                <div class="bg-white p-2 rounded-3 me-2">
+                    <i class="fa-solid fa-heart text-primary"></i>
+                </div>
+                <span class="fw-bold">Curemate Vendor Portal</span>
+            </a>
+            
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-user me-2"></i>
+                        <span id="vendorName">Vendor</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-cog me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="vendorLogout()"><i class="fa-solid fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="bg-white shadow-sm min-vh-100">
+                    <div class="list-group list-group-flush">
+                        <a href="vendor-dashboard.html" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a href="vendor-products.html" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-box me-2"></i>Products
+                        </a>
+                        <a href="vendor-orders.html" class="list-group-item list-group-item-action active">
+                            <i class="fa-solid fa-shopping-cart me-2"></i>Orders
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-chart-bar me-2"></i>Analytics
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-users me-2"></i>Customers
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-money-bill-wave me-2"></i>Payments
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-0">Order Management</h1>
+                        <p class="text-muted">Track and manage your product orders</p>
+                    </div>
+                    <div>
+                        <a href="vendor-products.html" class="btn btn-primary">
+                            <i class="fa-solid fa-cart-plus me-2"></i>Place New Order
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Order Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="pendingOrders">0</h4>
+                                        <p class="card-text">Pending Orders</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-clock fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="shippedOrders">0</h4>
+                                        <p class="card-text">Shipped Orders</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-truck fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="deliveredOrders">0</h4>
+                                        <p class="card-text">Delivered Orders</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-check fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title" id="totalOrders">0</h4>
+                                        <p class="card-text">Total Orders</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-shopping-cart fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recent Orders</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Date</th>
+                                        <th>Items</th>
+                                        <th>Total Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody">
+                                    <!-- Orders will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noOrdersMessage" class="text-center py-5" style="display: none;">
+                            <i class="fa-solid fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No orders found</h5>
+                            <p class="text-muted">Place your first order to get started</p>
+                            <a href="vendor-products.html" class="btn btn-primary">
+                                <i class="fa-solid fa-cart-plus me-2"></i>Place Order
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailsModalLabel">
+                        <i class="fa-solid fa-receipt me-2"></i>Order Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="orderDetailsContent">
+                    <!-- Order details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/vendor-orders.js"></script>
+</body>
+</html>
