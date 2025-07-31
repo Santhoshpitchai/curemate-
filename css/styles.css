@@ -183,6 +183,10 @@ body {
   color: var(--primary);
 }
 
+.product-card .price-container .text-decoration-line-through {
+  font-size: 0.875rem;
+}
+
 /* Health Concern Cards */
 .health-concern-card {
   background-color: #FFFFFF;
