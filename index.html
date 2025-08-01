@@ -27,6 +27,1973 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Cart Icon Styles -->
+    <style>
+      /* Cart Icon Hover Effects */
+      #cartIcon {
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+      }
+
+      #cartIcon:hover {
+        cursor: pointer !important;
+        background-color: rgba(0, 191, 179, 0.1) !important;
+        transform: scale(1.05) !important;
+        border-radius: 8px !important;
+      }
+
+      /* Button Hover Effects */
+      .btn {
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+      }
+
+      .btn:hover {
+        cursor: pointer !important;
+        transform: translateY(-1px) !important;
+      }
+
+      .btn-primary:hover {
+        background-color: #00807A !important;
+        border-color: #00807A !important;
+      }
+
+      /* Cart Badge Animation */
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+      }
+
+      .cart-badge-animate {
+        animation: pulse 0.3s ease-in-out;
+      }
+
+      /* Add to Cart Button Styles */
+      .add-to-cart-btn {
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+      }
+
+      .add-to-cart-btn:hover {
+        cursor: pointer !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(0, 191, 179, 0.3) !important;
+      }
+
+      /* Cart Dropdown Styles */
+      #cartDropdown {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid #e2e8f0 !important;
+      }
+    </style>
+
+    <!-- Simplified Cart Script -->
+    <script>
+      // Global cart variables
+      let myCart = [];
+      let isCartOpen = false;
+
+      // Main cart toggle function
+      function toggleCartDropdown() {
+        console.log('🛒 Cart icon clicked!');
+
+        const dropdown = document.getElementById('cartDropdown');
+        if (!dropdown) {
+          console.error('❌ Cart dropdown not found!');
+          return;
+        }
+
+        if (isCartOpen) {
+          dropdown.style.display = 'none';
+          isCartOpen = false;
+          console.log('✅ Cart closed');
+        } else {
+          dropdown.style.display = 'block';
+          isCartOpen = true;
+          updateCartDisplay();
+          console.log('✅ Cart opened');
+        }
+      }
+
+      // Add item to cart function
+      function addToSimpleCart(name, price, image) {
+        console.log('🛒 Adding to cart:', name, 'Price:', price);
+
+        try {
+          // Check if item already exists
+          const existingItem = myCart.find(item => item.name === name);
+          if (existingItem) {
+            existingItem.quantity += 1;
+            console.log('✅ Increased quantity for:', name);
+          } else {
+            myCart.push({
+              name: name,
+              price: parseFloat(price),
+              image: image || 'img/placeholder.jpg',
+              quantity: 1
+            });
+            console.log('✅ Added new item:', name);
+          }
+
+          updateCartBadge();
+          updateCartDisplay();
+
+          // Show success message
+          showSuccessMessage('✅ Added ' + name + ' to cart!');
+
+        } catch (error) {
+          console.error('❌ Error adding to cart:', error);
+          showErrorMessage('❌ Error adding to cart');
+        }
+      }
+
+      // Update cart badge
+      function updateCartBadge() {
+        const badge = document.getElementById('cartBadge');
+        if (!badge) {
+          console.error('❌ Cart badge element not found!');
+          return;
+        }
+
+        const totalItems = myCart.reduce((sum, item) => sum + item.quantity, 0);
+        console.log('🔄 Updating badge to:', totalItems);
+
+        badge.textContent = totalItems;
+        badge.style.display = totalItems > 0 ? 'flex' : 'none';
+
+        // Add animation
+        if (totalItems > 0) {
+          badge.classList.add('cart-badge-animate');
+          setTimeout(() => badge.classList.remove('cart-badge-animate'), 300);
+        }
+      }
+
+      // Update cart display with quantity controls
+      function updateCartDisplay() {
+        const cartList = document.getElementById('cartItemsList');
+        const cartTotal = document.getElementById('cartTotalAmount');
+        const cartItemCount = document.getElementById('cartItemCount');
+
+        if (!cartList || !cartTotal) {
+          console.error('❌ Cart display elements not found!');
+          return;
+        }
+
+        const totalItems = myCart.reduce((sum, item) => sum + item.quantity, 0);
+
+        // Update item count in cart header
+        if (cartItemCount) {
+          if (totalItems > 0) {
+            cartItemCount.textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+            cartItemCount.style.display = 'block';
+          } else {
+            cartItemCount.style.display = 'none';
+          }
+        }
+
+        if (myCart.length === 0) {
+          cartList.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px; margin: 0;">Your cart is empty</p>';
+          cartTotal.textContent = '0.00';
+        } else {
+          let total = 0;
+          let html = '';
+
+          myCart.forEach((item, index) => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+
+            html += `
+              <div style="border: 1px solid #e2e8f0; padding: 15px; margin: 10px 0; border-radius: 10px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                  <div style="flex: 1;">
+                    <strong style="color: #334155; font-size: 14px; display: block; margin-bottom: 4px;">${item.name}</strong>
+                    <small style="color: #64748b;">₹${item.price.toFixed(2)} each</small>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="margin-bottom: 8px;"><strong style="color: #00BFB3; font-size: 15px;">₹${itemTotal.toFixed(2)}</strong></div>
+                    <button
+                      onclick="removeFromCart(${index})"
+                      style="
+                        background: #ef4444;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 4px 8px;
+                        cursor: pointer;
+                        font-size: 11px;
+                        transition: all 0.2s ease;
+                      "
+                      onmouseover="this.style.background='#dc2626'"
+                      onmouseout="this.style.background='#ef4444'"
+                      title="Remove item from cart"
+                    >
+                      <i class="fa-solid fa-trash" style="font-size: 10px;"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Quantity Controls -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #64748b; font-size: 13px; font-weight: 500;">Quantity:</span>
+                    <div style="display: flex; align-items: center; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc;">
+                      <button
+                        onclick="decreaseQuantity(${index})"
+                        style="
+                          background: none;
+                          border: none;
+                          padding: 6px 10px;
+                          cursor: pointer;
+                          color: #64748b;
+                          font-weight: bold;
+                          font-size: 14px;
+                          transition: all 0.2s ease;
+                          border-radius: 4px 0 0 4px;
+                        "
+                        onmouseover="this.style.background='#e2e8f0'; this.style.color='#334155'"
+                        onmouseout="this.style.background='none'; this.style.color='#64748b'"
+                        title="Decrease quantity"
+                      >
+                        −
+                      </button>
+                      <span style="
+                        padding: 6px 12px;
+                        background: white;
+                        border-left: 1px solid #e2e8f0;
+                        border-right: 1px solid #e2e8f0;
+                        font-weight: 600;
+                        color: #334155;
+                        min-width: 40px;
+                        text-align: center;
+                        font-size: 14px;
+                      ">${item.quantity}</span>
+                      <button
+                        onclick="increaseQuantity(${index})"
+                        style="
+                          background: none;
+                          border: none;
+                          padding: 6px 10px;
+                          cursor: pointer;
+                          color: #64748b;
+                          font-weight: bold;
+                          font-size: 14px;
+                          transition: all 0.2s ease;
+                          border-radius: 0 4px 4px 0;
+                        "
+                        onmouseover="this.style.background='#e2e8f0'; this.style.color='#334155'"
+                        onmouseout="this.style.background='none'; this.style.color='#64748b'"
+                        title="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <small style="color: #64748b; font-style: italic;">
+                    ${item.quantity} × ₹${item.price.toFixed(2)}
+                  </small>
+                </div>
+              </div>
+            `;
+          });
+
+          cartList.innerHTML = html;
+          cartTotal.textContent = total.toFixed(2);
+        }
+      }
+
+      // Increase quantity function
+      function increaseQuantity(index) {
+        if (index >= 0 && index < myCart.length) {
+          myCart[index].quantity += 1;
+          updateCartBadge();
+          updateCartDisplay();
+          showSuccessMessage(`Increased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
+        }
+      }
+
+      // Decrease quantity function
+      function decreaseQuantity(index) {
+        if (index >= 0 && index < myCart.length) {
+          if (myCart[index].quantity > 1) {
+            myCart[index].quantity -= 1;
+            updateCartBadge();
+            updateCartDisplay();
+            showSuccessMessage(`Decreased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
+          } else {
+            // If quantity is 1, remove the item
+            removeFromCart(index);
+          }
+        }
+      }
+
+      // Remove item from cart
+      function removeFromCart(index) {
+        if (index >= 0 && index < myCart.length) {
+          const removedItem = myCart[index];
+          myCart.splice(index, 1);
+          updateCartBadge();
+          updateCartDisplay();
+          showSuccessMessage('Removed ' + removedItem.name + ' from cart');
+        }
+      }
+
+      // Enhanced checkout function with order processing
+      function proceedToCheckout() {
+        if (myCart.length === 0) {
+          showErrorMessage('Your cart is empty!');
+          return;
+        }
+
+        // Show checkout modal
+        showCheckoutModal();
+      }
+
+      // Generate dynamic order ID
+      function generateOrderId() {
+        const timestamp = Date.now();
+        const randomNum = Math.floor(Math.random() * 10000);
+        const prefix = 'CUR'; // Curemate prefix
+        return `${prefix}${timestamp}${randomNum}`;
+      }
+
+      // Show checkout modal
+      function showCheckoutModal() {
+        const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const itemCount = myCart.reduce((sum, item) => sum + item.quantity, 0);
+
+        // Create checkout modal HTML
+        const checkoutModalHTML = `
+          <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #00BFB3 0%, #00807A 100%); color: white;">
+                  <h5 class="modal-title" id="checkoutModalLabel">
+                    <i class="fa-solid fa-credit-card me-2"></i>Checkout
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <!-- Order Summary -->
+                    <div class="col-md-6">
+                      <h6 class="mb-3"><i class="fa-solid fa-list me-2"></i>Order Summary</h6>
+                      <div id="checkoutItems" style="max-height: 300px; overflow-y: auto;">
+                        ${myCart.map(item => `
+                          <div class="d-flex justify-content-between align-items-center mb-2 p-2" style="border: 1px solid #e2e8f0; border-radius: 6px;">
+                            <div>
+                              <strong style="font-size: 14px;">${item.name}</strong><br>
+                              <small class="text-muted">₹${item.price.toFixed(2)} × ${item.quantity}</small>
+                            </div>
+                            <div class="text-end">
+                              <strong style="color: #00BFB3;">₹${(item.price * item.quantity).toFixed(2)}</strong>
+                            </div>
+                          </div>
+                        `).join('')}
+                      </div>
+                      <hr>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <strong>Total (${itemCount} items):</strong>
+                        <strong style="color: #00BFB3; font-size: 18px;">₹${total.toFixed(2)}</strong>
+                      </div>
+                    </div>
+
+                    <!-- Customer Details -->
+                    <div class="col-md-6">
+                      <h6 class="mb-3"><i class="fa-solid fa-user me-2"></i>Customer Details</h6>
+                      <form id="checkoutForm">
+                        <div class="mb-3">
+                          <label for="customerName" class="form-label">Full Name *</label>
+                          <input type="text" class="form-control" id="customerName" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="customerEmail" class="form-label">Email *</label>
+                          <input type="email" class="form-control" id="customerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="customerPhone" class="form-label">Phone Number *</label>
+                          <input type="tel" class="form-control" id="customerPhone" required>
+                        </div>
+                        <div class="mb-3">
+                          <label for="customerAddress" class="form-label">Delivery Address *</label>
+                          <textarea class="form-control" id="customerAddress" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                          <label for="paymentMethod" class="form-label">Payment Method *</label>
+                          <select class="form-control" id="paymentMethod" required>
+                            <option value="">Select Payment Method</option>
+                            <option value="cod">Cash on Delivery</option>
+                            <option value="upi">UPI Payment</option>
+                            <option value="card">Credit/Debit Card</option>
+                            <option value="netbanking">Net Banking</option>
+                          </select>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary" onclick="placeOrder()" style="background: #00BFB3; border-color: #00BFB3;">
+                    <i class="fa-solid fa-shopping-bag me-2"></i>Place Order - ₹${total.toFixed(2)}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('checkoutModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', checkoutModalHTML);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+        modal.show();
+
+        // Pre-fill customer details if user is logged in
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+          document.getElementById('customerName').value = currentUser.name || '';
+          document.getElementById('customerEmail').value = currentUser.email || '';
+        }
+      }
+
+      // Success message function
+      function showSuccessMessage(message) {
+        // Create a simple toast notification
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #22c55e;
+          color: white;
+          padding: 12px 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 10000;
+          font-weight: 500;
+          max-width: 300px;
+          word-wrap: break-word;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+
+      // Error message function
+      function showErrorMessage(message) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #ef4444;
+          color: white;
+          padding: 12px 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 10000;
+          font-weight: 500;
+          max-width: 300px;
+          word-wrap: break-word;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+
+      // Place order function
+      function placeOrder() {
+        const form = document.getElementById('checkoutForm');
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        // Get form data
+        const customerData = {
+          name: document.getElementById('customerName').value,
+          email: document.getElementById('customerEmail').value,
+          phone: document.getElementById('customerPhone').value,
+          address: document.getElementById('customerAddress').value,
+          paymentMethod: document.getElementById('paymentMethod').value
+        };
+
+        // Generate order ID
+        const orderId = generateOrderId();
+
+        // Calculate totals
+        const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const itemCount = myCart.reduce((sum, item) => sum + item.quantity, 0);
+
+        // Create order object
+        const order = {
+          id: orderId,
+          orderNumber: orderId,
+          customer: customerData,
+          items: [...myCart], // Copy cart items
+          total: total,
+          itemCount: itemCount,
+          status: 'confirmed',
+          paymentStatus: customerData.paymentMethod === 'cod' ? 'pending' : 'paid',
+          orderDate: new Date().toISOString(),
+          estimatedDelivery: getEstimatedDeliveryDate(),
+          trackingSteps: [
+            {
+              status: 'Order Confirmed',
+              timestamp: new Date().toISOString(),
+              description: 'Your order has been confirmed and is being processed.'
+            }
+          ]
+        };
+
+        // Save order to localStorage
+        saveOrder(order);
+
+        // Clear cart
+        myCart = [];
+        updateCartBadge();
+        updateCartDisplay();
+
+        // Close checkout modal
+        const checkoutModal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
+        checkoutModal.hide();
+
+        // Close cart dropdown
+        const cartDropdown = document.getElementById('cartDropdown');
+        if (cartDropdown) {
+          cartDropdown.style.display = 'none';
+          isCartOpen = false;
+        }
+
+        // Show order confirmation
+        showOrderConfirmation(order);
+      }
+
+      // Get estimated delivery date (3-5 business days)
+      function getEstimatedDeliveryDate() {
+        const today = new Date();
+        const deliveryDays = Math.floor(Math.random() * 3) + 3; // 3-5 days
+        const deliveryDate = new Date(today);
+        deliveryDate.setDate(today.getDate() + deliveryDays);
+        return deliveryDate.toISOString();
+      }
+
+      // Save order to localStorage
+      function saveOrder(order) {
+        const orders = getCustomerOrders();
+        orders.push(order);
+        localStorage.setItem('customerOrders', JSON.stringify(orders));
+      }
+
+      // Get customer orders
+      function getCustomerOrders() {
+        return JSON.parse(localStorage.getItem('customerOrders') || '[]');
+      }
+
+      // Show order confirmation modal
+      function showOrderConfirmation(order) {
+        const confirmationHTML = `
+          <div class="modal fade" id="orderConfirmationModal" tabindex="-1" aria-labelledby="orderConfirmationLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white;">
+                  <h5 class="modal-title" id="orderConfirmationLabel">
+                    <i class="fa-solid fa-check-circle me-2"></i>Order Confirmed!
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                  <div class="mb-4">
+                    <i class="fa-solid fa-check-circle" style="font-size: 64px; color: #22c55e;"></i>
+                  </div>
+                  <h4 class="mb-3">Thank you for your order!</h4>
+                  <div class="alert alert-success">
+                    <h5 class="mb-2">Order ID: <strong>${order.id}</strong></h5>
+                    <p class="mb-0">Please save this order ID for tracking your order.</p>
+                  </div>
+
+                  <div class="row text-start">
+                    <div class="col-md-6">
+                      <h6><i class="fa-solid fa-info-circle me-2"></i>Order Details</h6>
+                      <p><strong>Items:</strong> ${order.itemCount}</p>
+                      <p><strong>Total:</strong> ₹${order.total.toFixed(2)}</p>
+                      <p><strong>Payment:</strong> ${getPaymentMethodName(order.customer.paymentMethod)}</p>
+                      <p><strong>Status:</strong> <span class="badge bg-success">Confirmed</span></p>
+                    </div>
+                    <div class="col-md-6">
+                      <h6><i class="fa-solid fa-truck me-2"></i>Delivery Information</h6>
+                      <p><strong>Delivery Address:</strong><br>${order.customer.address}</p>
+                      <p><strong>Estimated Delivery:</strong><br>${new Date(order.estimatedDelivery).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-4">
+                    <h6><i class="fa-solid fa-envelope me-2"></i>What's Next?</h6>
+                    <ul class="list-unstyled text-start">
+                      <li><i class="fa-solid fa-check text-success me-2"></i>Order confirmation email sent to ${order.customer.email}</li>
+                      <li><i class="fa-solid fa-check text-success me-2"></i>SMS updates will be sent to ${order.customer.phone}</li>
+                      <li><i class="fa-solid fa-clock text-warning me-2"></i>Your order will be processed within 2-4 hours</li>
+                      <li><i class="fa-solid fa-truck text-info me-2"></i>Delivery in 3-5 business days</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="trackOrder('${order.id}')" style="background: #00BFB3; border-color: #00BFB3;">
+                    <i class="fa-solid fa-map-marker-alt me-2"></i>Track Order
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('orderConfirmationModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', confirmationHTML);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'));
+        modal.show();
+
+        // Auto-hide after 10 seconds
+        setTimeout(() => {
+          if (modal) {
+            modal.hide();
+          }
+        }, 10000);
+      }
+
+      // Get payment method display name
+      function getPaymentMethodName(method) {
+        const methods = {
+          'cod': 'Cash on Delivery',
+          'upi': 'UPI Payment',
+          'card': 'Credit/Debit Card',
+          'netbanking': 'Net Banking'
+        };
+        return methods[method] || method;
+      }
+
+      // Track order function
+      function trackOrder(orderId) {
+        const orders = getCustomerOrders();
+        const order = orders.find(o => o.id === orderId);
+
+        if (!order) {
+          showErrorMessage('Order not found!');
+          return;
+        }
+
+        // Close confirmation modal
+        const confirmationModal = bootstrap.Modal.getInstance(document.getElementById('orderConfirmationModal'));
+        if (confirmationModal) {
+          confirmationModal.hide();
+        }
+
+        // Show tracking modal
+        showOrderTracking(order);
+      }
+
+      // Helper function to get current user
+      function getCurrentUser() {
+        const sessionUser = sessionStorage.getItem('currentUser');
+        const localUser = localStorage.getItem('currentUser');
+
+        if (sessionUser) {
+          return JSON.parse(sessionUser);
+        } else if (localUser) {
+          return JSON.parse(localUser);
+        }
+
+        return null;
+      }
+
+      // Show search results
+      function showSearchResults(matches, query) {
+        const resultsHTML = `
+          <div class="modal fade" id="searchResultsModal" tabindex="-1" aria-labelledby="searchResultsLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #00BFB3 0%, #00807A 100%); color: white;">
+                  <h5 class="modal-title" id="searchResultsLabel">
+                    <i class="fa-solid fa-search me-2"></i>Search Results for "${query}"
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <p class="text-muted">Found ${matches.length} medicine(s) matching your search</p>
+                  </div>
+                  <div class="row g-4">
+                    ${matches.map(medicine => `
+                      <div class="col-md-6 col-lg-4">
+                        <div class="card h-100" style="border: 1px solid #e2e8f0; border-radius: 12px; transition: all 0.3s ease;">
+                          <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                              <h6 class="card-title mb-0" style="color: #334155; font-weight: 600;">${medicine.name}</h6>
+                              <span class="badge" style="background: #e2e8f0; color: #64748b; font-size: 11px;">${medicine.category}</span>
+                            </div>
+                            <p class="card-text text-muted" style="font-size: 14px; margin-bottom: 15px;">${medicine.description}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                              <div>
+                                <span style="color: #00BFB3; font-weight: 700; font-size: 18px;">₹${medicine.price}</span>
+                              </div>
+                              <button
+                                class="btn btn-sm btn-primary add-to-cart-btn"
+                                onclick="addToSimpleCart('${medicine.name}', ${medicine.price}, 'img/medicine-placeholder.jpg'); closeSearchModal();"
+                                style="background: #00BFB3; border-color: #00BFB3; padding: 6px 12px;"
+                              >
+                                <i class="fa-solid fa-plus me-1"></i>Add to Cart
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="clearSearchAndClose()" style="background: #00BFB3; border-color: #00BFB3;">
+                    <i class="fa-solid fa-search me-2"></i>Search Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('searchResultsModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', resultsHTML);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('searchResultsModal'));
+        modal.show();
+      }
+
+      // Show no results message
+      function showNoResultsMessage(query) {
+        const noResultsHTML = `
+          <div class="modal fade" id="noResultsModal" tabindex="-1" aria-labelledby="noResultsLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                  <h5 class="modal-title" id="noResultsLabel">
+                    <i class="fa-solid fa-search me-2"></i>No Results Found
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                  <div class="mb-4">
+                    <i class="fa-solid fa-search" style="font-size: 64px; color: #f59e0b;"></i>
+                  </div>
+                  <h5 class="mb-3">No medicines found for "${query}"</h5>
+                  <p class="text-muted mb-4">Try searching with different keywords or check the spelling.</p>
+
+                  <div class="alert alert-info">
+                    <h6 class="alert-heading"><i class="fa-solid fa-lightbulb me-2"></i>Search Tips:</h6>
+                    <ul class="list-unstyled mb-0 text-start">
+                      <li>• Try generic names (e.g., "Paracetamol" instead of brand names)</li>
+                      <li>• Search by category (e.g., "Pain Relief", "Vitamin")</li>
+                      <li>• Use common symptoms (e.g., "fever", "headache")</li>
+                      <li>• Check spelling and try shorter keywords</li>
+                    </ul>
+                  </div>
+
+                  <div class="mt-4">
+                    <h6>Popular Searches:</h6>
+                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                      <button class="btn btn-outline-primary btn-sm" onclick="searchSuggestion('Paracetamol')">Paracetamol</button>
+                      <button class="btn btn-outline-primary btn-sm" onclick="searchSuggestion('Vitamin D')">Vitamin D</button>
+                      <button class="btn btn-outline-primary btn-sm" onclick="searchSuggestion('Cough Syrup')">Cough Syrup</button>
+                      <button class="btn btn-outline-primary btn-sm" onclick="searchSuggestion('Antacid')">Antacid</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="clearSearchAndClose()" style="background: #00BFB3; border-color: #00BFB3;">
+                    <i class="fa-solid fa-search me-2"></i>Try Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('noResultsModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', noResultsHTML);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('noResultsModal'));
+        modal.show();
+      }
+
+      // Search suggestion from no results modal
+      function searchSuggestion(suggestion) {
+        const searchInput = document.getElementById('medicineSearchInput');
+        searchInput.value = suggestion;
+
+        // Close no results modal
+        const noResultsModal = bootstrap.Modal.getInstance(document.getElementById('noResultsModal'));
+        if (noResultsModal) {
+          noResultsModal.hide();
+        }
+
+        // Perform search
+        performSearch();
+      }
+
+      // Clear search and close modal
+      function clearSearchAndClose() {
+        const searchInput = document.getElementById('medicineSearchInput');
+        searchInput.value = '';
+        searchInput.focus();
+
+        // Close any open modals
+        const searchModal = bootstrap.Modal.getInstance(document.getElementById('searchResultsModal'));
+        const noResultsModal = bootstrap.Modal.getInstance(document.getElementById('noResultsModal'));
+
+        if (searchModal) searchModal.hide();
+        if (noResultsModal) noResultsModal.hide();
+      }
+
+      // Close search modal
+      function closeSearchModal() {
+        const searchModal = bootstrap.Modal.getInstance(document.getElementById('searchResultsModal'));
+        if (searchModal) {
+          searchModal.hide();
+        }
+      }
+
+      // Store Database for Store Locator
+      const storeDatabase = [
+        // Mumbai Stores
+        {
+          id: 1,
+          name: "Curemate Health Hub - Bandra",
+          type: "Flagship Store",
+          address: "Shop No. 15, Linking Road, Bandra West, Mumbai, Maharashtra 400050",
+          phone: "+91 98765 43210",
+          email: "bandra@curemate.com",
+          hours: "8:00 AM - 10:00 PM",
+          services: ["Prescription Medicines", "OTC Drugs", "Health Checkups", "Home Delivery", "24/7 Emergency"],
+          rating: 4.8,
+          distance: "0.5 km",
+          coordinates: { lat: 19.0596, lng: 72.8295 },
+          image: "img/store-bandra.jpg",
+          specialties: ["Diabetes Care", "Heart Health", "Women's Health"]
+        },
+        {
+          id: 2,
+          name: "Curemate Pharmacy - Andheri",
+          type: "Pharmacy",
+          address: "Ground Floor, Infinity Mall, Andheri West, Mumbai, Maharashtra 400053",
+          phone: "+91 98765 43211",
+          email: "andheri@curemate.com",
+          hours: "9:00 AM - 9:00 PM",
+          services: ["Prescription Medicines", "OTC Drugs", "Health Products", "Home Delivery"],
+          rating: 4.6,
+          distance: "2.3 km",
+          coordinates: { lat: 19.1136, lng: 72.8697 },
+          image: "img/store-andheri.jpg",
+          specialties: ["Child Care", "Skin Care", "Vitamins"]
+        },
+        {
+          id: 3,
+          name: "Curemate Express - Powai",
+          type: "Express Store",
+          address: "R City Mall, LBS Marg, Ghatkopar West, Mumbai, Maharashtra 400086",
+          phone: "+91 98765 43212",
+          email: "powai@curemate.com",
+          hours: "10:00 AM - 10:00 PM",
+          services: ["Quick Medicines", "Health Essentials", "Express Delivery"],
+          rating: 4.4,
+          distance: "3.7 km",
+          coordinates: { lat: 19.0895, lng: 72.9081 },
+          image: "img/store-powai.jpg",
+          specialties: ["Emergency Care", "Travel Medicine"]
+        },
+        {
+          id: 4,
+          name: "Curemate Health Center - Worli",
+          type: "Health Center",
+          address: "Atria Mall, Dr. Annie Besant Road, Worli, Mumbai, Maharashtra 400018",
+          phone: "+91 98765 43213",
+          email: "worli@curemate.com",
+          hours: "8:00 AM - 11:00 PM",
+          services: ["Prescription Medicines", "Health Checkups", "Lab Tests", "Consultation", "Home Delivery"],
+          rating: 4.9,
+          distance: "4.2 km",
+          coordinates: { lat: 19.0176, lng: 72.8162 },
+          image: "img/store-worli.jpg",
+          specialties: ["Preventive Care", "Chronic Disease Management", "Senior Care"]
+        },
+        {
+          id: 5,
+          name: "Curemate Pharmacy - Colaba",
+          type: "Pharmacy",
+          address: "Mandlik Road, Behind Taj Hotel, Colaba, Mumbai, Maharashtra 400001",
+          phone: "+91 98765 43214",
+          email: "colaba@curemate.com",
+          hours: "7:00 AM - 11:00 PM",
+          services: ["Prescription Medicines", "Tourist Health", "Emergency Care", "International Medicines"],
+          rating: 4.7,
+          distance: "5.1 km",
+          coordinates: { lat: 18.9220, lng: 72.8347 },
+          image: "img/store-colaba.jpg",
+          specialties: ["Tourist Health", "International Brands", "Emergency Care"]
+        },
+        {
+          id: 6,
+          name: "Curemate Health Hub - Thane",
+          type: "Flagship Store",
+          address: "Viviana Mall, Eastern Express Highway, Thane West, Maharashtra 400606",
+          phone: "+91 98765 43215",
+          email: "thane@curemate.com",
+          hours: "9:00 AM - 10:00 PM",
+          services: ["Prescription Medicines", "Health Checkups", "Wellness Products", "Home Delivery", "Telemedicine"],
+          rating: 4.5,
+          distance: "8.9 km",
+          coordinates: { lat: 19.2183, lng: 72.9781 },
+          image: "img/store-thane.jpg",
+          specialties: ["Family Health", "Wellness", "Telemedicine"]
+        },
+        // Delhi Stores
+        {
+          id: 7,
+          name: "Curemate Health Hub - CP",
+          type: "Flagship Store",
+          address: "Block A, Connaught Place, New Delhi, Delhi 110001",
+          phone: "+91 98765 43216",
+          email: "cp@curemate.com",
+          hours: "8:00 AM - 10:00 PM",
+          services: ["Prescription Medicines", "Health Checkups", "Premium Care", "Home Delivery"],
+          rating: 4.8,
+          distance: "1.2 km",
+          coordinates: { lat: 28.6315, lng: 77.2167 },
+          image: "img/store-cp.jpg",
+          specialties: ["Premium Care", "Executive Health", "Imported Medicines"]
+        },
+        {
+          id: 8,
+          name: "Curemate Pharmacy - Karol Bagh",
+          type: "Pharmacy",
+          address: "Ajmal Khan Road, Karol Bagh, New Delhi, Delhi 110005",
+          phone: "+91 98765 43217",
+          email: "karolbagh@curemate.com",
+          hours: "7:00 AM - 11:00 PM",
+          services: ["Prescription Medicines", "Ayurvedic Products", "Health Supplements"],
+          rating: 4.6,
+          distance: "3.4 km",
+          coordinates: { lat: 28.6519, lng: 77.1909 },
+          image: "img/store-karolbagh.jpg",
+          specialties: ["Ayurvedic Medicine", "Traditional Care", "Herbal Products"]
+        }
+      ];
+
+      // Store Locator Functions
+      function openStoreLocator() {
+        // Try to get user's location
+        if (navigator.geolocation) {
+          showSuccessMessage('Getting your location...');
+          navigator.geolocation.getCurrentPosition(
+            function(position) {
+              const userLat = position.coords.latitude;
+              const userLng = position.coords.longitude;
+              showStoreLocator(userLat, userLng);
+            },
+            function(error) {
+              console.log('Location error:', error);
+              // Show store locator without location
+              showStoreLocator();
+            }
+          );
+        } else {
+          // Browser doesn't support geolocation
+          showStoreLocator();
+        }
+      }
+
+      function showStoreLocator(userLat = null, userLng = null) {
+        // Calculate distances if user location is available
+        let stores = [...storeDatabase];
+
+        if (userLat && userLng) {
+          stores = stores.map(store => ({
+            ...store,
+            calculatedDistance: calculateDistance(userLat, userLng, store.coordinates.lat, store.coordinates.lng)
+          })).sort((a, b) => a.calculatedDistance - b.calculatedDistance);
+        }
+
+        const storeLocatorHTML = `
+          <div class="modal fade" id="storeLocatorModal" tabindex="-1" aria-labelledby="storeLocatorLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #00BFB3 0%, #00807A 100%); color: white;">
+                  <h5 class="modal-title" id="storeLocatorLabel">
+                    <i class="fa-solid fa-location-dot me-2"></i>Find Nearby Stores
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row mb-4">
+                    <div class="col-md-8">
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+                        <input type="text" class="form-control" id="storeSearchInput" placeholder="Search by area, pincode, or store name...">
+                        <button class="btn btn-primary" onclick="searchStores()" style="background: #00BFB3; border-color: #00BFB3;">
+                          Search
+                        </button>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <select class="form-select" id="storeTypeFilter" onchange="filterStores()">
+                        <option value="">All Store Types</option>
+                        <option value="Flagship Store">Flagship Stores</option>
+                        <option value="Pharmacy">Pharmacies</option>
+                        <option value="Health Center">Health Centers</option>
+                        <option value="Express Store">Express Stores</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  ${userLat && userLng ? `
+                    <div class="alert alert-success">
+                      <i class="fa-solid fa-location-dot me-2"></i>
+                      Showing stores near your location (sorted by distance)
+                    </div>
+                  ` : `
+                    <div class="alert alert-info">
+                      <i class="fa-solid fa-info-circle me-2"></i>
+                      Enable location access for personalized store recommendations
+                    </div>
+                  `}
+
+                  <div id="storesList">
+                    ${generateStoresList(stores)}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="getDirections()" style="background: #00BFB3; border-color: #00BFB3;">
+                    <i class="fa-solid fa-directions me-2"></i>Get Directions
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('storeLocatorModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', storeLocatorHTML);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('storeLocatorModal'));
+        modal.show();
+      }
+
+      // View store details
+      function viewStoreDetails(storeId) {
+        const store = storeDatabase.find(s => s.id === storeId);
+        if (!store) return;
+
+        const storeDetailsHTML = `
+          <div class="modal fade" id="storeDetailsModal" tabindex="-1" aria-labelledby="storeDetailsLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #00BFB3 0%, #00807A 100%); color: white;">
+                  <h5 class="modal-title" id="storeDetailsLabel">
+                    <i class="fa-solid fa-store me-2"></i>${store.name}
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #00BFB3, #00807A); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; margin-bottom: 20px;">
+                        <i class="fa-solid fa-store"></i>
+                      </div>
+
+                      <div class="mb-3">
+                        <h6><i class="fa-solid fa-info-circle me-2 text-primary"></i>Store Information</h6>
+                        <p><strong>Type:</strong> ${store.type}</p>
+                        <p><strong>Rating:</strong> ${generateStarRating(store.rating)} ${store.rating}/5.0</p>
+                        <p><strong>Email:</strong> <a href="mailto:${store.email}">${store.email}</a></p>
+                      </div>
+
+                      <div class="mb-3">
+                        <h6><i class="fa-solid fa-location-dot me-2 text-primary"></i>Address</h6>
+                        <p>${store.address}</p>
+                      </div>
+
+                      <div class="mb-3">
+                        <h6><i class="fa-solid fa-clock me-2 text-primary"></i>Operating Hours</h6>
+                        <p>${store.hours}</p>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <h6><i class="fa-solid fa-concierge-bell me-2 text-primary"></i>Services Available</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                          ${store.services.map(service => `
+                            <span class="badge bg-light text-dark">${service}</span>
+                          `).join('')}
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <h6><i class="fa-solid fa-star me-2 text-primary"></i>Specialties</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                          ${store.specialties.map(specialty => `
+                            <span class="badge" style="background: #00BFB3; color: white;">${specialty}</span>
+                          `).join('')}
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <h6><i class="fa-solid fa-phone me-2 text-primary"></i>Contact</h6>
+                        <p><strong>Phone:</strong> <a href="tel:${store.phone}">${store.phone}</a></p>
+                      </div>
+
+                      <div class="alert alert-info">
+                        <h6 class="alert-heading"><i class="fa-solid fa-truck me-2"></i>Delivery Information</h6>
+                        <ul class="mb-0">
+                          <li>Free delivery for orders above ₹500</li>
+                          <li>Express delivery available (30-60 mins)</li>
+                          <li>Prescription medicines require valid prescription</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-success" onclick="callStore('${store.phone}')">
+                    <i class="fa-solid fa-phone me-2"></i>Call Store
+                  </button>
+                  <button type="button" class="btn btn-primary" onclick="getStoreDirections(${store.id})" style="background: #00BFB3; border-color: #00BFB3;">
+                    <i class="fa-solid fa-directions me-2"></i>Get Directions
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('storeDetailsModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', storeDetailsHTML);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('storeDetailsModal'));
+        modal.show();
+      }
+
+      // Get directions to store
+      function getStoreDirections(storeId) {
+        const store = storeDatabase.find(s => s.id === storeId);
+        if (!store) return;
+
+        const address = encodeURIComponent(store.address);
+        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${address}`;
+
+        // Open in new tab
+        window.open(googleMapsUrl, '_blank');
+
+        showSuccessMessage(`Opening directions to ${store.name}`);
+      }
+
+      // Call store
+      function callStore(phoneNumber) {
+        window.location.href = `tel:${phoneNumber}`;
+        showSuccessMessage('Initiating call...');
+      }
+
+      // Get directions (general)
+      function getDirections() {
+        showSuccessMessage('Select a store to get directions');
+      }
+
+      // Make functions globally available
+      window.toggleCartDropdown = toggleCartDropdown;
+      window.addToSimpleCart = addToSimpleCart;
+      window.removeFromCart = removeFromCart;
+      window.increaseQuantity = increaseQuantity;
+      window.decreaseQuantity = decreaseQuantity;
+      window.proceedToCheckout = proceedToCheckout;
+      window.placeOrder = placeOrder;
+      window.trackOrder = trackOrder;
+      window.downloadOrderReceipt = downloadOrderReceipt;
+      window.performSearch = performSearch;
+      window.selectSuggestion = selectSuggestion;
+      window.searchSuggestion = searchSuggestion;
+      window.clearSearchAndClose = clearSearchAndClose;
+      window.closeSearchModal = closeSearchModal;
+      window.selectRecentSearch = selectRecentSearch;
+      window.clearRecentSearches = clearRecentSearches;
+      window.openStoreLocator = openStoreLocator;
+      window.viewStoreDetails = viewStoreDetails;
+      window.getStoreDirections = getStoreDirections;
+      window.callStore = callStore;
+      window.searchStores = searchStores;
+      window.filterStores = filterStores;
+      window.getDirections = getDirections;
+
+      // Show order tracking modal
+      function showOrderTracking(order) {
+        const trackingHTML = `
+          <div class="modal fade" id="orderTrackingModal" tabindex="-1" aria-labelledby="orderTrackingLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #00BFB3 0%, #00807A 100%); color: white;">
+                  <h5 class="modal-title" id="orderTrackingLabel">
+                    <i class="fa-solid fa-map-marker-alt me-2"></i>Track Order
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row mb-4">
+                    <div class="col-md-6">
+                      <h6>Order Information</h6>
+                      <p><strong>Order ID:</strong> ${order.id}</p>
+                      <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
+                      <p><strong>Status:</strong> <span class="badge bg-success">${order.status}</span></p>
+                      <p><strong>Payment:</strong> <span class="badge ${order.paymentStatus === 'paid' ? 'bg-success' : 'bg-warning'}">${order.paymentStatus}</span></p>
+                    </div>
+                    <div class="col-md-6">
+                      <h6>Delivery Information</h6>
+                      <p><strong>Delivery Address:</strong><br>${order.customer.address}</p>
+                      <p><strong>Estimated Delivery:</strong><br>${new Date(order.estimatedDelivery).toLocaleDateString()}</p>
+                      <p><strong>Contact:</strong> ${order.customer.phone}</p>
+                    </div>
+                  </div>
+
+                  <h6>Order Items</h6>
+                  <div class="mb-4" style="max-height: 200px; overflow-y: auto;">
+                    ${order.items.map(item => `
+                      <div class="d-flex justify-content-between align-items-center mb-2 p-2" style="border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <div>
+                          <strong>${item.name}</strong><br>
+                          <small class="text-muted">Qty: ${item.quantity} × ₹${item.price.toFixed(2)}</small>
+                        </div>
+                        <div>
+                          <strong>₹${(item.price * item.quantity).toFixed(2)}</strong>
+                        </div>
+                      </div>
+                    `).join('')}
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                      <strong>Total:</strong>
+                      <strong style="color: #00BFB3;">₹${order.total.toFixed(2)}</strong>
+                    </div>
+                  </div>
+
+                  <h6>Order Tracking</h6>
+                  <div class="tracking-timeline">
+                    ${generateTrackingTimeline(order)}
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="downloadOrderReceipt('${order.id}')" style="background: #00BFB3; border-color: #00BFB3;">
+                    <i class="fa-solid fa-download me-2"></i>Download Receipt
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('orderTrackingModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', trackingHTML);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('orderTrackingModal'));
+        modal.show();
+      }
+
+      // Generate tracking timeline
+      function generateTrackingTimeline(order) {
+        const steps = [
+          { status: 'Order Confirmed', completed: true },
+          { status: 'Processing', completed: order.status !== 'confirmed' },
+          { status: 'Shipped', completed: false },
+          { status: 'Out for Delivery', completed: false },
+          { status: 'Delivered', completed: false }
+        ];
+
+        return steps.map((step, index) => `
+          <div class="d-flex align-items-center mb-3">
+            <div class="tracking-step ${step.completed ? 'completed' : 'pending'}" style="
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+              background: ${step.completed ? '#22c55e' : '#e2e8f0'};
+              color: ${step.completed ? 'white' : '#64748b'};
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-right: 15px;
+              font-weight: bold;
+            ">
+              ${step.completed ? '<i class="fa-solid fa-check"></i>' : (index + 1)}
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="mb-1" style="color: ${step.completed ? '#22c55e' : '#64748b'};">${step.status}</h6>
+              ${step.completed ? `<small class="text-muted">${new Date(order.orderDate).toLocaleString()}</small>` : '<small class="text-muted">Pending</small>'}
+            </div>
+          </div>
+          ${index < steps.length - 1 ? `<div style="width: 2px; height: 20px; background: ${step.completed ? '#22c55e' : '#e2e8f0'}; margin-left: 14px; margin-bottom: 10px;"></div>` : ''}
+        `).join('');
+      }
+
+      // Download order receipt
+      function downloadOrderReceipt(orderId) {
+        const orders = getCustomerOrders();
+        const order = orders.find(o => o.id === orderId);
+
+        if (!order) {
+          showErrorMessage('Order not found!');
+          return;
+        }
+
+        // Create receipt content
+        const receiptContent = `
+          CUREMATE HEALTH HUB
+          Order Receipt
+
+          Order ID: ${order.id}
+          Date: ${new Date(order.orderDate).toLocaleString()}
+
+          Customer Details:
+          Name: ${order.customer.name}
+          Email: ${order.customer.email}
+          Phone: ${order.customer.phone}
+          Address: ${order.customer.address}
+
+          Order Items:
+          ${order.items.map(item => `${item.name} - Qty: ${item.quantity} × ₹${item.price.toFixed(2)} = ₹${(item.price * item.quantity).toFixed(2)}`).join('\n')}
+
+          Total Amount: ₹${order.total.toFixed(2)}
+          Payment Method: ${getPaymentMethodName(order.customer.paymentMethod)}
+          Payment Status: ${order.paymentStatus}
+
+          Thank you for shopping with Curemate Health Hub!
+        `;
+
+        // Create and download file
+        const blob = new Blob([receiptContent], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Curemate_Receipt_${order.id}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        showSuccessMessage('Receipt downloaded successfully!');
+      }
+
+      // Medicine Database for Search Suggestions
+      const medicineDatabase = [
+        // Pain Relief & Fever
+        { name: 'Paracetamol', category: 'Pain Relief', price: 25, description: 'Pain relief and fever reducer' },
+        { name: 'Aspirin', category: 'Pain Relief', price: 30, description: 'Pain relief and anti-inflammatory' },
+        { name: 'Ibuprofen', category: 'Pain Relief', price: 45, description: 'Anti-inflammatory pain reliever' },
+        { name: 'Diclofenac', category: 'Pain Relief', price: 35, description: 'Anti-inflammatory medication' },
+        { name: 'Acetaminophen', category: 'Pain Relief', price: 28, description: 'Pain and fever relief' },
+
+        // Antibiotics
+        { name: 'Amoxicillin', category: 'Antibiotic', price: 120, description: 'Broad-spectrum antibiotic' },
+        { name: 'Azithromycin', category: 'Antibiotic', price: 150, description: 'Antibiotic for infections' },
+        { name: 'Ciprofloxacin', category: 'Antibiotic', price: 180, description: 'Fluoroquinolone antibiotic' },
+        { name: 'Doxycycline', category: 'Antibiotic', price: 95, description: 'Tetracycline antibiotic' },
+
+        // Vitamins & Supplements
+        { name: 'Vitamin D3', category: 'Vitamin', price: 299, description: 'Bone health supplement' },
+        { name: 'Vitamin B12', category: 'Vitamin', price: 199, description: 'Energy and nerve health' },
+        { name: 'Vitamin C', category: 'Vitamin', price: 149, description: 'Immune system support' },
+        { name: 'Calcium', category: 'Supplement', price: 179, description: 'Bone strength supplement' },
+        { name: 'Iron Tablets', category: 'Supplement', price: 89, description: 'Iron deficiency treatment' },
+        { name: 'Multivitamin', category: 'Vitamin', price: 399, description: 'Complete vitamin complex' },
+        { name: 'Omega 3', category: 'Supplement', price: 599, description: 'Heart health supplement' },
+        { name: 'Protein Powder', category: 'Supplement', price: 899, description: 'Muscle building supplement' },
+
+        // Digestive Health
+        { name: 'Omeprazole', category: 'Digestive', price: 65, description: 'Acid reflux treatment' },
+        { name: 'Ranitidine', category: 'Digestive', price: 45, description: 'Stomach acid reducer' },
+        { name: 'Antacid', category: 'Digestive', price: 25, description: 'Heartburn relief' },
+        { name: 'Probiotics', category: 'Digestive', price: 299, description: 'Gut health supplement' },
+
+        // Respiratory
+        { name: 'Cough Syrup', category: 'Respiratory', price: 85, description: 'Cough relief medication' },
+        { name: 'Loratadine', category: 'Allergy', price: 55, description: 'Antihistamine for allergies' },
+        { name: 'Cetirizine', category: 'Allergy', price: 35, description: 'Allergy relief medication' },
+        { name: 'Salbutamol', category: 'Respiratory', price: 125, description: 'Asthma inhaler' },
+
+        // Diabetes & Heart
+        { name: 'Metformin', category: 'Diabetes', price: 45, description: 'Diabetes medication' },
+        { name: 'Insulin', category: 'Diabetes', price: 450, description: 'Diabetes insulin injection' },
+        { name: 'Atorvastatin', category: 'Heart', price: 85, description: 'Cholesterol medication' },
+        { name: 'Amlodipine', category: 'Heart', price: 65, description: 'Blood pressure medication' },
+
+        // Skin Care
+        { name: 'Hydrocortisone Cream', category: 'Skin Care', price: 75, description: 'Anti-inflammatory cream' },
+        { name: 'Antifungal Cream', category: 'Skin Care', price: 95, description: 'Fungal infection treatment' },
+        { name: 'Sunscreen SPF 50', category: 'Skin Care', price: 299, description: 'UV protection cream' },
+
+        // Women's Health
+        { name: 'Folic Acid', category: 'Women Health', price: 45, description: 'Pregnancy supplement' },
+        { name: 'Iron + Folic Acid', category: 'Women Health', price: 65, description: 'Anemia prevention' },
+
+        // Mental Health
+        { name: 'Melatonin', category: 'Sleep Aid', price: 199, description: 'Natural sleep aid' },
+        { name: 'Magnesium', category: 'Supplement', price: 149, description: 'Stress relief supplement' },
+
+        // Common Brands
+        { name: 'Crocin', category: 'Pain Relief', price: 25, description: 'Paracetamol brand' },
+        { name: 'Disprin', category: 'Pain Relief', price: 15, description: 'Aspirin brand' },
+        { name: 'Combiflam', category: 'Pain Relief', price: 35, description: 'Pain relief combination' },
+        { name: 'Vicks VapoRub', category: 'Respiratory', price: 85, description: 'Cold relief balm' },
+        { name: 'Strepsils', category: 'Respiratory', price: 45, description: 'Throat lozenges' },
+        { name: 'ENO', category: 'Digestive', price: 35, description: 'Antacid powder' },
+        { name: 'Pudin Hara', category: 'Digestive', price: 25, description: 'Digestive drops' }
+      ];
+
+      // Recent searches management
+      function getRecentSearches() {
+        return JSON.parse(localStorage.getItem('recentMedicineSearches') || '[]');
+      }
+
+      function saveRecentSearch(searchTerm) {
+        let recentSearches = getRecentSearches();
+
+        // Remove if already exists to avoid duplicates
+        recentSearches = recentSearches.filter(term => term.toLowerCase() !== searchTerm.toLowerCase());
+
+        // Add to beginning of array
+        recentSearches.unshift(searchTerm);
+
+        // Keep only last 10 searches
+        recentSearches = recentSearches.slice(0, 10);
+
+        localStorage.setItem('recentMedicineSearches', JSON.stringify(recentSearches));
+      }
+
+      function clearRecentSearches() {
+        localStorage.removeItem('recentMedicineSearches');
+        showSuccessMessage('Recent searches cleared');
+      }
+
+      // Search functionality with recent searches
+      function initializeSearch() {
+        const searchInput = document.getElementById('medicineSearchInput');
+        const suggestionsDiv = document.getElementById('searchSuggestions');
+
+        if (!searchInput || !suggestionsDiv) return;
+
+        let currentFocus = -1;
+
+        // Handle input events
+        searchInput.addEventListener('input', function() {
+          const query = this.value.trim();
+          currentFocus = -1;
+
+          if (query.length === 0) {
+            showRecentSearches();
+            return;
+          }
+
+          if (query.length < 2) {
+            hideSuggestions();
+            return;
+          }
+
+          showSuggestions(query);
+        });
+
+        // Show recent searches when input is focused and empty
+        searchInput.addEventListener('focus', function() {
+          if (this.value.trim() === '') {
+            showRecentSearches();
+          }
+        });
+
+        // Handle keyboard navigation
+        searchInput.addEventListener('keydown', function(e) {
+          const suggestions = suggestionsDiv.querySelectorAll('.suggestion-item, .recent-search-item');
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            currentFocus++;
+            if (currentFocus >= suggestions.length) currentFocus = 0;
+            setActiveSuggestion(suggestions, currentFocus);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            currentFocus--;
+            if (currentFocus < 0) currentFocus = suggestions.length - 1;
+            setActiveSuggestion(suggestions, currentFocus);
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentFocus > -1 && suggestions[currentFocus]) {
+              suggestions[currentFocus].click();
+            } else {
+              performSearch();
+            }
+          } else if (e.key === 'Escape') {
+            hideSuggestions();
+          }
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            hideSuggestions();
+          }
+        });
+      }
+
+      // Show recent searches
+      function showRecentSearches() {
+        const suggestionsDiv = document.getElementById('searchSuggestions');
+        const recentSearches = getRecentSearches();
+
+        if (recentSearches.length === 0) {
+          hideSuggestions();
+          return;
+        }
+
+        const recentSearchesHTML = `
+          <div style="padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <small style="color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-clock me-1"></i>Recent Searches
+              </small>
+              <button
+                onclick="clearRecentSearches(); hideSuggestions();"
+                style="
+                  background: none;
+                  border: none;
+                  color: #64748b;
+                  font-size: 11px;
+                  cursor: pointer;
+                  padding: 2px 6px;
+                  border-radius: 4px;
+                  transition: all 0.2s ease;
+                "
+                onmouseover="this.style.background='#e2e8f0'"
+                onmouseout="this.style.background='none'"
+                title="Clear recent searches"
+              >
+                <i class="fa-solid fa-trash"></i> Clear
+              </button>
+            </div>
+          </div>
+          ${recentSearches.map(search => `
+            <div
+              class="recent-search-item"
+              onclick="selectRecentSearch('${search}')"
+              style="
+                padding: 10px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid #f1f5f9;
+                transition: background-color 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              "
+              onmouseover="this.style.backgroundColor='#f8fafc'"
+              onmouseout="this.style.backgroundColor='white'"
+            >
+              <div style="display: flex; align-items: center;">
+                <i class="fa-solid fa-history" style="color: #94a3b8; margin-right: 10px; font-size: 12px;"></i>
+                <span style="color: #334155; font-size: 14px;">${search}</span>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square" style="color: #94a3b8; font-size: 11px;"></i>
+            </div>
+          `).join('')}
+        `;
+
+        suggestionsDiv.innerHTML = recentSearchesHTML;
+        suggestionsDiv.style.display = 'block';
+      }
+
+      // Select recent search
+      function selectRecentSearch(searchTerm) {
+        const searchInput = document.getElementById('medicineSearchInput');
+        searchInput.value = searchTerm;
+        hideSuggestions();
+        performSearch();
+      }
+
+      // Show search suggestions with recent searches integration
+      function showSuggestions(query) {
+        const suggestionsDiv = document.getElementById('searchSuggestions');
+        const matches = medicineDatabase.filter(medicine =>
+          medicine.name.toLowerCase().includes(query.toLowerCase()) ||
+          medicine.category.toLowerCase().includes(query.toLowerCase()) ||
+          medicine.description.toLowerCase().includes(query.toLowerCase())
+        ).slice(0, 6); // Limit to 6 medicine suggestions to leave room for recent searches
+
+        const recentSearches = getRecentSearches().filter(search =>
+          search.toLowerCase().includes(query.toLowerCase()) &&
+          !matches.some(medicine => medicine.name.toLowerCase() === search.toLowerCase())
+        ).slice(0, 3); // Show up to 3 relevant recent searches
+
+        if (matches.length === 0 && recentSearches.length === 0) {
+          hideSuggestions();
+          return;
+        }
+
+        let suggestionsHTML = '';
+
+        // Add medicine suggestions
+        if (matches.length > 0) {
+          suggestionsHTML += matches.map(medicine => `
+            <div class="suggestion-item" onclick="selectSuggestion('${medicine.name}')" style="
+              padding: 12px 16px;
+              cursor: pointer;
+              border-bottom: 1px solid #f1f5f9;
+              transition: background-color 0.2s ease;
+            " onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='white'">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                    <i class="fa-solid fa-pills" style="color: #00BFB3; margin-right: 8px; font-size: 12px;"></i>
+                    <strong style="color: #334155; font-size: 14px;">${medicine.name}</strong>
+                  </div>
+                  <div style="color: #64748b; font-size: 12px; margin-left: 20px;">
+                    <span class="badge" style="background: #e2e8f0; color: #64748b; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-right: 6px;">${medicine.category}</span>
+                    ${medicine.description}
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <strong style="color: #00BFB3; font-size: 14px;">₹${medicine.price}</strong>
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // Add recent searches section if there are any
+        if (recentSearches.length > 0) {
+          if (matches.length > 0) {
+            suggestionsHTML += `
+              <div style="padding: 8px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                <small style="color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                  <i class="fa-solid fa-clock me-1"></i>Recent Searches
+                </small>
+              </div>
+            `;
+          }
+
+          suggestionsHTML += recentSearches.map(search => `
+            <div
+              class="recent-search-item"
+              onclick="selectRecentSearch('${search}')"
+              style="
+                padding: 10px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid #f1f5f9;
+                transition: background-color 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              "
+              onmouseover="this.style.backgroundColor='#f8fafc'"
+              onmouseout="this.style.backgroundColor='white'"
+            >
+              <div style="display: flex; align-items: center;">
+                <i class="fa-solid fa-history" style="color: #94a3b8; margin-right: 10px; font-size: 12px;"></i>
+                <span style="color: #334155; font-size: 14px;">${search}</span>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square" style="color: #94a3b8; font-size: 11px;"></i>
+            </div>
+          `).join('');
+        }
+
+        suggestionsDiv.innerHTML = suggestionsHTML;
+        suggestionsDiv.style.display = 'block';
+      }
+
+      // Hide suggestions
+      function hideSuggestions() {
+        const suggestionsDiv = document.getElementById('searchSuggestions');
+        if (suggestionsDiv) {
+          suggestionsDiv.style.display = 'none';
+        }
+      }
+
+      // Set active suggestion for keyboard navigation
+      function setActiveSuggestion(suggestions, index) {
+        suggestions.forEach((item, i) => {
+          if (i === index) {
+            item.style.backgroundColor = '#e2e8f0';
+          } else {
+            item.style.backgroundColor = 'white';
+          }
+        });
+      }
+
+      // Select a suggestion
+      function selectSuggestion(medicineName) {
+        const searchInput = document.getElementById('medicineSearchInput');
+        searchInput.value = medicineName;
+        hideSuggestions();
+
+        // Save to recent searches
+        saveRecentSearch(medicineName);
+
+        performSearch();
+      }
+
+      // Perform search
+      function performSearch() {
+        const searchInput = document.getElementById('medicineSearchInput');
+        const query = searchInput.value.trim();
+
+        if (!query) {
+          showErrorMessage('Please enter a medicine name to search');
+          return;
+        }
+
+        hideSuggestions();
+
+        // Save to recent searches
+        saveRecentSearch(query);
+
+        // Find matching medicines
+        const matches = medicineDatabase.filter(medicine =>
+          medicine.name.toLowerCase().includes(query.toLowerCase()) ||
+          medicine.category.toLowerCase().includes(query.toLowerCase()) ||
+          medicine.description.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (matches.length > 0) {
+          showSearchResults(matches, query);
+        } else {
+          showNoResultsMessage(query);
+        }
+      }
+
+      // Generate stores list HTML
+      function generateStoresList(stores) {
+        return stores.map(store => `
+          <div class="store-card mb-4" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; transition: all 0.3s ease;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='none'">
+            <div class="row">
+              <div class="col-md-3">
+                <div style="width: 100%; height: 120px; background: linear-gradient(135deg, #00BFB3, #00807A); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
+                  <i class="fa-solid fa-store"></i>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="store-info">
+                  <div class="d-flex align-items-center mb-2">
+                    <h6 class="mb-0 me-2" style="color: #334155; font-weight: 600;">${store.name}</h6>
+                    <span class="badge" style="background: #e2e8f0; color: #64748b; font-size: 11px;">${store.type}</span>
+                  </div>
+
+                  <div class="mb-2">
+                    <div class="d-flex align-items-center mb-1">
+                      ${generateStarRating(store.rating)}
+                      <span class="ms-2 text-muted" style="font-size: 14px;">${store.rating}/5.0</span>
+                    </div>
+                  </div>
+
+                  <div class="mb-2">
+                    <i class="fa-solid fa-location-dot text-primary me-2"></i>
+                    <small style="color: #64748b;">${store.address}</small>
+                  </div>
+
+                  <div class="mb-2">
+                    <i class="fa-solid fa-clock text-primary me-2"></i>
+                    <small style="color: #64748b;">${store.hours}</small>
+                  </div>
+
+                  <div class="mb-2">
+                    <i class="fa-solid fa-phone text-primary me-2"></i>
+                    <small style="color: #64748b;">${store.phone}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="store-actions text-end">
+                  <div class="mb-3">
+                    <div style="background: #f0fdf4; color: #16a34a; padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 14px;">
+                      <i class="fa-solid fa-route me-1"></i>
+                      ${store.calculatedDistance ? store.calculatedDistance.toFixed(1) + ' km' : store.distance}
+                    </div>
+                  </div>
+
+                  <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-sm" onclick="viewStoreDetails(${store.id})" style="background: #00BFB3; border-color: #00BFB3;">
+                      <i class="fa-solid fa-info-circle me-1"></i>Details
+                    </button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="getStoreDirections(${store.id})">
+                      <i class="fa-solid fa-directions me-1"></i>Directions
+                    </button>
+                    <button class="btn btn-outline-success btn-sm" onclick="callStore('${store.phone}')">
+                      <i class="fa-solid fa-phone me-1"></i>Call
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Services -->
+            <div class="mt-3">
+              <small class="text-muted">Services: </small>
+              ${store.services.slice(0, 3).map(service => `
+                <span class="badge bg-light text-dark me-1" style="font-size: 10px;">${service}</span>
+              `).join('')}
+              ${store.services.length > 3 ? `<span class="text-muted">+${store.services.length - 3} more</span>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Generate star rating
+      function generateStarRating(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 !== 0;
+        let stars = '';
+
+        for (let i = 0; i < fullStars; i++) {
+          stars += '<i class="fa-solid fa-star text-warning"></i>';
+        }
+
+        if (hasHalfStar) {
+          stars += '<i class="fa-solid fa-star-half-stroke text-warning"></i>';
+        }
+
+        const emptyStars = 5 - Math.ceil(rating);
+        for (let i = 0; i < emptyStars; i++) {
+          stars += '<i class="fa-regular fa-star text-warning"></i>';
+        }
+
+        return stars;
+      }
+
+      // Calculate distance between two coordinates
+      function calculateDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371; // Radius of the Earth in kilometers
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+      }
+
+      // Search stores
+      function searchStores() {
+        const searchTerm = document.getElementById('storeSearchInput').value.toLowerCase();
+        const typeFilter = document.getElementById('storeTypeFilter').value;
+
+        let filteredStores = storeDatabase.filter(store => {
+          const matchesSearch = store.name.toLowerCase().includes(searchTerm) ||
+                               store.address.toLowerCase().includes(searchTerm) ||
+                               store.specialties.some(specialty => specialty.toLowerCase().includes(searchTerm));
+
+          const matchesType = !typeFilter || store.type === typeFilter;
+
+          return matchesSearch && matchesType;
+        });
+
+        document.getElementById('storesList').innerHTML = generateStoresList(filteredStores);
+
+        if (filteredStores.length === 0) {
+          document.getElementById('storesList').innerHTML = `
+            <div class="text-center py-5">
+              <i class="fa-solid fa-store-slash" style="font-size: 48px; color: #94a3b8; margin-bottom: 16px;"></i>
+              <h5 style="color: #64748b;">No stores found</h5>
+              <p style="color: #94a3b8;">Try adjusting your search criteria</p>
+            </div>
+          `;
+        }
+      }
+
+      // Filter stores by type
+      function filterStores() {
+        searchStores(); // Reuse search function with current filters
+      }
+
+      // Initialize cart on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('🛒 Cart system initialized');
+        updateCartBadge();
+
+        // Initialize search functionality
+        initializeSearch();
+
+        // Close cart when clicking outside
+        document.addEventListener('click', function(event) {
+          const cartIcon = document.getElementById('cartIcon');
+          const cartDropdown = document.getElementById('cartDropdown');
+
+          if (isCartOpen && cartIcon && cartDropdown) {
+            if (!cartIcon.contains(event.target) && !cartDropdown.contains(event.target)) {
+              isCartOpen = false;
+              cartDropdown.style.display = 'none';
+            }
+          }
+        });
+      });
+    </script>
   </head>
 
   <body>
@@ -56,29 +2023,151 @@
           
           <!-- Right Actions -->
           <div class="d-flex align-items-center gap-3">
-            <a href="#" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center">
+            <a href="#" onclick="openStoreLocator(); return false;" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center">
               <i class="fa-solid fa-location-dot me-1"></i> Find a Store
             </a>
             
-            <a href="#" class="btn btn-outline-primary d-none d-md-flex align-items-center">
+            <a href="vendor-login.html" class="btn btn-outline-primary d-none d-md-flex align-items-center">
               <i class="fa-solid fa-store me-1"></i> Vendor Signup/Login
             </a>
-            
+
             <a href="#" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center">
               <i class="fa-solid fa-phone me-1"></i> Contact Us
             </a>
-            
-            <!-- Cart Icon -->
-            <div class="position-relative">
-              <i class="fa-solid fa-cart-shopping"></i>
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-accent">
-                3
-              </span>
+
+            <!-- ENHANCED CART ICON -->
+            <div style="position: relative; display: inline-block; margin-right: 15px;">
+              <button
+                id="cartIcon"
+                onclick="toggleCartDropdown()"
+                style="
+                  cursor: pointer !important;
+                  padding: 10px;
+                  font-size: 24px;
+                  position: relative;
+                  display: inline-block;
+                  user-select: none;
+                  background: none;
+                  border: none;
+                  transition: all 0.2s ease !important;
+                  border-radius: 8px;
+                  color: #00BFB3;
+                "
+                title="Click to open shopping cart"
+                onmouseover="
+                  this.style.background='rgba(0, 191, 179, 0.1)';
+                  this.style.transform='scale(1.05)';
+                  this.style.cursor='pointer';
+                "
+                onmouseout="
+                  this.style.background='none';
+                  this.style.transform='scale(1)';
+                "
+              >
+                <i class="fa-solid fa-shopping-cart"></i>
+                <span
+                  id="cartBadge"
+                  style="
+                    position: absolute;
+                    top: -2px;
+                    right: -2px;
+                    background: #ff6b35;
+                    color: white;
+                    border-radius: 50%;
+                    width: 20px;
+                    height: 20px;
+                    font-size: 11px;
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    border: 2px solid white;
+                    pointer-events: none;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                  "
+                >
+                  0
+                </span>
+              </button>
+
+              <!-- Enhanced Cart Dropdown -->
+              <div
+                id="cartDropdown"
+                style="
+                  display: none;
+                  position: absolute;
+                  top: 100%;
+                  right: 0;
+                  background: white;
+                  border: 1px solid #e2e8f0;
+                  border-radius: 12px;
+                  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                  width: 350px;
+                  max-height: 450px;
+                  overflow-y: auto;
+                  z-index: 9999;
+                  padding: 20px;
+                  margin-top: 10px;
+                  font-family: 'Inter', sans-serif;
+                "
+              >
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                  <div style="display: flex; align-items: center;">
+                    <i class="fa-solid fa-shopping-cart" style="color: #00BFB3; margin-right: 8px; font-size: 18px;"></i>
+                    <h5 style="margin: 0; color: #334155; font-weight: 600;">Shopping Cart</h5>
+                  </div>
+                  <span id="cartItemCount" style="
+                    background: #00BFB3;
+                    color: white;
+                    padding: 4px 8px;
+                    border-radius: 12px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    display: none;
+                  ">0 items</span>
+                </div>
+
+                <div id="cartItemsList">
+                  <p style="color: #64748b; text-align: center; padding: 20px; margin: 0;">Your cart is empty</p>
+                </div>
+
+                <hr style="margin: 15px 0; border: none; height: 1px; background: #e2e8f0;">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                  <strong style="color: #334155; font-size: 16px;">Total: ₹<span id="cartTotalAmount">0.00</span></strong>
+                </div>
+
+                <button
+                  onclick="proceedToCheckout()"
+                  style="
+                    background: #00BFB3;
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    width: 100%;
+                    font-weight: 600;
+                    font-size: 14px;
+                    transition: all 0.2s ease;
+                  "
+                  onmouseover="this.style.background='#00807A'"
+                  onmouseout="this.style.background='#00BFB3'"
+                >
+                  <i class="fa-solid fa-credit-card" style="margin-right: 8px;"></i>
+                  Proceed to Checkout
+                </button>
+              </div>
             </div>
-            
-            <a href="#" class="btn btn-primary d-flex align-items-center">
-              <i class="fa-solid fa-user me-2"></i> Login
-            </a>
+
+
+
+            <!-- User Authentication Section -->
+            <div id="userAuthSection">
+              <a href="#" class="btn btn-primary d-flex align-items-center" id="loginBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="fa-solid fa-user me-2"></i> Login
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -106,12 +2195,42 @@
     <!-- Search and Prescription Section -->
     <section class="search-section py-4">
       <div class="container">
-        <!-- Search Bar -->
+        <!-- Enhanced Search Bar with Autocomplete -->
         <div class="search-container">
           <h2 class="text-center mb-4 fw-bold">What are you looking for?</h2>
-          <div class="search-bar">
-            <input type="text" class="search-input" placeholder="Search for Medicine">
-            <button class="btn btn-primary search-btn">Search</button>
+          <div class="search-bar" style="position: relative;">
+            <input
+              type="text"
+              id="medicineSearchInput"
+              class="search-input"
+              placeholder="Search for Medicine (e.g., Paracetamol, Aspirin, Vitamin D...)"
+              autocomplete="off"
+            >
+            <button class="btn btn-primary search-btn" onclick="performSearch()">
+              <i class="fa-solid fa-search"></i> Search
+            </button>
+
+            <!-- Search Suggestions Dropdown -->
+            <div
+              id="searchSuggestions"
+              style="
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                border: 1px solid #e2e8f0;
+                border-top: none;
+                border-radius: 0 0 12px 12px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                max-height: 300px;
+                overflow-y: auto;
+                z-index: 1000;
+                display: none;
+              "
+            >
+              <!-- Suggestions will be populated here -->
+            </div>
           </div>
         </div>
         
@@ -228,7 +2347,7 @@
                       <p class="card-text">Essential vitamins for daily health</p>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹499</span>
-                        <button class="btn btn-sm btn-primary">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Multivitamin Complex', 499, 'img/multivitamin.jpg.png')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -241,7 +2360,7 @@
                       <p class="card-text">Accurate temperature readings</p>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹299</span>
-                        <button class="btn btn-sm btn-primary">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Digital Thermometer', 299, 'img/thermometer.jpg.png')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -254,7 +2373,7 @@
                       <p class="card-text">Complete emergency care kit</p>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹799</span>
-                        <button class="btn btn-sm btn-primary">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('First Aid Kit', 799, 'img/first-aid.jpg.png')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -271,7 +2390,7 @@
                       <p class="card-text">Heart health support</p>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹599</span>
-                        <button class="btn btn-sm btn-primary">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Omega-3 Supplements', 599, 'img/omega3.jpg.png')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -284,7 +2403,7 @@
                       <p class="card-text">Digital BP monitoring device</p>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹1299</span>
-                        <button class="btn btn-sm btn-primary">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Blood Pressure Monitor', 1299, 'img/bp-monitor.jpg.png')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -297,7 +2416,7 @@
                       <p class="card-text">Plant-based protein supplement</p>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹899</span>
-                        <button class="btn btn-sm btn-primary">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Protein Powder', 899, 'img/protein.jpg.png')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -314,7 +2433,7 @@
                       <p class="card-text">Anti-dandruff hair care solution</p>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹281.82</span>
-                        <button class="btn btn-sm btn-primary">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Scalpe Plus Anti-Dandruff Shampoo', 281.82, 'img/shampoo.jpg.png')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -327,7 +2446,7 @@
                       <p class="card-text">Sterile wound protection</p>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹146.25</span>
-                        <button class="btn btn-sm btn-primary">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Hansaplast Bandages', 146.25, 'img/bandages.jpg.png')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -340,7 +2459,7 @@
                       <p class="card-text">Nutritious snack mix</p>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹175.00</span>
-                        <button class="btn btn-sm btn-primary">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Liveasy Healthy Roasted Seed', 175.00, 'img/seeds.jpg.png')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -422,7 +2541,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="price">₹699</span>
-                  <button class="btn btn-sm btn-primary">Add to Cart</button>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Immunity Booster', 699, 'img/Immunity-Booster.jpg.png')">Add to Cart</button>
                 </div>
               </div>
             </div>
@@ -443,7 +2562,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="price">₹999</span>
-                  <button class="btn btn-sm btn-primary">Add to Cart</button>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Collagen Peptides', 999, 'img/Collagen-Peptide.jpg.png')">Add to Cart</button>
                 </div>
               </div>
             </div>
@@ -463,7 +2582,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="price">₹1499</span>
-                  <button class="btn btn-sm btn-primary">Add to Cart</button>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Glucometer Kit', 1499, 'img/Glucometer-Kit.jpg.png')">Add to Cart</button>
                 </div>
               </div>
             </div>
@@ -484,7 +2603,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="price">₹399</span>
-                  <button class="btn btn-sm btn-primary">Add to Cart</button>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Vitamin D3 Drops', 399, 'img/Vitamin-D3-Drops.jpg.png')">Add to Cart</button>
                 </div>
               </div>
             </div>
@@ -603,6 +2722,198 @@
           <h1 class="display-1 fw-bold">404</h1>
           <p class="fs-4 text-secondary mb-4">Oops! Page not found</p>
           <a href="index.html" class="btn btn-primary">Return to Home</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">
+              <i class="fa-solid fa-user me-2"></i>Login to Curemate
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Login Type Selection -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="btn-group w-100" role="group" aria-label="Login type">
+                  <input type="radio" class="btn-check" name="loginType" id="customerLogin" value="customer" checked>
+                  <label class="btn btn-outline-primary" for="customerLogin">
+                    <i class="fa-solid fa-user me-2"></i>Customer Login
+                  </label>
+
+                  <input type="radio" class="btn-check" name="loginType" id="vendorLogin" value="vendor">
+                  <label class="btn btn-outline-primary" for="vendorLogin">
+                    <i class="fa-solid fa-store me-2"></i>Vendor Login
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Login Form -->
+            <div id="customerLoginForm" class="login-form-section">
+              <form id="loginForm">
+                <div class="mb-3">
+                  <label for="loginEmail" class="form-label">Email address</label>
+                  <input type="email" class="form-control" id="loginEmail" required>
+                </div>
+                <div class="mb-3">
+                  <label for="loginPassword" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="loginPassword" required>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="rememberMe">
+                  <label class="form-check-label" for="rememberMe">
+                    Remember me
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login as Customer</button>
+              </form>
+              <hr>
+              <!-- Demo Credentials -->
+              <div class="alert alert-info">
+                <h6 class="alert-heading">
+                  <i class="fa-solid fa-info-circle me-2"></i>Demo Customer Credentials
+                </h6>
+                <p class="mb-1"><strong>Email:</strong> john@example.com</p>
+                <p class="mb-0"><strong>Password:</strong> password123</p>
+              </div>
+              <div class="text-center">
+                <p class="mb-2">Don't have a customer account?</p>
+                <button type="button" class="btn btn-outline-primary" onclick="switchToSignup()">
+                  Create Customer Account
+                </button>
+              </div>
+            </div>
+
+            <!-- Vendor Login Form -->
+            <div id="vendorLoginForm" class="login-form-section" style="display: none;">
+              <form id="vendorLoginFormModal">
+                <div class="mb-3">
+                  <label for="vendorLoginEmail" class="form-label">Business Email</label>
+                  <input type="email" class="form-control" id="vendorLoginEmail" required>
+                </div>
+                <div class="mb-3">
+                  <label for="vendorLoginPassword" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="vendorLoginPassword" required>
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="vendorRememberMe">
+                  <label class="form-check-label" for="vendorRememberMe">
+                    Remember me
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login to Vendor Dashboard</button>
+              </form>
+              <hr>
+              <!-- Demo Credentials -->
+              <div class="alert alert-success">
+                <h6 class="alert-heading">
+                  <i class="fa-solid fa-info-circle me-2"></i>Demo Vendor Credentials
+                </h6>
+                <p class="mb-1"><strong>Email:</strong> vendor@test.com</p>
+                <p class="mb-0"><strong>Password:</strong> password123</p>
+              </div>
+              <div class="text-center">
+                <p class="mb-2">Don't have a vendor account?</p>
+                <a href="vendor-signup.html" class="btn btn-outline-primary" onclick="closeModal()">
+                  Create Vendor Account
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="signupModalLabel">
+              <i class="fa-solid fa-user-plus me-2"></i>Create Account
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="signupForm">
+              <div class="mb-3">
+                <label for="signupName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="signupName" required>
+              </div>
+              <div class="mb-3">
+                <label for="signupEmail" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="signupEmail" required>
+              </div>
+              <div class="mb-3">
+                <label for="signupPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="signupPassword" required minlength="6">
+                <div class="form-text">Password must be at least 6 characters long.</div>
+              </div>
+              <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" required>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                <label class="form-check-label" for="agreeTerms">
+                  I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
+                </label>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Create Account</button>
+            </form>
+            <hr>
+            <div class="text-center">
+              <p class="mb-2">Already have an account?</p>
+              <button type="button" class="btn btn-outline-primary" onclick="switchToLogin()">
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shopping Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cartModalLabel">
+              <i class="fa-solid fa-cart-shopping me-2"></i>Shopping Cart
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="closeCartModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div id="cartItems">
+              <!-- Cart items will be displayed here -->
+            </div>
+            <div id="emptyCartMessage" class="text-center py-5">
+              <i class="fa-solid fa-cart-shopping fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">Your cart is empty</h5>
+              <p class="text-muted">Add some products to get started</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="w-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Total: ₹<span id="cartTotal">0.00</span></h5>
+                <div>
+                  <button type="button" class="btn btn-outline-secondary me-2" onclick="clearCart()">
+                    <i class="fa-solid fa-trash me-1"></i>Clear Cart
+                  </button>
+                  <button type="button" class="btn btn-primary" id="checkoutBtn" disabled>
+                    <i class="fa-solid fa-credit-card me-1"></i>Proceed to Checkout
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

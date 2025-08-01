@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard - Curemate Health Hub</title>
+    <meta name="description" content="Vendor Dashboard - Curemate Health Hub">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <div class="bg-white p-2 rounded-3 me-2">
+                    <i class="fa-solid fa-heart text-primary"></i>
+                </div>
+                <span class="fw-bold">Curemate Vendor Portal</span>
+            </a>
+            
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-user me-2"></i>
+                        <span id="vendorName">Vendor</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fa-solid fa-cog me-2"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="vendorLogout()"><i class="fa-solid fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="bg-white shadow-sm min-vh-100">
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action active">
+                            <i class="fa-solid fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a href="vendor-products.html" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-box me-2"></i>Products
+                        </a>
+                        <a href="vendor-orders.html" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-shopping-cart me-2"></i>Orders
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-chart-bar me-2"></i>Analytics
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-users me-2"></i>Customers
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fa-solid fa-money-bill-wave me-2"></i>Payments
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Content -->
+            <div class="col-md-9 col-lg-10 p-4">
+                <!-- Welcome Section -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-0">Welcome back, <span id="dashboardVendorName">Vendor</span>!</h1>
+                        <p class="text-muted">Here's what's happening with your business today.</p>
+                    </div>
+                    <div>
+                        <a href="vendor-products.html" class="btn btn-primary">
+                            <i class="fa-solid fa-plus me-2"></i>Add Product
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">₹45,230</h4>
+                                        <p class="card-text">Total Revenue</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-rupee-sign fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">156</h4>
+                                        <p class="card-text">Total Orders</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-shopping-cart fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">23</h4>
+                                        <p class="card-text">Products</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-box fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">89</h4>
+                                        <p class="card-text">Customers</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-users fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="row">
+                    <div class="col-lg-8 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Recent Orders</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Customer</th>
+                                                <th>Product</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#ORD001</td>
+                                                <td>John Doe</td>
+                                                <td>Vitamin D3 Drops</td>
+                                                <td>₹299</td>
+                                                <td><span class="badge bg-success">Delivered</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD002</td>
+                                                <td>Jane Smith</td>
+                                                <td>Blood Pressure Monitor</td>
+                                                <td>₹1,299</td>
+                                                <td><span class="badge bg-warning">Processing</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD003</td>
+                                                <td>Mike Johnson</td>
+                                                <td>Multivitamin Tablets</td>
+                                                <td>₹599</td>
+                                                <td><span class="badge bg-primary">Shipped</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a href="vendor-products.html" class="btn btn-outline-primary">
+                                        <i class="fa-solid fa-plus me-2"></i>Add New Product
+                                    </a>
+                                    <a href="vendor-orders.html" class="btn btn-outline-success">
+                                        <i class="fa-solid fa-eye me-2"></i>View All Orders
+                                    </a>
+                                    <button class="btn btn-outline-info">
+                                        <i class="fa-solid fa-chart-line me-2"></i>View Analytics
+                                    </button>
+                                    <button class="btn btn-outline-warning">
+                                        <i class="fa-solid fa-cog me-2"></i>Account Settings
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/vendor-dashboard.js"></script>
+</body>
+</html>
