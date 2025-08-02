@@ -91,9 +91,33 @@
 
     <!-- Simplified Cart Script -->
     <script>
-      // Global cart variables
+      // Global cart variables with localStorage persistence
       let myCart = [];
       let isCartOpen = false;
+
+      // Load cart from localStorage on page load
+      function loadCartFromStorage() {
+        try {
+          const savedCart = localStorage.getItem('cureMateCart');
+          if (savedCart) {
+            myCart = JSON.parse(savedCart);
+            console.log('✅ Cart loaded from storage:', myCart.length, 'items');
+          }
+        } catch (error) {
+          console.error('❌ Error loading cart from storage:', error);
+          myCart = [];
+        }
+      }
+
+      // Save cart to localStorage
+      function saveCartToStorage() {
+        try {
+          localStorage.setItem('cureMateCart', JSON.stringify(myCart));
+          console.log('✅ Cart saved to storage:', myCart.length, 'items');
+        } catch (error) {
+          console.error('❌ Error saving cart to storage:', error);
+        }
+      }
 
       // Main cart toggle function
       function toggleCartDropdown() {
@@ -139,6 +163,7 @@
 
           updateCartBadge();
           updateCartDisplay();
+          saveCartToStorage();
 
           // Show success message
           showSuccessMessage('✅ Added ' + name + ' to cart!');
@@ -197,6 +222,7 @@
 
           updateCartBadge();
           updateCartDisplay();
+          saveCartToStorage();
 
           // Reset quantity to 1
           if (quantityInput) {
@@ -372,6 +398,7 @@
           myCart[index].quantity += 1;
           updateCartBadge();
           updateCartDisplay();
+          saveCartToStorage();
           showSuccessMessage(`Increased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
         }
       }
@@ -383,6 +410,7 @@
             myCart[index].quantity -= 1;
             updateCartBadge();
             updateCartDisplay();
+            saveCartToStorage();
             showSuccessMessage(`Decreased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
           } else {
             // If quantity is 1, remove the item
@@ -398,8 +426,23 @@
           myCart.splice(index, 1);
           updateCartBadge();
           updateCartDisplay();
+          saveCartToStorage();
           showSuccessMessage('Removed ' + removedItem.name + ' from cart');
         }
+      }
+
+      // Clear all items from cart
+      function clearCart() {
+        if (myCart.length === 0) {
+          console.log('Cart is already empty');
+          return;
+        }
+
+        myCart = [];
+        updateCartBadge();
+        updateCartDisplay();
+        saveCartToStorage();
+        console.log('✅ Cart cleared successfully!');
       }
 
       // Enhanced checkout function with order processing
@@ -2038,7 +2081,9 @@
       // Initialize cart on page load
       document.addEventListener('DOMContentLoaded', function() {
         console.log('🛒 Cart system initialized');
+        loadCartFromStorage();
         updateCartBadge();
+        updateCartDisplay();
 
         // Initialize search functionality
         initializeSearch();

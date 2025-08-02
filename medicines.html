@@ -11,9 +11,33 @@
 
   <!-- Cart JavaScript -->
   <script>
-    // Global cart variables
+    // Global cart variables with localStorage persistence
     let myCart = [];
     let isCartOpen = false;
+
+    // Load cart from localStorage on page load
+    function loadCartFromStorage() {
+      try {
+        const savedCart = localStorage.getItem('cureMateCart');
+        if (savedCart) {
+          myCart = JSON.parse(savedCart);
+          console.log('✅ Cart loaded from storage:', myCart.length, 'items');
+        }
+      } catch (error) {
+        console.error('❌ Error loading cart from storage:', error);
+        myCart = [];
+      }
+    }
+
+    // Save cart to localStorage
+    function saveCartToStorage() {
+      try {
+        localStorage.setItem('cureMateCart', JSON.stringify(myCart));
+        console.log('✅ Cart saved to storage:', myCart.length, 'items');
+      } catch (error) {
+        console.error('❌ Error saving cart to storage:', error);
+      }
+    }
 
     // Main cart toggle function
     function toggleCartDropdown() {
@@ -81,6 +105,7 @@
 
         updateCartBadge();
         updateCartDisplay();
+        saveCartToStorage();
 
         // Reset quantity to 1
         quantityInput.value = 1;
@@ -116,6 +141,7 @@
 
         updateCartBadge();
         updateCartDisplay();
+        saveCartToStorage();
 
         // Show success message (removed alert for smoother UX)
         console.log('✅ Added ' + name + ' to cart!');
@@ -210,6 +236,7 @@
       myCart.splice(index, 1);
       updateCartBadge();
       updateCartDisplay();
+      saveCartToStorage();
     }
 
     // Clear all items from cart
@@ -222,6 +249,7 @@
       myCart = [];
       updateCartBadge();
       updateCartDisplay();
+      saveCartToStorage();
       console.log('✅ Cart cleared successfully!');
     }
 
@@ -290,7 +318,9 @@
     // Initialize cart on page load
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🛒 Cart system initialized');
+      loadCartFromStorage();
       updateCartBadge();
+      updateCartDisplay();
 
       // Setup sort functionality
       const sortSelect = document.getElementById('sort-products');
