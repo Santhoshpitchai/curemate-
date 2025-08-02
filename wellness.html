@@ -8,6 +8,253 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Cart JavaScript -->
+  <script>
+    // Global cart variables
+    let myCart = [];
+    let isCartOpen = false;
+
+    // Main cart toggle function
+    function toggleCartDropdown() {
+      console.log('🛒 Cart icon clicked!');
+
+      const dropdown = document.getElementById('cartDropdown');
+      if (!dropdown) {
+        console.error('❌ Cart dropdown not found!');
+        return;
+      }
+
+      if (isCartOpen) {
+        dropdown.style.display = 'none';
+        isCartOpen = false;
+        console.log('✅ Cart closed');
+      } else {
+        dropdown.style.display = 'block';
+        isCartOpen = true;
+        updateCartDisplay();
+        console.log('✅ Cart opened');
+      }
+    }
+
+    // Quantity control functions
+    function increaseQuantity(productId) {
+      const input = document.getElementById(productId);
+      const currentValue = parseInt(input.value);
+      const maxValue = parseInt(input.max);
+      if (currentValue < maxValue) {
+        input.value = currentValue + 1;
+      }
+    }
+
+    function decreaseQuantity(productId) {
+      const input = document.getElementById(productId);
+      const currentValue = parseInt(input.value);
+      const minValue = parseInt(input.min);
+      if (currentValue > minValue) {
+        input.value = currentValue - 1;
+      }
+    }
+
+    // Add item to cart function with quantity
+    function addToCartWithQuantity(name, price, image, quantityInputId) {
+      const quantityInput = document.getElementById(quantityInputId);
+      const quantity = parseInt(quantityInput.value);
+
+      console.log('🛒 Adding to cart:', name, 'Price:', price, 'Quantity:', quantity);
+
+      try {
+        // Check if item already exists
+        const existingItem = myCart.find(item => item.name === name);
+        if (existingItem) {
+          existingItem.quantity += quantity;
+          console.log('✅ Increased quantity for:', name, 'New total:', existingItem.quantity);
+        } else {
+          myCart.push({
+            name: name,
+            price: parseFloat(price),
+            image: image || 'img/placeholder.jpg',
+            quantity: quantity
+          });
+          console.log('✅ Added new item:', name, 'Quantity:', quantity);
+        }
+
+        updateCartBadge();
+        updateCartDisplay();
+
+        // Reset quantity to 1
+        quantityInput.value = 1;
+
+        // Show success message (removed alert for smoother UX)
+        console.log(`✅ Added ${quantity} x ${name} to cart!`);
+
+      } catch (error) {
+        console.error('❌ Error adding to cart:', error);
+        console.log('❌ Error adding to cart');
+      }
+    }
+
+    // Add item to cart function
+    function addToSimpleCart(name, price, image) {
+      console.log('🛒 Adding to cart:', name, 'Price:', price);
+
+      try {
+        // Check if item already exists
+        const existingItem = myCart.find(item => item.name === name);
+        if (existingItem) {
+          existingItem.quantity += 1;
+          console.log('✅ Increased quantity for:', name);
+        } else {
+          myCart.push({
+            name: name,
+            price: parseFloat(price),
+            image: image || 'img/placeholder.jpg',
+            quantity: 1
+          });
+          console.log('✅ Added new item:', name);
+        }
+
+        updateCartBadge();
+        updateCartDisplay();
+
+        // Show success message (removed alert for smoother UX)
+        console.log('✅ Added ' + name + ' to cart!');
+
+      } catch (error) {
+        console.error('❌ Error adding to cart:', error);
+        console.log('❌ Error adding to cart');
+      }
+    }
+
+    // Update cart badge number
+    function updateCartBadge() {
+      const badge = document.getElementById('cartBadge');
+      if (badge) {
+        const totalItems = myCart.reduce((sum, item) => sum + item.quantity, 0);
+        badge.textContent = totalItems;
+        badge.style.display = totalItems > 0 ? 'flex' : 'none';
+      }
+    }
+
+    // Update cart display with quantity controls
+    function updateCartDisplay() {
+      const cartList = document.getElementById('cartItemsList');
+      const cartTotal = document.getElementById('cartTotalAmount');
+      const cartItemCount = document.getElementById('cartItemCount');
+
+      if (!cartList || !cartTotal) {
+        console.error('❌ Cart display elements not found!');
+        return;
+      }
+
+      const totalItems = myCart.reduce((sum, item) => sum + item.quantity, 0);
+
+      // Update item count in cart header
+      if (cartItemCount) {
+        if (totalItems > 0) {
+          cartItemCount.textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+          cartItemCount.style.display = 'block';
+        } else {
+          cartItemCount.style.display = 'none';
+        }
+      }
+
+      if (myCart.length === 0) {
+        cartList.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px; margin: 0;">Your cart is empty</p>';
+        cartTotal.textContent = '0.00';
+      } else {
+        let total = 0;
+        let html = '';
+
+        myCart.forEach((item, index) => {
+          const itemTotal = item.price * item.quantity;
+          total += itemTotal;
+
+          html += `
+            <div style="border: 1px solid #e2e8f0; padding: 12px; margin: 8px 0; border-radius: 8px; background: #f8fafc;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; color: #334155; margin-bottom: 4px;">${item.name}</div>
+                  <div style="color: #64748b; font-size: 14px;">₹${item.price.toFixed(2)} × ${item.quantity}</div>
+                </div>
+                <div style="text-align: right; margin-left: 12px;">
+                  <div style="font-weight: 600; color: #00BFB3; margin-bottom: 6px;">₹${itemTotal.toFixed(2)}</div>
+                  <button
+                    onclick="removeFromCart(${index})"
+                    style="
+                      background: #ef4444;
+                      color: white;
+                      border: none;
+                      border-radius: 4px;
+                      padding: 4px 8px;
+                      cursor: pointer;
+                      font-size: 12px;
+                      font-weight: 500;
+                    "
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        cartList.innerHTML = html;
+        cartTotal.textContent = total.toFixed(2);
+      }
+    }
+
+    // Remove item from cart
+    function removeFromCart(index) {
+      myCart.splice(index, 1);
+      updateCartBadge();
+      updateCartDisplay();
+    }
+
+    // Clear all items from cart
+    function clearCart() {
+      if (myCart.length === 0) {
+        console.log('Cart is already empty');
+        return;
+      }
+
+      myCart = [];
+      updateCartBadge();
+      updateCartDisplay();
+      console.log('✅ Cart cleared successfully!');
+    }
+
+    // Checkout function
+    function proceedToCheckout() {
+      if (myCart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+      }
+
+      const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      alert(`🛒 Checkout\nTotal: ₹${total.toFixed(2)}\nItems: ${myCart.length}`);
+    }
+
+    // Initialize cart on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🛒 Cart system initialized');
+      updateCartBadge();
+
+      // Close cart when clicking outside
+      document.addEventListener('click', function(event) {
+        const cartIcon = document.getElementById('cartIcon');
+        const cartDropdown = document.getElementById('cartDropdown');
+
+        if (isCartOpen && cartIcon && cartDropdown) {
+          if (!cartIcon.contains(event.target) && !cartDropdown.contains(event.target)) {
+            isCartOpen = false;
+            cartDropdown.style.display = 'none';
+          }
+        }
+      });
+    });
+  </script>
 </head>
 <body>
   <!-- Navbar -->
@@ -59,10 +306,101 @@
               <i class="fas fa-heart"></i>
               <span class="badge bg-primary rounded-pill position-absolute top-0 start-100 translate-middle">2</span>
             </a>
-            <a href="#" class="text-dark position-relative" data-bs-toggle="tooltip" title="Cart">
+            <a href="#" id="cartIcon" class="text-dark position-relative" data-bs-toggle="tooltip" title="Cart" onclick="toggleCartDropdown()">
               <i class="fas fa-cart-shopping"></i>
-              <span class="badge bg-primary rounded-pill position-absolute top-0 start-100 translate-middle">4</span>
+              <span id="cartBadge" class="badge bg-primary rounded-pill position-absolute top-0 start-100 translate-middle" style="display: none;">0</span>
             </a>
+
+            <!-- Enhanced Cart Dropdown -->
+            <div
+              id="cartDropdown"
+              style="
+                display: none;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                width: 350px;
+                max-height: 450px;
+                overflow-y: auto;
+                z-index: 9999;
+                padding: 20px;
+                margin-top: 10px;
+                font-family: 'Inter', sans-serif;
+              "
+            >
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center;">
+                  <i class="fa-solid fa-shopping-cart" style="color: #00BFB3; margin-right: 8px; font-size: 18px;"></i>
+                  <h5 style="margin: 0; color: #334155; font-weight: 600;">Shopping Cart</h5>
+                </div>
+                <span id="cartItemCount" style="
+                  background: #00BFB3;
+                  color: white;
+                  padding: 4px 8px;
+                  border-radius: 12px;
+                  font-size: 12px;
+                  font-weight: 600;
+                  display: none;
+                ">0 items</span>
+              </div>
+
+              <div id="cartItemsList">
+                <p style="color: #64748b; text-align: center; padding: 20px; margin: 0;">Your cart is empty</p>
+              </div>
+
+              <hr style="margin: 15px 0; border: none; height: 1px; background: #e2e8f0;">
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <strong style="color: #334155; font-size: 16px;">Total: ₹<span id="cartTotalAmount">0.00</span></strong>
+              </div>
+
+              <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <button
+                  onclick="clearCart()"
+                  style="
+                    flex: 1;
+                    background: #ef4444;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    padding: 8px 12px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: background-color 0.2s ease;
+                  "
+                  onmouseover="this.style.background='#dc2626'"
+                  onmouseout="this.style.background='#ef4444'"
+                >
+                  <i class="fa-solid fa-trash" style="margin-right: 6px;"></i>
+                  Clear All
+                </button>
+              </div>
+
+              <button
+                onclick="proceedToCheckout()"
+                style="
+                  width: 100%;
+                  background: #00BFB3;
+                  color: white;
+                  border: none;
+                  border-radius: 8px;
+                  padding: 12px;
+                  font-weight: 600;
+                  cursor: pointer;
+                  transition: background-color 0.2s ease;
+                "
+                onmouseover="this.style.background='#009688'"
+                onmouseout="this.style.background='#00BFB3'"
+              >
+                <i class="fa-solid fa-credit-card" style="margin-right: 8px;"></i>
+                Proceed to Checkout
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -119,7 +457,14 @@
                 <span class="text-decoration-line-through text-muted me-2">₹600</span>
                 <span class="price">₹420</span>
               </div>
-              <button class="btn btn-primary mt-auto">Add</button>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="quantity-controls d-flex align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('wellness1')">-</button>
+                  <input type="number" id="wellness1" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 60px;">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('wellness1')">+</button>
+                </div>
+              </div>
+              <button class="btn btn-primary mt-auto" onclick="addToCartWithQuantity('Vitamin C Tablets', 420, 'img/Vitamin C Tablets.jpg.jpg', 'wellness1')">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -137,7 +482,7 @@
                 <span class="text-decoration-line-through text-muted me-2">₹750</span>
                 <span class="price">₹600</span>
               </div>
-              <button class="btn btn-primary mt-auto">Add</button>
+              <button class="btn btn-primary mt-auto" onclick="addToSimpleCart('Calcium Supplements', 600, 'img/Calcium Supplements.jpg.jpg')">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -155,7 +500,7 @@
                 <span class="text-decoration-line-through text-muted me-2">₹2000</span>
                 <span class="price">₹1500</span>
               </div>
-              <button class="btn btn-primary mt-auto">Add</button>
+              <button class="btn btn-primary mt-auto" onclick="addToSimpleCart('Protein Powder', 1500, 'img/Protein Powder.jpg.jpg')">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -173,7 +518,7 @@
                 <span class="text-decoration-line-through text-muted me-2">₹1200</span>
                 <span class="price">₹720</span>
               </div>
-              <button class="btn btn-primary mt-auto">Add</button>
+              <button class="btn btn-primary mt-auto" onclick="addToSimpleCart('Omega-3 Fish Oil', 720, 'img/Omega-3 Fish Oil.jpg.jpg')">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -191,7 +536,7 @@
                 <span class="text-decoration-line-through text-muted me-2">₹800</span>
                 <span class="price">₹680</span>
               </div>
-              <button class="btn btn-primary mt-auto">Add</button>
+              <button class="btn btn-primary mt-auto" onclick="addToSimpleCart('Vitamin D3 Drops', 680, 'img/Vitamin D3 Drops.jpg.jpg')">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -209,7 +554,7 @@
                 <span class="text-decoration-line-through text-muted me-2">₹550</span>
                 <span class="price">₹357.50</span>
               </div>
-              <button class="btn btn-primary mt-auto">Add</button>
+              <button class="btn btn-primary mt-auto" onclick="addToSimpleCart('Ashwagandha Capsules', 357.50, 'img/Ashwagandha Capsules.jpg.jpg')">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -227,7 +572,7 @@
                 <span class="text-decoration-line-through text-muted me-2">₹450</span>
                 <span class="price">₹405</span>
               </div>
-              <button class="btn btn-primary mt-auto">Add</button>
+              <button class="btn btn-primary mt-auto" onclick="addToSimpleCart('Green Tea Extract', 405, 'img/Green Tea Extract.jpg.jpg')">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -245,7 +590,7 @@
                 <span class="text-decoration-line-through text-muted me-2">₹900</span>
                 <span class="price">₹495</span>
               </div>
-              <button class="btn btn-primary mt-auto">Add</button>
+              <button class="btn btn-primary mt-auto" onclick="addToSimpleCart('Multivitamin Tablets', 495, 'img/Multivitamin Tablets.jpg.jpg')">Add to Cart</button>
             </div>
           </div>
         </div>
