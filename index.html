@@ -91,9 +91,33 @@
 
     <!-- Simplified Cart Script -->
     <script>
-      // Global cart variables
+      // Global cart variables with localStorage persistence
       let myCart = [];
       let isCartOpen = false;
+
+      // Load cart from localStorage on page load
+      function loadCartFromStorage() {
+        try {
+          const savedCart = localStorage.getItem('cureMateCart');
+          if (savedCart) {
+            myCart = JSON.parse(savedCart);
+            console.log('✅ Cart loaded from storage:', myCart.length, 'items');
+          }
+        } catch (error) {
+          console.error('❌ Error loading cart from storage:', error);
+          myCart = [];
+        }
+      }
+
+      // Save cart to localStorage
+      function saveCartToStorage() {
+        try {
+          localStorage.setItem('cureMateCart', JSON.stringify(myCart));
+          console.log('✅ Cart saved to storage:', myCart.length, 'items');
+        } catch (error) {
+          console.error('❌ Error saving cart to storage:', error);
+        }
+      }
 
       // Main cart toggle function
       function toggleCartDropdown() {
@@ -139,9 +163,74 @@
 
           updateCartBadge();
           updateCartDisplay();
+          saveCartToStorage();
 
           // Show success message
           showSuccessMessage('✅ Added ' + name + ' to cart!');
+
+        } catch (error) {
+          console.error('❌ Error adding to cart:', error);
+          showErrorMessage('❌ Error adding to cart');
+        }
+      }
+
+      // Quantity control functions for product selectors
+      function increaseQuantity(productId) {
+        const input = document.getElementById(productId);
+        if (input) {
+          const currentValue = parseInt(input.value);
+          const maxValue = parseInt(input.max);
+          if (currentValue < maxValue) {
+            input.value = currentValue + 1;
+          }
+        }
+      }
+
+      function decreaseQuantity(productId) {
+        const input = document.getElementById(productId);
+        if (input) {
+          const currentValue = parseInt(input.value);
+          const minValue = parseInt(input.min);
+          if (currentValue > minValue) {
+            input.value = currentValue - 1;
+          }
+        }
+      }
+
+      // Add item to cart function with quantity
+      function addToCartWithQuantity(name, price, image, quantityInputId) {
+        const quantityInput = document.getElementById(quantityInputId);
+        const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+
+        console.log('🛒 Adding to cart:', name, 'Price:', price, 'Quantity:', quantity);
+
+        try {
+          // Check if item already exists
+          const existingItem = myCart.find(item => item.name === name);
+          if (existingItem) {
+            existingItem.quantity += quantity;
+            console.log('✅ Increased quantity for:', name, 'New total:', existingItem.quantity);
+          } else {
+            myCart.push({
+              name: name,
+              price: parseFloat(price),
+              image: image || 'img/placeholder.jpg',
+              quantity: quantity
+            });
+            console.log('✅ Added new item:', name, 'Quantity:', quantity);
+          }
+
+          updateCartBadge();
+          updateCartDisplay();
+          saveCartToStorage();
+
+          // Reset quantity to 1
+          if (quantityInput) {
+            quantityInput.value = 1;
+          }
+
+          // Show success message
+          showSuccessMessage(`✅ Added ${quantity} x ${name} to cart!`);
 
         } catch (error) {
           console.error('❌ Error adding to cart:', error);
@@ -240,7 +329,7 @@
                     <span style="color: #64748b; font-size: 13px; font-weight: 500;">Quantity:</span>
                     <div style="display: flex; align-items: center; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc;">
                       <button
-                        onclick="decreaseQuantity(${index})"
+                        onclick="decreaseCartQuantity(${index})"
                         style="
                           background: none;
                           border: none;
@@ -270,7 +359,7 @@
                         font-size: 14px;
                       ">${item.quantity}</span>
                       <button
-                        onclick="increaseQuantity(${index})"
+                        onclick="increaseCartQuantity(${index})"
                         style="
                           background: none;
                           border: none;
@@ -303,23 +392,25 @@
         }
       }
 
-      // Increase quantity function
-      function increaseQuantity(index) {
+      // Increase cart item quantity function
+      function increaseCartQuantity(index) {
         if (index >= 0 && index < myCart.length) {
           myCart[index].quantity += 1;
           updateCartBadge();
           updateCartDisplay();
+          saveCartToStorage();
           showSuccessMessage(`Increased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
         }
       }
 
-      // Decrease quantity function
-      function decreaseQuantity(index) {
+      // Decrease cart item quantity function
+      function decreaseCartQuantity(index) {
         if (index >= 0 && index < myCart.length) {
           if (myCart[index].quantity > 1) {
             myCart[index].quantity -= 1;
             updateCartBadge();
             updateCartDisplay();
+            saveCartToStorage();
             showSuccessMessage(`Decreased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
           } else {
             // If quantity is 1, remove the item
@@ -335,8 +426,23 @@
           myCart.splice(index, 1);
           updateCartBadge();
           updateCartDisplay();
+          saveCartToStorage();
           showSuccessMessage('Removed ' + removedItem.name + ' from cart');
         }
+      }
+
+      // Clear all items from cart
+      function clearCart() {
+        if (myCart.length === 0) {
+          console.log('Cart is already empty');
+          return;
+        }
+
+        myCart = [];
+        updateCartBadge();
+        updateCartDisplay();
+        saveCartToStorage();
+        console.log('✅ Cart cleared successfully!');
       }
 
       // Enhanced checkout function with order processing
@@ -1975,7 +2081,9 @@
       // Initialize cart on page load
       document.addEventListener('DOMContentLoaded', function() {
         console.log('🛒 Cart system initialized');
+        loadCartFromStorage();
         updateCartBadge();
+        updateCartDisplay();
 
         // Initialize search functionality
         initializeSearch();
@@ -2135,6 +2243,29 @@
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                   <strong style="color: #334155; font-size: 16px;">Total: ₹<span id="cartTotalAmount">0.00</span></strong>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                  <button
+                    onclick="clearCart()"
+                    style="
+                      flex: 1;
+                      background: #ef4444;
+                      color: white;
+                      border: none;
+                      border-radius: 6px;
+                      padding: 8px 12px;
+                      font-weight: 500;
+                      cursor: pointer;
+                      font-size: 14px;
+                      transition: background-color 0.2s ease;
+                    "
+                    onmouseover="this.style.background='#dc2626'"
+                    onmouseout="this.style.background='#ef4444'"
+                  >
+                    <i class="fa-solid fa-trash" style="margin-right: 6px;"></i>
+                    Clear All
+                  </button>
                 </div>
 
                 <button
@@ -2345,9 +2476,16 @@
                     <div class="card-body">
                       <h5 class="card-title">Multivitamin Complex</h5>
                       <p class="card-text">Essential vitamins for daily health</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured1')">-</button>
+                          <input type="number" id="featured1" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured1')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹499</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Multivitamin Complex', 499, 'img/multivitamin.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Multivitamin Complex', 499, 'img/multivitamin.jpg.png', 'featured1')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2358,9 +2496,16 @@
                     <div class="card-body">
                       <h5 class="card-title">Digital Thermometer</h5>
                       <p class="card-text">Accurate temperature readings</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured2')">-</button>
+                          <input type="number" id="featured2" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured2')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹299</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Digital Thermometer', 299, 'img/thermometer.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Digital Thermometer', 299, 'img/thermometer.jpg.png', 'featured2')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2371,9 +2516,16 @@
                     <div class="card-body">
                       <h5 class="card-title">First Aid Kit</h5>
                       <p class="card-text">Complete emergency care kit</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured3')">-</button>
+                          <input type="number" id="featured3" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured3')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹799</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('First Aid Kit', 799, 'img/first-aid.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('First Aid Kit', 799, 'img/first-aid.jpg.png', 'featured3')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2388,9 +2540,16 @@
                     <div class="card-body">
                       <h5 class="card-title">Omega-3 Supplements</h5>
                       <p class="card-text">Heart health support</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured4')">-</button>
+                          <input type="number" id="featured4" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured4')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹599</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Omega-3 Supplements', 599, 'img/omega3.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Omega-3 Supplements', 599, 'img/omega3.jpg.png', 'featured4')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2401,9 +2560,16 @@
                     <div class="card-body">
                       <h5 class="card-title">Blood Pressure Monitor</h5>
                       <p class="card-text">Digital BP monitoring device</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured5')">-</button>
+                          <input type="number" id="featured5" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured5')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹1299</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Blood Pressure Monitor', 1299, 'img/bp-monitor.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Blood Pressure Monitor', 1299, 'img/bp-monitor.jpg.png', 'featured5')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2414,9 +2580,16 @@
                     <div class="card-body">
                       <h5 class="card-title">Protein Powder</h5>
                       <p class="card-text">Plant-based protein supplement</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured6')">-</button>
+                          <input type="number" id="featured6" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured6')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹899</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Protein Powder', 899, 'img/protein.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Protein Powder', 899, 'img/protein.jpg.png', 'featured6')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2431,9 +2604,16 @@
                     <div class="card-body">
                       <h5 class="card-title">Scalpe Plus Anti-Dandruff Shampoo</h5>
                       <p class="card-text">Anti-dandruff hair care solution</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured7')">-</button>
+                          <input type="number" id="featured7" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured7')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹281.82</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Scalpe Plus Anti-Dandruff Shampoo', 281.82, 'img/shampoo.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Scalpe Plus Anti-Dandruff Shampoo', 281.82, 'img/shampoo.jpg.png', 'featured7')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2444,9 +2624,16 @@
                     <div class="card-body">
                       <h5 class="card-title">Hansaplast Bandages</h5>
                       <p class="card-text">Sterile wound protection</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured8')">-</button>
+                          <input type="number" id="featured8" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured8')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹146.25</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Hansaplast Bandages', 146.25, 'img/bandages.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Hansaplast Bandages', 146.25, 'img/bandages.jpg.png', 'featured8')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2457,9 +2644,16 @@
                     <div class="card-body">
                       <h5 class="card-title">Liveasy Healthy Roasted Seed</h5>
                       <p class="card-text">Nutritious snack mix</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured9')">-</button>
+                          <input type="number" id="featured9" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured9')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹175.00</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Liveasy Healthy Roasted Seed', 175.00, 'img/seeds.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Liveasy Healthy Roasted Seed', 175.00, 'img/seeds.jpg.png', 'featured9')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2539,9 +2733,16 @@
                   <i class="fa-solid fa-star-half-stroke text-warning"></i>
                   <span class="ms-1">4.5</span>
                 </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="quantity-controls d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('trending1')">-</button>
+                    <input type="number" id="trending1" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('trending1')">+</button>
+                  </div>
+                </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="price">₹699</span>
-                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Immunity Booster', 699, 'img/Immunity-Booster.jpg.png')">Add to Cart</button>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Immunity Booster', 699, 'img/Immunity-Booster.jpg.png', 'trending1')">Add to Cart</button>
                 </div>
               </div>
             </div>
@@ -2560,9 +2761,16 @@
                   <i class="fa-solid fa-star text-warning"></i>
                   <span class="ms-1">5.0</span>
                 </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="quantity-controls d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('trending2')">-</button>
+                    <input type="number" id="trending2" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('trending2')">+</button>
+                  </div>
+                </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="price">₹999</span>
-                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Collagen Peptides', 999, 'img/Collagen-Peptide.jpg.png')">Add to Cart</button>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Collagen Peptides', 999, 'img/Collagen-Peptide.jpg.png', 'trending2')">Add to Cart</button>
                 </div>
               </div>
             </div>
@@ -2580,9 +2788,16 @@
                   <i class="fa-regular fa-star text-warning"></i>
                   <span class="ms-1">4.0</span>
                 </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="quantity-controls d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('trending3')">-</button>
+                    <input type="number" id="trending3" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('trending3')">+</button>
+                  </div>
+                </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="price">₹1499</span>
-                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Glucometer Kit', 1499, 'img/Glucometer-Kit.jpg.png')">Add to Cart</button>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Glucometer Kit', 1499, 'img/Glucometer-Kit.jpg.png', 'trending3')">Add to Cart</button>
                 </div>
               </div>
             </div>
@@ -2601,9 +2816,16 @@
                   <i class="fa-solid fa-star-half-stroke text-warning"></i>
                   <span class="ms-1">4.7</span>
                 </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="quantity-controls d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('trending4')">-</button>
+                    <input type="number" id="trending4" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('trending4')">+</button>
+                  </div>
+                </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="price">₹399</span>
-                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Vitamin D3 Drops', 399, 'img/Vitamin-D3-Drops.jpg.png')">Add to Cart</button>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Vitamin D3 Drops', 399, 'img/Vitamin-D3-Drops.jpg.png', 'trending4')">Add to Cart</button>
                 </div>
               </div>
             </div>
