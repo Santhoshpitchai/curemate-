@@ -196,28 +196,88 @@
           total += itemTotal;
 
           html += `
-            <div style="border: 1px solid #e2e8f0; padding: 12px; margin: 8px 0; border-radius: 8px; background: #f8fafc;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="border: 1px solid #e2e8f0; padding: 15px; margin: 10px 0; border-radius: 10px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                 <div style="flex: 1;">
-                  <div style="font-weight: 600; color: #334155; margin-bottom: 4px;">${item.name}</div>
-                  <div style="color: #64748b; font-size: 14px;">₹${item.price.toFixed(2)} × ${item.quantity}</div>
+                  <strong style="color: #334155; font-size: 14px; display: block; margin-bottom: 4px;">${item.name}</strong>
+                  <small style="color: #64748b;">₹${item.price.toFixed(2)} each</small>
                 </div>
-                <div style="text-align: right; margin-left: 12px;">
-                  <div style="font-weight: 600; color: #00BFB3; margin-bottom: 6px;">₹${itemTotal.toFixed(2)}</div>
+                <div style="text-align: right;">
+                  <div style="margin-bottom: 8px;"><strong style="color: #00BFB3; font-size: 15px;">₹${itemTotal.toFixed(2)}</strong></div>
                   <button
                     onclick="removeFromCart(${index})"
                     style="
                       background: #ef4444;
                       color: white;
                       border: none;
-                      border-radius: 4px;
+                      border-radius: 6px;
                       padding: 4px 8px;
                       cursor: pointer;
-                      font-size: 12px;
-                      font-weight: 500;
+                      font-size: 11px;
+                      transition: all 0.2s ease;
                     "
+                    onmouseover="this.style.background='#dc2626'"
+                    onmouseout="this.style.background='#ef4444'"
+                    title="Remove item from cart"
                   >
-                    Remove
+                    <i class="fa-solid fa-trash" style="font-size: 10px;"></i>
+                  </button>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid #f1f5f9;">
+                <span style="color: #64748b; font-size: 13px;">Quantity:</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button
+                    onclick="decreaseCartQuantity(${index})"
+                    style="
+                      background: #f1f5f9;
+                      color: #64748b;
+                      border: 1px solid #e2e8f0;
+                      border-radius: 6px;
+                      width: 28px;
+                      height: 28px;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-weight: 600;
+                      transition: all 0.2s ease;
+                    "
+                    onmouseover="this.style.background='#e2e8f0'; this.style.color='#334155'"
+                    onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b'"
+                  >
+                    −
+                  </button>
+                  <span style="
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    padding: 4px 12px;
+                    font-weight: 600;
+                    color: #334155;
+                    min-width: 40px;
+                    text-align: center;
+                  ">${item.quantity}</span>
+                  <button
+                    onclick="increaseCartQuantity(${index})"
+                    style="
+                      background: #00BFB3;
+                      color: white;
+                      border: none;
+                      border-radius: 6px;
+                      width: 28px;
+                      height: 28px;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-weight: 600;
+                      transition: all 0.2s ease;
+                    "
+                    onmouseover="this.style.background='#00807A'"
+                    onmouseout="this.style.background='#00BFB3'"
+                  >
+                    +
                   </button>
                 </div>
               </div>
@@ -230,11 +290,43 @@
       }
     }
 
+    // Increase cart item quantity function
+    function increaseCartQuantity(index) {
+      if (index >= 0 && index < myCart.length) {
+        myCart[index].quantity += 1;
+        updateCartBadge();
+        updateCartDisplay();
+        saveCartToStorage();
+        showSuccessMessage(`Increased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
+      }
+    }
+
+    // Decrease cart item quantity function
+    function decreaseCartQuantity(index) {
+      if (index >= 0 && index < myCart.length) {
+        if (myCart[index].quantity > 1) {
+          myCart[index].quantity -= 1;
+          updateCartBadge();
+          updateCartDisplay();
+          saveCartToStorage();
+          showSuccessMessage(`Decreased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
+        } else {
+          // If quantity is 1, remove the item
+          removeFromCart(index);
+        }
+      }
+    }
+
     // Remove item from cart
     function removeFromCart(index) {
-      myCart.splice(index, 1);
-      updateCartBadge();
-      updateCartDisplay();
+      if (index >= 0 && index < myCart.length) {
+        const removedItem = myCart[index];
+        myCart.splice(index, 1);
+        updateCartBadge();
+        updateCartDisplay();
+        saveCartToStorage();
+        showSuccessMessage('Removed ' + removedItem.name + ' from cart');
+      }
     }
 
     // Clear all items from cart
@@ -247,18 +339,379 @@
       myCart = [];
       updateCartBadge();
       updateCartDisplay();
+      saveCartToStorage();
       console.log('✅ Cart cleared successfully!');
     }
 
-    // Checkout function
+    // Enhanced checkout function with order processing
     function proceedToCheckout() {
       if (myCart.length === 0) {
-        alert('Your cart is empty!');
+        showErrorMessage('Your cart is empty!');
         return;
       }
 
+      // Show checkout modal
+      showCheckoutModal();
+    }
+
+    // Generate dynamic order ID
+    function generateOrderId() {
+      const timestamp = Date.now();
+      const randomNum = Math.floor(Math.random() * 10000);
+      const prefix = 'CUR'; // Curemate prefix
+      return `${prefix}${timestamp}${randomNum}`;
+    }
+
+    // Show success message
+    function showSuccessMessage(message) {
+      // Create toast element
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #22c55e;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+      `;
+      toast.textContent = message;
+
+      // Add animation keyframes
+      if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+          @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      document.body.appendChild(toast);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    // Show error message
+    function showErrorMessage(message) {
+      // Create toast element
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ef4444;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    // Show checkout modal
+    function showCheckoutModal() {
       const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      alert(`🛒 Checkout\nTotal: ₹${total.toFixed(2)}\nItems: ${myCart.length}`);
+      const itemCount = myCart.reduce((sum, item) => sum + item.quantity, 0);
+
+      // Create checkout modal HTML
+      const checkoutModalHTML = `
+        <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header" style="background: linear-gradient(135deg, #00BFB3 0%, #00807A 100%); color: white;">
+                <h5 class="modal-title" id="checkoutModalLabel">
+                  <i class="fa-solid fa-credit-card me-2"></i>Checkout
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <!-- Order Summary -->
+                  <div class="col-md-6">
+                    <h6 class="mb-3"><i class="fa-solid fa-list me-2"></i>Order Summary</h6>
+                    <div id="checkoutItems" style="max-height: 300px; overflow-y: auto;">
+                      ${myCart.map(item => `
+                        <div class="d-flex justify-content-between align-items-center mb-2 p-2" style="border: 1px solid #e2e8f0; border-radius: 6px;">
+                          <div>
+                            <strong style="font-size: 14px;">${item.name}</strong><br>
+                            <small class="text-muted">₹${item.price.toFixed(2)} × ${item.quantity}</small>
+                          </div>
+                          <strong class="text-primary">₹${(item.price * item.quantity).toFixed(2)}</strong>
+                        </div>
+                      `).join('')}
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                      <strong>Total (${itemCount} items):</strong>
+                      <strong class="text-primary fs-5">₹${total.toFixed(2)}</strong>
+                    </div>
+                  </div>
+
+                  <!-- Customer Details -->
+                  <div class="col-md-6">
+                    <h6 class="mb-3"><i class="fa-solid fa-user me-2"></i>Customer Details</h6>
+                    <form id="checkoutForm">
+                      <div class="mb-3">
+                        <label for="customerName" class="form-label">Full Name *</label>
+                        <input type="text" class="form-control" id="customerName" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="customerPhone" class="form-label">Phone Number *</label>
+                        <input type="tel" class="form-control" id="customerPhone" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="customerEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="customerEmail">
+                      </div>
+                      <div class="mb-3">
+                        <label for="customerAddress" class="form-label">Delivery Address *</label>
+                        <textarea class="form-control" id="customerAddress" rows="3" required></textarea>
+                      </div>
+                      <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Payment Method *</label>
+                        <select class="form-select" id="paymentMethod" required>
+                          <option value="">Select Payment Method</option>
+                          <option value="cod">Cash on Delivery</option>
+                          <option value="upi">UPI Payment</option>
+                          <option value="card">Credit/Debit Card</option>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="placeOrder()" style="background: #00BFB3; border-color: #00BFB3;">
+                  <i class="fa-solid fa-check me-2"></i>Place Order - ₹${total.toFixed(2)}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Remove existing modal if any
+      const existingModal = document.getElementById('checkoutModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+
+      // Add modal to body
+      document.body.insertAdjacentHTML('beforeend', checkoutModalHTML);
+
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+      modal.show();
+    }
+
+    // Place order function
+    function placeOrder() {
+      const form = document.getElementById('checkoutForm');
+      const formData = new FormData(form);
+
+      // Validate required fields
+      const name = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('customerPhone').value.trim();
+      const address = document.getElementById('customerAddress').value.trim();
+      const paymentMethod = document.getElementById('paymentMethod').value;
+
+      if (!name || !phone || !address || !paymentMethod) {
+        showErrorMessage('Please fill in all required fields');
+        return;
+      }
+
+      // Create order object
+      const order = {
+        id: generateOrderId(),
+        items: [...myCart],
+        customer: {
+          name: name,
+          phone: phone,
+          email: document.getElementById('customerEmail').value.trim(),
+          address: address
+        },
+        payment: {
+          method: paymentMethod,
+          status: 'pending'
+        },
+        total: myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        status: 'confirmed',
+        orderDate: new Date().toISOString(),
+        estimatedDelivery: getEstimatedDeliveryDate()
+      };
+
+      // Save order
+      saveOrder(order);
+
+      // Clear cart
+      myCart = [];
+      updateCartBadge();
+      updateCartDisplay();
+
+      // Close checkout modal
+      const checkoutModal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
+      checkoutModal.hide();
+
+      // Close cart dropdown
+      const cartDropdown = document.getElementById('cartDropdown');
+      if (cartDropdown) {
+        cartDropdown.style.display = 'none';
+        isCartOpen = false;
+      }
+
+      // Show order confirmation
+      showOrderConfirmation(order);
+    }
+
+    // Get estimated delivery date (3-5 business days)
+    function getEstimatedDeliveryDate() {
+      const today = new Date();
+      const deliveryDays = Math.floor(Math.random() * 3) + 3; // 3-5 days
+      const deliveryDate = new Date(today);
+      deliveryDate.setDate(today.getDate() + deliveryDays);
+      return deliveryDate.toISOString();
+    }
+
+    // Save order to localStorage
+    function saveOrder(order) {
+      const orders = getCustomerOrders();
+      orders.push(order);
+      localStorage.setItem('customerOrders', JSON.stringify(orders));
+    }
+
+    // Get customer orders
+    function getCustomerOrders() {
+      return JSON.parse(localStorage.getItem('customerOrders') || '[]');
+    }
+
+    // Show order confirmation modal
+    function showOrderConfirmation(order) {
+      const confirmationHTML = `
+        <div class="modal fade" id="orderConfirmationModal" tabindex="-1" aria-labelledby="orderConfirmationLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white;">
+                <h5 class="modal-title" id="orderConfirmationLabel">
+                  <i class="fa-solid fa-check-circle me-2"></i>Order Confirmed!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-center">
+                <div class="mb-4">
+                  <i class="fa-solid fa-check-circle text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="text-success mb-3">Thank you for your order!</h4>
+                <div class="alert alert-success">
+                  <strong>Order ID:</strong> ${order.id}<br>
+                  <strong>Total Amount:</strong> ₹${order.total.toFixed(2)}<br>
+                  <strong>Payment Method:</strong> ${order.payment.method.toUpperCase()}<br>
+                  <strong>Estimated Delivery:</strong> ${new Date(order.estimatedDelivery).toLocaleDateString()}
+                </div>
+                <p class="text-muted">
+                  Your order has been confirmed and will be delivered to:<br>
+                  <strong>${order.customer.address}</strong>
+                </p>
+                <div class="d-flex gap-2 justify-content-center mt-4">
+                  <button class="btn btn-primary" onclick="trackOrder('${order.id}')">
+                    <i class="fa-solid fa-truck me-2"></i>Track Order
+                  </button>
+                  <button class="btn btn-outline-primary" onclick="downloadOrderReceipt('${order.id}')">
+                    <i class="fa-solid fa-download me-2"></i>Download Receipt
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Remove existing confirmation modal if any
+      const existingModal = document.getElementById('orderConfirmationModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+
+      // Add modal to body
+      document.body.insertAdjacentHTML('beforeend', confirmationHTML);
+
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'));
+      modal.show();
+    }
+
+    // Track order function
+    function trackOrder(orderId) {
+      showSuccessMessage(`Tracking order ${orderId}. You will receive SMS updates.`);
+    }
+
+    // Download order receipt
+    function downloadOrderReceipt(orderId) {
+      const orders = getCustomerOrders();
+      const order = orders.find(o => o.id === orderId);
+
+      if (!order) {
+        showErrorMessage('Order not found');
+        return;
+      }
+
+      // Create receipt content
+      const receiptContent = `
+        CUREMATE - ORDER RECEIPT
+        ========================
+
+        Order ID: ${order.id}
+        Date: ${new Date(order.orderDate).toLocaleString()}
+
+        Customer Details:
+        Name: ${order.customer.name}
+        Phone: ${order.customer.phone}
+        Email: ${order.customer.email || 'N/A'}
+        Address: ${order.customer.address}
+
+        Items:
+        ${order.items.map(item => `${item.name} - ₹${item.price.toFixed(2)} × ${item.quantity} = ₹${(item.price * item.quantity).toFixed(2)}`).join('\n')}
+
+        Total: ₹${order.total.toFixed(2)}
+        Payment Method: ${order.payment.method.toUpperCase()}
+
+        Estimated Delivery: ${new Date(order.estimatedDelivery).toLocaleDateString()}
+
+        Thank you for shopping with Curemate!
+      `;
+
+      // Create and download file
+      const blob = new Blob([receiptContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Curemate_Receipt_${order.id}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      showSuccessMessage('Receipt downloaded successfully!');
     }
 
     // Product sorting functionality
@@ -468,17 +921,18 @@
               <button
                 onclick="proceedToCheckout()"
                 style="
-                  width: 100%;
                   background: #00BFB3;
                   color: white;
                   border: none;
+                  padding: 12px 20px;
                   border-radius: 8px;
-                  padding: 12px;
-                  font-weight: 600;
                   cursor: pointer;
-                  transition: background-color 0.2s ease;
+                  width: 100%;
+                  font-weight: 600;
+                  font-size: 14px;
+                  transition: all 0.2s ease;
                 "
-                onmouseover="this.style.background='#009688'"
+                onmouseover="this.style.background='#00807A'"
                 onmouseout="this.style.background='#00BFB3'"
               >
                 <i class="fa-solid fa-credit-card" style="margin-right: 8px;"></i>

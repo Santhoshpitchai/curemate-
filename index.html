@@ -2245,6 +2245,29 @@
                   <strong style="color: #334155; font-size: 16px;">Total: ₹<span id="cartTotalAmount">0.00</span></strong>
                 </div>
 
+                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                  <button
+                    onclick="clearCart()"
+                    style="
+                      flex: 1;
+                      background: #ef4444;
+                      color: white;
+                      border: none;
+                      border-radius: 6px;
+                      padding: 8px 12px;
+                      font-weight: 500;
+                      cursor: pointer;
+                      font-size: 14px;
+                      transition: background-color 0.2s ease;
+                    "
+                    onmouseover="this.style.background='#dc2626'"
+                    onmouseout="this.style.background='#ef4444'"
+                  >
+                    <i class="fa-solid fa-trash" style="margin-right: 6px;"></i>
+                    Clear All
+                  </button>
+                </div>
+
                 <button
                   onclick="proceedToCheckout()"
                   style="
