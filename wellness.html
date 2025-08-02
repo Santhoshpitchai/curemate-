@@ -236,10 +236,67 @@
       alert(`🛒 Checkout\nTotal: ₹${total.toFixed(2)}\nItems: ${myCart.length}`);
     }
 
+    // Product sorting functionality
+    function sortProducts() {
+      const sortSelect = document.getElementById('sort-products');
+      const sortValue = sortSelect.value;
+      const productsContainer = document.querySelector('.row.g-4');
+      const productCards = Array.from(productsContainer.children);
+
+      // Extract product data for sorting
+      const products = productCards.map(card => {
+        const titleElement = card.querySelector('.card-title');
+        const priceElement = card.querySelector('.price');
+        const originalPriceElement = card.querySelector('.text-decoration-line-through');
+
+        return {
+          element: card,
+          name: titleElement ? titleElement.textContent.trim() : '',
+          price: priceElement ? parseFloat(priceElement.textContent.replace('₹', '')) : 0,
+          originalPrice: originalPriceElement ? parseFloat(originalPriceElement.textContent.replace('₹', '')) : 0
+        };
+      });
+
+      // Sort products based on selected option
+      let sortedProducts;
+      switch(sortValue) {
+        case 'Price: Low to High':
+          sortedProducts = products.sort((a, b) => a.price - b.price);
+          break;
+        case 'Price: High to Low':
+          sortedProducts = products.sort((a, b) => b.price - a.price);
+          break;
+        case 'Name: A to Z':
+          sortedProducts = products.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'Name: Z to A':
+          sortedProducts = products.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+        default: // Featured
+          // Keep original order for featured
+          sortedProducts = products;
+          break;
+      }
+
+      // Clear container and re-append sorted products
+      productsContainer.innerHTML = '';
+      sortedProducts.forEach(product => {
+        productsContainer.appendChild(product.element);
+      });
+
+      console.log(`Products sorted by: ${sortValue}`);
+    }
+
     // Initialize cart on page load
     document.addEventListener('DOMContentLoaded', function() {
       console.log('🛒 Cart system initialized');
       updateCartBadge();
+
+      // Setup sort functionality
+      const sortSelect = document.getElementById('sort-products');
+      if (sortSelect) {
+        sortSelect.addEventListener('change', sortProducts);
+      }
 
       // Close cart when clicking outside
       document.addEventListener('click', function(event) {
