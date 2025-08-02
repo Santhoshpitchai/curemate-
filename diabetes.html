@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Products - Curemate Health Hub</title>
+    <meta name="description" content="Diabetes management and monitoring products at Curemate Health Hub">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        .product-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .discount-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #22c55e;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 2;
+        }
+        
+        .product-image {
+            height: 200px;
+            object-fit: contain;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        
+        .price-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .current-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00BFB3;
+        }
+        
+        .original-price {
+            font-size: 14px;
+            color: #64748b;
+            text-decoration: line-through;
+        }
+        
+        .mrp-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .quantity-btn:hover {
+            background: #f1f5f9;
+            border-color: #00BFB3;
+        }
+        
+        .quantity-input {
+            width: 50px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        
+        .add-btn {
+            background: #00BFB3;
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        
+        .add-btn:hover {
+            background: #00807A;
+            transform: translateY(-1px);
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 60px 0;
+        }
+        
+        .breadcrumb {
+            background: none;
+            padding: 0;
+            margin-bottom: 30px;
+        }
+        
+        .breadcrumb-item a {
+            color: #00BFB3;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item.active {
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html" style="color: #00BFB3;">
+                <i class="fa-solid fa-heart-pulse me-2"></i>Curemate
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Health Concerns
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="blood-pressure.html">Blood Pressure (BP)</a></li>
+                            <li><a class="dropdown-item" href="diabetes.html">Diabetes</a></li>
+                            <li><a class="dropdown-item" href="cholesterol.html">Cholesterol</a></li>
+                            <li><a class="dropdown-item" href="pancreatitis.html">Pancreatitis</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center">
+                    <!-- ENHANCED CART ICON -->
+                    <div style="position: relative; display: inline-block; margin-right: 15px;">
+                        <button
+                            id="cartIcon"
+                            onclick="toggleCartDropdown()"
+                            style="
+                                cursor: pointer !important;
+                                padding: 10px;
+                                font-size: 20px;
+                                position: relative;
+                                background: transparent;
+                                border: none;
+                                color: #00BFB3;
+                                border-radius: 8px;
+                                transition: all 0.2s ease;
+                            "
+                            onmouseover="
+                                this.style.background='rgba(0, 191, 179, 0.1)';
+                                this.style.transform='scale(1.05)';
+                            "
+                            onmouseout="
+                                this.style.background='transparent';
+                                this.style.transform='scale(1)';
+                            "
+                        >
+                            <i class="fa-solid fa-shopping-cart"></i>
+                            <span
+                                id="cartBadge"
+                                style="
+                                    position: absolute;
+                                    top: -2px;
+                                    right: -2px;
+                                    background: #ff6b35;
+                                    color: white;
+                                    border-radius: 50%;
+                                    width: 20px;
+                                    height: 20px;
+                                    font-size: 11px;
+                                    font-weight: bold;
+                                    display: none;
+                                    align-items: center;
+                                    justify-content: center;
+                                    border: 2px solid white;
+                                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                                "
+                                class="cart-badge"
+                            >
+                                0
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active">Diabetes</li>
+                </ol>
+            </nav>
+            <h1 class="display-4 fw-bold mb-3">Diabetes Management Products</h1>
+            <p class="lead mb-0">Monitor and manage your diabetes with our comprehensive range of products</p>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Product 1 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-card">
+                        <div class="discount-badge">18% OFF</div>
+                        <img src="img/Digital Glucose Monitor Kit.jpg.jpg" class="product-image w-100" alt="Glucose Monitor">
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-2">Digital Glucose Monitor Kit</h6>
+                            <div class="price-section">
+                                <span class="mrp-label">MRP</span>
+                                <span class="original-price">₹1899</span>
+                            </div>
+                            <div class="current-price">₹1557</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity('diabetes1')">-</button>
+                                <input type="number" id="diabetes1" class="quantity-input" value="1" min="1" max="10">
+                                <button class="quantity-btn" onclick="increaseQuantity('diabetes1')">+</button>
+                            </div>
+                            <button class="add-btn" onclick="addToCartWithQuantity('Digital Glucose Monitor Kit', 1557, 'img/Glucose Monitor.jpg.jpg', 'diabetes1')">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-card">
+                        <div class="discount-badge">12% OFF</div>
+                        <img src="img/Glucometer-Kit.jpg.png" class="product-image w-100" alt="Glucometer Kit">
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-2">Advanced Glucometer Kit</h6>
+                            <div class="price-section">
+                                <span class="mrp-label">MRP</span>
+                                <span class="original-price">₹2299</span>
+                            </div>
+                            <div class="current-price">₹2023</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity('diabetes2')">-</button>
+                                <input type="number" id="diabetes2" class="quantity-input" value="1" min="1" max="10">
+                                <button class="quantity-btn" onclick="increaseQuantity('diabetes2')">+</button>
+                            </div>
+                            <button class="add-btn" onclick="addToCartWithQuantity('Advanced Glucometer Kit', 2023, 'img/Glucometer-Kit.jpg.png', 'diabetes2')">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-card">
+                        <div class="discount-badge">22% OFF</div>
+                        <img src="img/multivitamin.jpg.png" class="product-image w-100" alt="Diabetic Multivitamin">
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-2">Diabetic Care Multivitamin</h6>
+                            <div class="price-section">
+                                <span class="mrp-label">MRP</span>
+                                <span class="original-price">₹699</span>
+                            </div>
+                            <div class="current-price">₹545</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity('diabetes3')">-</button>
+                                <input type="number" id="diabetes3" class="quantity-input" value="1" min="1" max="10">
+                                <button class="quantity-btn" onclick="increaseQuantity('diabetes3')">+</button>
+                            </div>
+                            <button class="add-btn" onclick="addToCartWithQuantity('Diabetic Care Multivitamin', 545, 'img/Multivitamin Tablets.jpg.jpg', 'diabetes3')">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-card">
+                        <div class="discount-badge">15% OFF</div>
+                        <img src="img/omega-3-supplements.jpg.png" class="product-image w-100" alt="Omega-3 for Diabetes">
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-2">Omega-3 for Diabetics</h6>
+                            <div class="price-section">
+                                <span class="mrp-label">MRP</span>
+                                <span class="original-price">₹999</span>
+                            </div>
+                            <div class="current-price">₹849</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity('diabetes4')">-</button>
+                                <input type="number" id="diabetes4" class="quantity-input" value="1" min="1" max="10">
+                                <button class="quantity-btn" onclick="increaseQuantity('diabetes4')">+</button>
+                            </div>
+                            <button class="add-btn" onclick="addToCartWithQuantity('Omega-3 for Diabetics', 849, 'img/Omega-3 Fish Oil.jpg.jpg', 'diabetes4')">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 5 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-card">
+                        <div class="discount-badge">24% OFF</div>
+                        <img src="img/Metformin diabetes tablets.jpg.jpg" class="product-image w-100" alt="Metformin Diabetes">
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-2">Metformin Diabetes Tablets</h6>
+                            <div class="price-section">
+                                <span class="mrp-label">MRP</span>
+                                <span class="original-price">₹250</span>
+                            </div>
+                            <div class="current-price">₹190</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity('diabetes5')">-</button>
+                                <input type="number" id="diabetes5" class="quantity-input" value="1" min="1" max="10">
+                                <button class="quantity-btn" onclick="increaseQuantity('diabetes5')">+</button>
+                            </div>
+                            <button class="add-btn" onclick="addToCartWithQuantity('Metformin Diabetes Tablets', 190, 'img/Combiflam Tablet 20.jpg.jpg', 'diabetes5')">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 6 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-card">
+                        <div class="discount-badge">19% OFF</div>
+                        <img src="img/glimepiride Diabetes control.jpg.jpg" class="product-image w-100" alt="Glimepiride Diabetes">
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-2">Glimepiride Diabetes Control</h6>
+                            <div class="price-section">
+                                <span class="mrp-label">MRP</span>
+                                <span class="original-price">₹320</span>
+                            </div>
+                            <div class="current-price">₹259</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity('diabetes6')">-</button>
+                                <input type="number" id="diabetes6" class="quantity-input" value="1" min="1" max="10">
+                                <button class="quantity-btn" onclick="increaseQuantity('diabetes6')">+</button>
+                            </div>
+                            <button class="add-btn" onclick="addToCartWithQuantity('Glimepiride Diabetes Control', 259, 'img/Dolo 650mg Tablet 15.jpg.jpg', 'diabetes6')">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 7 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-card">
+                        <div class="discount-badge">26% OFF</div>
+                        <img src="img/Chromium blood sugar.jpg.jpg" class="product-image w-100" alt="Chromium Diabetes">
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-2">Chromium Blood Sugar</h6>
+                            <div class="price-section">
+                                <span class="mrp-label">MRP</span>
+                                <span class="original-price">₹899</span>
+                            </div>
+                            <div class="current-price">₹665</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity('diabetes7')">-</button>
+                                <input type="number" id="diabetes7" class="quantity-input" value="1" min="1" max="10">
+                                <button class="quantity-btn" onclick="increaseQuantity('diabetes7')">+</button>
+                            </div>
+                            <button class="add-btn" onclick="addToCartWithQuantity('Chromium Blood Sugar', 665, 'img/Ashwagandha Capsules.jpg.jpg', 'diabetes7')">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 8 -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="product-card">
+                        <div class="discount-badge">21% OFF</div>
+                        <img src="img/alpha lipoic acid diabetes.jpg.jpg" class="product-image w-100" alt="Alpha Lipoic Acid">
+                        <div class="card-body p-3">
+                            <h6 class="card-title mb-2">Alpha Lipoic Acid Diabetes</h6>
+                            <div class="price-section">
+                                <span class="mrp-label">MRP</span>
+                                <span class="original-price">₹1299</span>
+                            </div>
+                            <div class="current-price">₹1026</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="decreaseQuantity('diabetes8')">-</button>
+                                <input type="number" id="diabetes8" class="quantity-input" value="1" min="1" max="10">
+                                <button class="quantity-btn" onclick="increaseQuantity('diabetes8')">+</button>
+                            </div>
+                            <button class="add-btn" onclick="addToCartWithQuantity('Alpha Lipoic Acid Diabetes', 1026, 'img/Vitamin D3 Drops.jpg.jpg', 'diabetes8')">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Cart Dropdown -->
+    <div
+        id="cartDropdown"
+        style="
+            display: none;
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            width: 380px;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 1000;
+            padding: 0;
+        "
+    >
+        <!-- Cart Header -->
+        <div style="padding: 20px 20px 15px 20px; border-bottom: 1px solid #f1f5f9; background: #f8fafc; border-radius: 12px 12px 0 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h6 style="margin: 0; color: #334155; font-weight: 600; font-size: 16px;">
+                    🛒 Shopping Cart
+                </h6>
+                <span id="cartItemCount" style="color: #64748b; font-size: 13px; font-weight: 500;"></span>
+            </div>
+        </div>
+
+        <!-- Cart Items -->
+        <div id="cartItemsList" style="padding: 15px 20px; max-height: 300px; overflow-y: auto;">
+            <p style="color: #64748b; text-align: center; padding: 20px; margin: 0;">Your cart is empty</p>
+        </div>
+
+        <!-- Cart Footer - Buttons are now dynamically generated by JavaScript -->
+        <div style="padding: 15px 20px; border-top: 1px solid #f1f5f9; background: #f8fafc; border-radius: 0 0 12px 12px;">
+            <!-- Total and buttons will be added dynamically by health-cart.js -->
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Health Cart System (Same as Home Page) -->
+    <script src="js/health-cart.js"></script>
+</body>
+</html>

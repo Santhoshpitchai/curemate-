@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Debug - Curemate</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #00BFB3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #00A693;
+        }
+        .clear-btn {
+            background: #ef4444;
+        }
+        .clear-btn:hover {
+            background: #dc2626;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛒 Cart Debug Panel</h1>
+    
+    <div class="debug-panel">
+        <h2>Cart State</h2>
+        <button onclick="showCartState()">Show Cart State</button>
+        <button onclick="showLocalStorage()">Show localStorage</button>
+        <button onclick="clearAllData()" class="clear-btn">Clear All Cart Data</button>
+        <pre id="output">Click a button to see cart information...</pre>
+    </div>
+
+    <div class="debug-panel">
+        <h2>Test Actions</h2>
+        <button onclick="addTestItem()">Add Test Item</button>
+        <button onclick="clearCart()">Clear Cart (Function)</button>
+        <button onclick="updateDisplay()">Update Display</button>
+        <button onclick="forceRefreshCart()">Force Refresh</button>
+    </div>
+
+    <div class="debug-panel">
+        <h2>Cart Badge Test</h2>
+        <div style="position: relative; display: inline-block;">
+            <span style="font-size: 24px;">🛒</span>
+            <span id="cartBadge" style="
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background: #ef4444;
+                color: white;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: bold;
+            ">0</span>
+        </div>
+    </div>
+
+    <script src="js/health-cart.js"></script>
+    <script>
+        function showCartState() {
+            const output = document.getElementById('output');
+            output.textContent = `
+Cart Array: ${JSON.stringify(myCart, null, 2)}
+Cart Length: ${myCart.length}
+Total Items: ${myCart.reduce((sum, item) => sum + item.quantity, 0)}
+            `;
+        }
+
+        function showLocalStorage() {
+            const output = document.getElementById('output');
+            output.textContent = `
+localStorage 'cureMateCart': ${localStorage.getItem('cureMateCart')}
+localStorage 'shoppingCart': ${localStorage.getItem('shoppingCart')}
+            `;
+        }
+
+        function clearAllData() {
+            myCart = [];
+            localStorage.removeItem('cureMateCart');
+            localStorage.removeItem('shoppingCart');
+            updateCartBadge();
+            showCartState();
+            alert('All cart data cleared!');
+        }
+
+        function addTestItem() {
+            const testItem = {
+                name: 'Test Product',
+                price: 99.99,
+                image: 'img/placeholder.jpg',
+                quantity: 1
+            };
+            myCart.push(testItem);
+            saveCartToStorage();
+            updateCartBadge();
+            showCartState();
+        }
+
+        function updateDisplay() {
+            updateCartBadge();
+            showCartState();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showCartState();
+        });
+    </script>
+</body>
+</html>

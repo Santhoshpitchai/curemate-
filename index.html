@@ -98,13 +98,42 @@
       // Load cart from localStorage on page load
       function loadCartFromStorage() {
         try {
-          const savedCart = localStorage.getItem('cureMateCart');
-          if (savedCart) {
-            myCart = JSON.parse(savedCart);
-            console.log('✅ Cart loaded from storage:', myCart.length, 'items');
+          // Check both possible localStorage keys and merge if needed
+          const cureMateCart = localStorage.getItem('cureMateCart');
+          const shoppingCart = localStorage.getItem('shoppingCart');
+
+          console.log('🔍 Checking localStorage...');
+          console.log('cureMateCart:', cureMateCart);
+          console.log('shoppingCart:', shoppingCart);
+
+          if (cureMateCart) {
+            myCart = JSON.parse(cureMateCart);
+            console.log('✅ Cart loaded from cureMateCart:', myCart.length, 'items');
+          } else if (shoppingCart) {
+            const parsedCart = JSON.parse(shoppingCart);
+            // Validate and migrate from old cart system
+            if (Array.isArray(parsedCart) && parsedCart.every(item =>
+              item.name && typeof item.price === 'number' && typeof item.quantity === 'number'
+            )) {
+              myCart = parsedCart;
+              console.log('✅ Migrated cart from shoppingCart:', myCart.length, 'items');
+              // Save to new key and remove old key
+              saveCartToStorage();
+              localStorage.removeItem('shoppingCart');
+            } else {
+              console.warn('⚠️ Invalid cart data in shoppingCart, clearing...');
+              localStorage.removeItem('shoppingCart');
+              myCart = [];
+            }
+          } else {
+            myCart = [];
+            console.log('ℹ️ No cart data found, starting with empty cart');
           }
         } catch (error) {
           console.error('❌ Error loading cart from storage:', error);
+          // Clear corrupted data
+          localStorage.removeItem('cureMateCart');
+          localStorage.removeItem('shoppingCart');
           myCart = [];
         }
       }
@@ -2679,36 +2708,44 @@
         <h2 class="section-title text-center mb-5">Shop by Health Concern</h2>
         <div class="row g-4">
           <div class="col-6 col-md-3">
-            <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
-              <img src="img/heart-health.jpg.png" class="w-100" alt="Heart Health" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
-              <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
-                <h3 class="concern-title mb-2">Heart Health</h3>
+            <a href="blood-pressure.html" class="text-decoration-none">
+              <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/Blood Pressure (BP).jpg.jpg" class="w-100" alt="Blood Pressure (BP)" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+                <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
+                  <h3 class="concern-title mb-2">Blood Pressure (BP)</h3>
+                </div>
               </div>
-            </div>
+            </a>
           </div>
           <div class="col-6 col-md-3">
-            <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
-              <img src="img/brain-health.jpg.png" class="w-100" alt="Brain Health" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
-              <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
-                <h3 class="concern-title mb-2">Brain Health</h3>
+            <a href="diabetes.html" class="text-decoration-none">
+              <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/Diabetes.jpg.jpg" class="w-100" alt="Diabetes" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+                <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
+                  <h3 class="concern-title mb-2">Diabetes</h3>
+                </div>
               </div>
-            </div>
+            </a>
           </div>
           <div class="col-6 col-md-3">
-            <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
-              <img src="img/bone-health.jpg.png" class="w-100" alt="Bone Health" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
-              <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
-                <h3 class="concern-title mb-2">Bone Health</h3>
+            <a href="cholesterol.html" class="text-decoration-none">
+              <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/Cholesterol.jpg.jpg" class="w-100" alt="Cholesterol" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+                <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
+                  <h3 class="concern-title mb-2">Cholesterol</h3>
+                </div>
               </div>
-            </div>
+            </a>
           </div>
           <div class="col-6 col-md-3">
-            <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
-              <img src="img/eyecare.jpg.png" class="w-100" alt="Eye Care" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
-              <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
-                <h3 class="concern-title mb-2">Eye Care</h3>
+            <a href="pancreatitis.html" class="text-decoration-none">
+              <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/Pancreatitis.jpg.jpg" class="w-100" alt="Pancreatitis" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+                <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
+                  <h3 class="concern-title mb-2">Pancreatitis</h3>
+                </div>
               </div>
-            </div>
+            </a>
           </div>
         </div>
       </div>
@@ -3142,8 +3179,5 @@
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JavaScript -->
-    <script src="js/main.js"></script>
   </body>
 </html>
