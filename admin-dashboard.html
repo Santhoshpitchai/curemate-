@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Curemate Health Hub</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .refresh-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .data-card {
+            position: relative;
+            min-height: 400px;
+        }
+        .auto-refresh {
+            background-color: #e8f5e8;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fa-solid fa-shield-alt me-2"></i>Admin Dashboard
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="index.html">
+                    <i class="fa-solid fa-home me-1"></i>Main Site
+                </a>
+                <a class="nav-link" href="test-supabase.html">
+                    <i class="fa-solid fa-database me-1"></i>Test Page
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Stats Row -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 id="totalUsers">0</h4>
+                                <p class="mb-0">Total Users</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fa-solid fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 id="totalVendors">0</h4>
+                                <p class="mb-0">Total Vendors</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fa-solid fa-store fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 id="recentUsers">0</h4>
+                                <p class="mb-0">Recent Users (24h)</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fa-solid fa-user-plus fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 id="recentVendors">0</h4>
+                                <p class="mb-0">Recent Vendors (24h)</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fa-solid fa-handshake fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Tables Row -->
+        <div class="row">
+            <!-- Users Table -->
+            <div class="col-md-6">
+                <div class="card data-card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fa-solid fa-users me-2"></i>Registered Users</h5>
+                        <button class="btn btn-sm btn-light refresh-btn" onclick="loadUsers()">
+                            <i class="fa-solid fa-refresh"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Joined</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading users...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vendors Table -->
+            <div class="col-md-6">
+                <div class="card data-card">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fa-solid fa-store me-2"></i>Registered Vendors</h5>
+                        <button class="btn btn-sm btn-light refresh-btn" onclick="loadVendors()">
+                            <i class="fa-solid fa-refresh"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Joined</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vendorsTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            <i class="fa-solid fa-spinner fa-spin me-2"></i>Loading vendors...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auto-refresh Controls -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Auto-refresh</h6>
+                                <small class="text-muted">Automatically refresh data every 30 seconds</small>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="autoRefreshToggle" checked>
+                                <label class="form-check-label" for="autoRefreshToggle">
+                                    Enable auto-refresh
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">Last updated: <span id="lastUpdated">Never</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/supabase-service.js"></script>
+    <script>
+        let autoRefreshInterval;
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeDashboard();
+            setupAutoRefresh();
+        });
+
+        async function initializeDashboard() {
+            // Wait for supabase service to be ready
+            let attempts = 0;
+            while (!window.supabaseService && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
+            if (!window.supabaseService) {
+                console.error('Supabase service not available');
+                return;
+            }
+
+            await loadAllData();
+        }
+
+        async function loadAllData() {
+            await Promise.all([
+                loadUsers(),
+                loadVendors()
+            ]);
+            updateLastUpdated();
+        }
+
+        async function loadUsers() {
+            try {
+                const users = await window.supabaseService.getAllUsers();
+                updateUsersTable(users);
+                updateUserStats(users);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersTableBody').innerHTML = `
+                    <tr><td colspan="4" class="text-center text-danger">Error loading users: ${error.message}</td></tr>
+                `;
+            }
+        }
+
+        async function loadVendors() {
+            try {
+                const vendors = await window.supabaseService.getAllVendors();
+                updateVendorsTable(vendors);
+                updateVendorStats(vendors);
+            } catch (error) {
+                console.error('Error loading vendors:', error);
+                document.getElementById('vendorsTableBody').innerHTML = `
+                    <tr><td colspan="4" class="text-center text-danger">Error loading vendors: ${error.message}</td></tr>
+                `;
+            }
+        }
+
+        function updateUsersTable(users) {
+            const tbody = document.getElementById('usersTableBody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No users found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.first_name} ${user.last_name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || 'N/A'}</td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateVendorsTable(vendors) {
+            const tbody = document.getElementById('vendorsTableBody');
+            
+            if (vendors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No vendors found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = vendors.map(vendor => `
+                <tr>
+                    <td>${vendor.first_name} ${vendor.last_name}</td>
+                    <td>${vendor.email}</td>
+                    <td>${vendor.phone || 'N/A'}</td>
+                    <td>${new Date(vendor.created_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateUserStats(users) {
+            document.getElementById('totalUsers').textContent = users.length;
+            
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const recentUsers = users.filter(user => new Date(user.created_at) > yesterday);
+            document.getElementById('recentUsers').textContent = recentUsers.length;
+        }
+
+        function updateVendorStats(vendors) {
+            document.getElementById('totalVendors').textContent = vendors.length;
+            
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const recentVendors = vendors.filter(vendor => new Date(vendor.created_at) > yesterday);
+            document.getElementById('recentVendors').textContent = recentVendors.length;
+        }
+
+        function updateLastUpdated() {
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+        }
+
+        function setupAutoRefresh() {
+            const toggle = document.getElementById('autoRefreshToggle');
+            
+            function startAutoRefresh() {
+                if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+                autoRefreshInterval = setInterval(loadAllData, 30000); // 30 seconds
+                document.body.classList.add('auto-refresh');
+            }
+            
+            function stopAutoRefresh() {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+                document.body.classList.remove('auto-refresh');
+            }
+            
+            toggle.addEventListener('change', function() {
+                if (this.checked) {
+                    startAutoRefresh();
+                } else {
+                    stopAutoRefresh();
+                }
+            });
+            
+            // Start auto-refresh by default
+            if (toggle.checked) {
+                startAutoRefresh();
+            }
+        }
+    </script>
+</body>
+</html>
