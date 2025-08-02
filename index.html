@@ -2449,9 +2449,16 @@
                     <div class="card-body">
                       <h5 class="card-title">Protein Powder</h5>
                       <p class="card-text">Plant-based protein supplement</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured6')">-</button>
+                          <input type="number" id="featured6" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured6')">+</button>
+                        </div>
+                      </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹899</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Protein Powder', 899, 'img/protein.jpg.png')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Protein Powder', 899, 'img/protein.jpg.png', 'featured6')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -2657,9 +2664,16 @@
                   <i class="fa-solid fa-star-half-stroke text-warning"></i>
                   <span class="ms-1">4.7</span>
                 </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="quantity-controls d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('trending4')">-</button>
+                    <input type="number" id="trending4" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('trending4')">+</button>
+                  </div>
+                </div>
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="price">₹399</span>
-                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToSimpleCart('Vitamin D3 Drops', 399, 'img/Vitamin-D3-Drops.jpg.png')">Add to Cart</button>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Vitamin D3 Drops', 399, 'img/Vitamin-D3-Drops.jpg.png', 'trending4')">Add to Cart</button>
                 </div>
               </div>
             </div>
