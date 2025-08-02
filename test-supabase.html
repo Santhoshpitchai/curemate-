@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Integration Test - Curemate</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0"><i class="fa-solid fa-database me-2"></i>Supabase Integration Test</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Connection Status -->
+                        <div class="alert alert-info" id="connectionStatus">
+                            <i class="fa-solid fa-spinner fa-spin me-2"></i>Testing Supabase connection...
+                        </div>
+
+                        <!-- Test User Creation -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h5>Test User Creation</h5>
+                                <form id="testUserForm">
+                                    <div class="mb-3">
+                                        <label for="testUserName" class="form-label">Name</label>
+                                        <input type="text" class="form-control" id="testUserName" value="Test User" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="testUserEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="testUserEmail" value="testuser@example.com" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa-solid fa-user-plus me-2"></i>Create Test User
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h5>Test Vendor Creation</h5>
+                                <form id="testVendorForm">
+                                    <div class="mb-3">
+                                        <label for="testVendorName" class="form-label">Contact Person</label>
+                                        <input type="text" class="form-control" id="testVendorName" value="Test Vendor" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="testVendorEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="testVendorEmail" value="testvendor@example.com" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="testVendorPhone" class="form-label">Phone</label>
+                                        <input type="tel" class="form-control" id="testVendorPhone" value="+1234567890">
+                                    </div>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fa-solid fa-store me-2"></i>Create Test Vendor
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Data Display -->
+                        <div class="row mt-5">
+                            <div class="col-md-6">
+                                <h5>Users in Database</h5>
+                                <div id="usersList" class="border rounded p-3 bg-light">
+                                    <p class="text-muted">Loading users...</p>
+                                </div>
+                                <button class="btn btn-outline-primary mt-2" onclick="loadUsers()">
+                                    <i class="fa-solid fa-refresh me-2"></i>Refresh Users
+                                </button>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h5>Vendors in Database</h5>
+                                <div id="vendorsList" class="border rounded p-3 bg-light">
+                                    <p class="text-muted">Loading vendors...</p>
+                                </div>
+                                <button class="btn btn-outline-success mt-2" onclick="loadVendors()">
+                                    <i class="fa-solid fa-refresh me-2"></i>Refresh Vendors
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Test Authentication -->
+                        <div class="row mt-5">
+                            <div class="col-12">
+                                <h5>Test Authentication</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <button class="btn btn-info w-100" onclick="testUserAuth()">
+                                            <i class="fa-solid fa-key me-2"></i>Test User Authentication
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-warning w-100" onclick="testVendorAuth()">
+                                            <i class="fa-solid fa-key me-2"></i>Test Vendor Authentication
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Back to Main Site -->
+                        <div class="text-center mt-5">
+                            <a href="index.html" class="btn btn-secondary">
+                                <i class="fa-solid fa-home me-2"></i>Back to Main Site
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/supabase-service.js"></script>
+    <script>
+        // Test page functionality
+        document.addEventListener('DOMContentLoaded', async function() {
+            await testConnection();
+            await loadUsers();
+            await loadVendors();
+            
+            // Setup form handlers
+            document.getElementById('testUserForm').addEventListener('submit', handleTestUserCreation);
+            document.getElementById('testVendorForm').addEventListener('submit', handleTestVendorCreation);
+        });
+
+        async function testConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            
+            try {
+                // Wait for supabase service to be ready
+                let attempts = 0;
+                while (!window.supabaseService && attempts < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (!window.supabaseService) {
+                    throw new Error('Supabase service not available');
+                }
+                
+                const isConnected = await window.supabaseService.testConnection();
+                
+                if (isConnected) {
+                    statusEl.className = 'alert alert-success';
+                    statusEl.innerHTML = '<i class="fa-solid fa-check me-2"></i>Supabase connection successful!';
+                } else {
+                    throw new Error('Connection test failed');
+                }
+            } catch (error) {
+                statusEl.className = 'alert alert-danger';
+                statusEl.innerHTML = `<i class="fa-solid fa-times me-2"></i>Supabase connection failed: ${error.message}`;
+            }
+        }
+
+        async function handleTestUserCreation(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('testUserName').value;
+            const email = document.getElementById('testUserEmail').value;
+            
+            try {
+                const userData = {
+                    name: name,
+                    firstName: name.split(' ')[0],
+                    lastName: name.split(' ').slice(1).join(' '),
+                    email: email
+                };
+                
+                await window.supabaseService.createUser(userData);
+                alert('Test user created successfully!');
+                await loadUsers();
+                
+                // Reset form
+                document.getElementById('testUserForm').reset();
+                document.getElementById('testUserName').value = 'Test User';
+                document.getElementById('testUserEmail').value = 'testuser@example.com';
+                
+            } catch (error) {
+                alert('Error creating test user: ' + error.message);
+            }
+        }
+
+        async function handleTestVendorCreation(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('testVendorName').value;
+            const email = document.getElementById('testVendorEmail').value;
+            const phone = document.getElementById('testVendorPhone').value;
+            
+            try {
+                const vendorData = {
+                    contactPerson: name,
+                    email: email,
+                    phoneNumber: phone
+                };
+                
+                await window.supabaseService.createVendor(vendorData);
+                alert('Test vendor created successfully!');
+                await loadVendors();
+                
+                // Reset form
+                document.getElementById('testVendorForm').reset();
+                document.getElementById('testVendorName').value = 'Test Vendor';
+                document.getElementById('testVendorEmail').value = 'testvendor@example.com';
+                document.getElementById('testVendorPhone').value = '+1234567890';
+                
+            } catch (error) {
+                alert('Error creating test vendor: ' + error.message);
+            }
+        }
+
+        async function loadUsers() {
+            const usersListEl = document.getElementById('usersList');
+            
+            try {
+                const users = await window.supabaseService.getAllUsers();
+                
+                if (users.length === 0) {
+                    usersListEl.innerHTML = '<p class="text-muted">No users found</p>';
+                } else {
+                    usersListEl.innerHTML = users.map(user => `
+                        <div class="border-bottom pb-2 mb-2">
+                            <strong>${user.first_name} ${user.last_name}</strong><br>
+                            <small class="text-muted">${user.email}</small><br>
+                            <small class="text-muted">Created: ${new Date(user.created_at).toLocaleDateString()}</small>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                usersListEl.innerHTML = `<p class="text-danger">Error loading users: ${error.message}</p>`;
+            }
+        }
+
+        async function loadVendors() {
+            const vendorsListEl = document.getElementById('vendorsList');
+            
+            try {
+                const vendors = await window.supabaseService.getAllVendors();
+                
+                if (vendors.length === 0) {
+                    vendorsListEl.innerHTML = '<p class="text-muted">No vendors found</p>';
+                } else {
+                    vendorsListEl.innerHTML = vendors.map(vendor => `
+                        <div class="border-bottom pb-2 mb-2">
+                            <strong>${vendor.first_name} ${vendor.last_name}</strong><br>
+                            <small class="text-muted">${vendor.email}</small><br>
+                            <small class="text-muted">Phone: ${vendor.phone || 'N/A'}</small><br>
+                            <small class="text-muted">Created: ${new Date(vendor.created_at).toLocaleDateString()}</small>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                vendorsListEl.innerHTML = `<p class="text-danger">Error loading vendors: ${error.message}</p>`;
+            }
+        }
+
+        async function testUserAuth() {
+            try {
+                const result = await window.supabaseService.authenticateUser('testuser@example.com', 'password');
+                alert(`User authentication test: ${result.success ? 'SUCCESS' : 'FAILED'}\nMessage: ${result.message}`);
+            } catch (error) {
+                alert('User authentication test error: ' + error.message);
+            }
+        }
+
+        async function testVendorAuth() {
+            try {
+                const result = await window.supabaseService.authenticateVendor('testvendor@example.com', 'password');
+                alert(`Vendor authentication test: ${result.success ? 'SUCCESS' : 'FAILED'}\nMessage: ${result.message}`);
+            } catch (error) {
+                alert('Vendor authentication test error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
