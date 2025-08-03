@@ -8,111 +8,845 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Cart JavaScript -->
+  <script>
+    // Global cart variables with localStorage persistence
+    let myCart = [];
+    let isCartOpen = false;
+
+    // Load cart from localStorage on page load
+    function loadCartFromStorage() {
+      try {
+        const savedCart = localStorage.getItem('cureMateCart');
+        if (savedCart) {
+          myCart = JSON.parse(savedCart);
+          console.log('✅ Cart loaded from storage:', myCart.length, 'items');
+        }
+      } catch (error) {
+        console.error('❌ Error loading cart from storage:', error);
+        myCart = [];
+      }
+    }
+
+    // Save cart to localStorage
+    function saveCartToStorage() {
+      try {
+        localStorage.setItem('cureMateCart', JSON.stringify(myCart));
+        console.log('✅ Cart saved to storage:', myCart.length, 'items');
+      } catch (error) {
+        console.error('❌ Error saving cart to storage:', error);
+      }
+    }
+
+    // Main cart toggle function
+    function toggleCartDropdown() {
+      console.log('🛒 Cart icon clicked!');
+
+      const dropdown = document.getElementById('cartDropdown');
+      if (!dropdown) {
+        console.error('❌ Cart dropdown not found!');
+        return;
+      }
+
+      if (isCartOpen) {
+        dropdown.style.display = 'none';
+        isCartOpen = false;
+        console.log('✅ Cart closed');
+      } else {
+        dropdown.style.display = 'block';
+        isCartOpen = true;
+        updateCartDisplay();
+        console.log('✅ Cart opened');
+      }
+    }
+
+    // Quantity control functions
+    function increaseQuantity(productId) {
+      const input = document.getElementById(productId);
+      const currentValue = parseInt(input.value);
+      const maxValue = parseInt(input.max);
+      if (currentValue < maxValue) {
+        input.value = currentValue + 1;
+      }
+    }
+
+    function decreaseQuantity(productId) {
+      const input = document.getElementById(productId);
+      const currentValue = parseInt(input.value);
+      const minValue = parseInt(input.min);
+      if (currentValue > minValue) {
+        input.value = currentValue - 1;
+      }
+    }
+
+    // Add item to cart function with quantity
+    function addToCartWithQuantity(name, price, image, quantityInputId) {
+      const quantityInput = document.getElementById(quantityInputId);
+      const quantity = parseInt(quantityInput.value);
+
+      console.log('🛒 Adding to cart:', name, 'Price:', price, 'Quantity:', quantity);
+
+      try {
+        // Check if item already exists
+        const existingItem = myCart.find(item => item.name === name);
+        if (existingItem) {
+          existingItem.quantity += quantity;
+          console.log('✅ Increased quantity for:', name, 'New total:', existingItem.quantity);
+        } else {
+          myCart.push({
+            name: name,
+            price: parseFloat(price),
+            image: image || 'img/placeholder.jpg',
+            quantity: quantity
+          });
+          console.log('✅ Added new item:', name, 'Quantity:', quantity);
+        }
+
+        updateCartBadge();
+        updateCartDisplay();
+        saveCartToStorage();
+
+        // Reset quantity to 1
+        quantityInput.value = 1;
+
+        // Show success message (removed alert for smoother UX)
+        console.log(`✅ Added ${quantity} x ${name} to cart!`);
+
+      } catch (error) {
+        console.error('❌ Error adding to cart:', error);
+        console.log('❌ Error adding to cart');
+      }
+    }
+
+    // Add item to cart function (legacy support)
+    function addToSimpleCart(name, price, image) {
+      console.log('🛒 Adding to cart:', name, 'Price:', price);
+
+      try {
+        // Check if item already exists
+        const existingItem = myCart.find(item => item.name === name);
+        if (existingItem) {
+          existingItem.quantity += 1;
+          console.log('✅ Increased quantity for:', name);
+        } else {
+          myCart.push({
+            name: name,
+            price: parseFloat(price),
+            image: image || 'img/placeholder.jpg',
+            quantity: 1
+          });
+          console.log('✅ Added new item:', name);
+        }
+
+        updateCartBadge();
+        updateCartDisplay();
+
+        // Show success message (removed alert for smoother UX)
+        console.log('✅ Added ' + name + ' to cart!');
+
+      } catch (error) {
+        console.error('❌ Error adding to cart:', error);
+        console.log('❌ Error adding to cart');
+      }
+    }
+
+    // Update cart badge number
+    function updateCartBadge() {
+      const badge = document.getElementById('cartBadge');
+      if (badge) {
+        const totalItems = myCart.reduce((sum, item) => sum + item.quantity, 0);
+        badge.textContent = totalItems;
+        badge.style.display = totalItems > 0 ? 'flex' : 'none';
+      }
+    }
+
+    // Update cart display with quantity controls
+    function updateCartDisplay() {
+      const cartList = document.getElementById('cartItemsList');
+      const cartTotal = document.getElementById('cartTotalAmount');
+      const cartItemCount = document.getElementById('cartItemCount');
+
+      if (!cartList || !cartTotal) {
+        console.error('❌ Cart display elements not found!');
+        return;
+      }
+
+      const totalItems = myCart.reduce((sum, item) => sum + item.quantity, 0);
+
+      // Update item count in cart header
+      if (cartItemCount) {
+        if (totalItems > 0) {
+          cartItemCount.textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+          cartItemCount.style.display = 'block';
+        } else {
+          cartItemCount.style.display = 'none';
+        }
+      }
+
+      if (myCart.length === 0) {
+        cartList.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px; margin: 0;">Your cart is empty</p>';
+        cartTotal.textContent = '0.00';
+      } else {
+        let total = 0;
+        let html = '';
+
+        myCart.forEach((item, index) => {
+          const itemTotal = item.price * item.quantity;
+          total += itemTotal;
+
+          html += `
+            <div style="border: 1px solid #e2e8f0; padding: 15px; margin: 10px 0; border-radius: 10px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div style="flex: 1;">
+                  <strong style="color: #334155; font-size: 14px; display: block; margin-bottom: 4px;">${item.name}</strong>
+                  <small style="color: #64748b;">₹${item.price.toFixed(2)} each</small>
+                </div>
+                <div style="text-align: right;">
+                  <div style="margin-bottom: 8px;"><strong style="color: #00BFB3; font-size: 15px;">₹${itemTotal.toFixed(2)}</strong></div>
+                  <button
+                    onclick="removeFromCart(${index})"
+                    style="
+                      background: #ef4444;
+                      color: white;
+                      border: none;
+                      border-radius: 6px;
+                      padding: 4px 8px;
+                      cursor: pointer;
+                      font-size: 11px;
+                      transition: all 0.2s ease;
+                    "
+                    onmouseover="this.style.background='#dc2626'"
+                    onmouseout="this.style.background='#ef4444'"
+                    title="Remove item from cart"
+                  >
+                    <i class="fa-solid fa-trash" style="font-size: 10px;"></i>
+                  </button>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid #f1f5f9;">
+                <span style="color: #64748b; font-size: 13px;">Quantity:</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <button
+                    onclick="decreaseCartQuantity(${index})"
+                    style="
+                      background: #f1f5f9;
+                      color: #64748b;
+                      border: 1px solid #e2e8f0;
+                      border-radius: 6px;
+                      width: 28px;
+                      height: 28px;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-weight: 600;
+                      transition: all 0.2s ease;
+                    "
+                    onmouseover="this.style.background='#e2e8f0'; this.style.color='#334155'"
+                    onmouseout="this.style.background='#f1f5f9'; this.style.color='#64748b'"
+                  >
+                    −
+                  </button>
+                  <span style="
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    padding: 4px 12px;
+                    font-weight: 600;
+                    color: #334155;
+                    min-width: 40px;
+                    text-align: center;
+                  ">${item.quantity}</span>
+                  <button
+                    onclick="increaseCartQuantity(${index})"
+                    style="
+                      background: #00BFB3;
+                      color: white;
+                      border: none;
+                      border-radius: 6px;
+                      width: 28px;
+                      height: 28px;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-weight: 600;
+                      transition: all 0.2s ease;
+                    "
+                    onmouseover="this.style.background='#00807A'"
+                    onmouseout="this.style.background='#00BFB3'"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        cartList.innerHTML = html;
+        cartTotal.textContent = total.toFixed(2);
+      }
+    }
+
+    // Increase cart item quantity function
+    function increaseCartQuantity(index) {
+      if (index >= 0 && index < myCart.length) {
+        myCart[index].quantity += 1;
+        updateCartBadge();
+        updateCartDisplay();
+        saveCartToStorage();
+        showSuccessMessage(`Increased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
+      }
+    }
+
+    // Decrease cart item quantity function
+    function decreaseCartQuantity(index) {
+      if (index >= 0 && index < myCart.length) {
+        if (myCart[index].quantity > 1) {
+          myCart[index].quantity -= 1;
+          updateCartBadge();
+          updateCartDisplay();
+          saveCartToStorage();
+          showSuccessMessage(`Decreased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
+        } else {
+          // If quantity is 1, remove the item
+          removeFromCart(index);
+        }
+      }
+    }
+
+    // Remove item from cart
+    function removeFromCart(index) {
+      if (index >= 0 && index < myCart.length) {
+        const removedItem = myCart[index];
+        myCart.splice(index, 1);
+        updateCartBadge();
+        updateCartDisplay();
+        saveCartToStorage();
+        showSuccessMessage('Removed ' + removedItem.name + ' from cart');
+      }
+    }
+
+    // Clear all items from cart
+    function clearCart() {
+      if (myCart.length === 0) {
+        console.log('Cart is already empty');
+        return;
+      }
+
+      myCart = [];
+      updateCartBadge();
+      updateCartDisplay();
+      saveCartToStorage();
+      console.log('✅ Cart cleared successfully!');
+    }
+
+    // Enhanced checkout function with order processing
+    function proceedToCheckout() {
+      if (myCart.length === 0) {
+        showErrorMessage('Your cart is empty!');
+        return;
+      }
+
+      // Show checkout modal
+      showCheckoutModal();
+    }
+
+    // Generate dynamic order ID
+    function generateOrderId() {
+      const timestamp = Date.now();
+      const randomNum = Math.floor(Math.random() * 10000);
+      const prefix = 'CUR'; // Curemate prefix
+      return `${prefix}${timestamp}${randomNum}`;
+    }
+
+    // Show success message
+    function showSuccessMessage(message) {
+      // Create toast element
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #22c55e;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+      `;
+      toast.textContent = message;
+
+      // Add animation keyframes
+      if (!document.getElementById('toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+          @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      document.body.appendChild(toast);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    // Show error message
+    function showErrorMessage(message) {
+      // Create toast element
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ef4444;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    // Show checkout modal
+    function showCheckoutModal() {
+      const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const itemCount = myCart.reduce((sum, item) => sum + item.quantity, 0);
+
+      // Create checkout modal HTML
+      const checkoutModalHTML = `
+        <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header" style="background: linear-gradient(135deg, #00BFB3 0%, #00807A 100%); color: white;">
+                <h5 class="modal-title" id="checkoutModalLabel">
+                  <i class="fa-solid fa-credit-card me-2"></i>Checkout
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <!-- Order Summary -->
+                  <div class="col-md-6">
+                    <h6 class="mb-3"><i class="fa-solid fa-list me-2"></i>Order Summary</h6>
+                    <div id="checkoutItems" style="max-height: 300px; overflow-y: auto;">
+                      ${myCart.map(item => `
+                        <div class="d-flex justify-content-between align-items-center mb-2 p-2" style="border: 1px solid #e2e8f0; border-radius: 6px;">
+                          <div>
+                            <strong style="font-size: 14px;">${item.name}</strong><br>
+                            <small class="text-muted">₹${item.price.toFixed(2)} × ${item.quantity}</small>
+                          </div>
+                          <strong class="text-primary">₹${(item.price * item.quantity).toFixed(2)}</strong>
+                        </div>
+                      `).join('')}
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                      <strong>Total (${itemCount} items):</strong>
+                      <strong class="text-primary fs-5">₹${total.toFixed(2)}</strong>
+                    </div>
+                  </div>
+
+                  <!-- Customer Details -->
+                  <div class="col-md-6">
+                    <h6 class="mb-3"><i class="fa-solid fa-user me-2"></i>Customer Details</h6>
+                    <form id="checkoutForm">
+                      <div class="mb-3">
+                        <label for="customerName" class="form-label">Full Name *</label>
+                        <input type="text" class="form-control" id="customerName" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="customerPhone" class="form-label">Phone Number *</label>
+                        <input type="tel" class="form-control" id="customerPhone" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="customerEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="customerEmail">
+                      </div>
+                      <div class="mb-3">
+                        <label for="customerAddress" class="form-label">Delivery Address *</label>
+                        <textarea class="form-control" id="customerAddress" rows="3" required></textarea>
+                      </div>
+                      <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Payment Method *</label>
+                        <select class="form-select" id="paymentMethod" required>
+                          <option value="">Select Payment Method</option>
+                          <option value="cod">Cash on Delivery</option>
+                          <option value="upi">UPI Payment</option>
+                          <option value="card">Credit/Debit Card</option>
+                        </select>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="placeOrder()" style="background: #00BFB3; border-color: #00BFB3;">
+                  <i class="fa-solid fa-check me-2"></i>Place Order - ₹${total.toFixed(2)}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Remove existing modal if any
+      const existingModal = document.getElementById('checkoutModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+
+      // Add modal to body
+      document.body.insertAdjacentHTML('beforeend', checkoutModalHTML);
+
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+      modal.show();
+    }
+
+    // Place order function
+    function placeOrder() {
+      const form = document.getElementById('checkoutForm');
+      const formData = new FormData(form);
+
+      // Validate required fields
+      const name = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('customerPhone').value.trim();
+      const address = document.getElementById('customerAddress').value.trim();
+      const paymentMethod = document.getElementById('paymentMethod').value;
+
+      if (!name || !phone || !address || !paymentMethod) {
+        showErrorMessage('Please fill in all required fields');
+        return;
+      }
+
+      // Create order object
+      const order = {
+        id: generateOrderId(),
+        items: [...myCart],
+        customer: {
+          name: name,
+          phone: phone,
+          email: document.getElementById('customerEmail').value.trim(),
+          address: address
+        },
+        payment: {
+          method: paymentMethod,
+          status: 'pending'
+        },
+        total: myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        status: 'confirmed',
+        orderDate: new Date().toISOString(),
+        estimatedDelivery: getEstimatedDeliveryDate()
+      };
+
+      // Save order
+      saveOrder(order);
+
+      // Clear cart
+      myCart = [];
+      updateCartBadge();
+      updateCartDisplay();
+
+      // Close checkout modal
+      const checkoutModal = bootstrap.Modal.getInstance(document.getElementById('checkoutModal'));
+      checkoutModal.hide();
+
+      // Close cart dropdown
+      const cartDropdown = document.getElementById('cartDropdown');
+      if (cartDropdown) {
+        cartDropdown.style.display = 'none';
+        isCartOpen = false;
+      }
+
+      // Show order confirmation
+      showOrderConfirmation(order);
+    }
+
+    // Get estimated delivery date (3-5 business days)
+    function getEstimatedDeliveryDate() {
+      const today = new Date();
+      const deliveryDays = Math.floor(Math.random() * 3) + 3; // 3-5 days
+      const deliveryDate = new Date(today);
+      deliveryDate.setDate(today.getDate() + deliveryDays);
+      return deliveryDate.toISOString();
+    }
+
+    // Save order to localStorage
+    function saveOrder(order) {
+      const orders = getCustomerOrders();
+      orders.push(order);
+      localStorage.setItem('customerOrders', JSON.stringify(orders));
+    }
+
+    // Get customer orders
+    function getCustomerOrders() {
+      return JSON.parse(localStorage.getItem('customerOrders') || '[]');
+    }
+
+    // Show order confirmation modal
+    function showOrderConfirmation(order) {
+      const confirmationHTML = `
+        <div class="modal fade" id="orderConfirmationModal" tabindex="-1" aria-labelledby="orderConfirmationLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white;">
+                <h5 class="modal-title" id="orderConfirmationLabel">
+                  <i class="fa-solid fa-check-circle me-2"></i>Order Confirmed!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body text-center">
+                <div class="mb-4">
+                  <i class="fa-solid fa-check-circle text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="text-success mb-3">Thank you for your order!</h4>
+                <div class="alert alert-success">
+                  <strong>Order ID:</strong> ${order.id}<br>
+                  <strong>Total Amount:</strong> ₹${order.total.toFixed(2)}<br>
+                  <strong>Payment Method:</strong> ${order.payment.method.toUpperCase()}<br>
+                  <strong>Estimated Delivery:</strong> ${new Date(order.estimatedDelivery).toLocaleDateString()}
+                </div>
+                <p class="text-muted">
+                  Your order has been confirmed and will be delivered to:<br>
+                  <strong>${order.customer.address}</strong>
+                </p>
+                <div class="d-flex gap-2 justify-content-center mt-4">
+                  <button class="btn btn-primary" onclick="trackOrder('${order.id}')">
+                    <i class="fa-solid fa-truck me-2"></i>Track Order
+                  </button>
+                  <button class="btn btn-outline-primary" onclick="downloadOrderReceipt('${order.id}')">
+                    <i class="fa-solid fa-download me-2"></i>Download Receipt
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Remove existing confirmation modal if any
+      const existingModal = document.getElementById('orderConfirmationModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+
+      // Add modal to body
+      document.body.insertAdjacentHTML('beforeend', confirmationHTML);
+
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'));
+      modal.show();
+    }
+
+    // Track order function
+    function trackOrder(orderId) {
+      showSuccessMessage(`Tracking order ${orderId}. You will receive SMS updates.`);
+    }
+
+    // Download order receipt
+    function downloadOrderReceipt(orderId) {
+      const orders = getCustomerOrders();
+      const order = orders.find(o => o.id === orderId);
+
+      if (!order) {
+        showErrorMessage('Order not found');
+        return;
+      }
+
+      // Create receipt content
+      const receiptContent = `
+        CUREMATE - ORDER RECEIPT
+        ========================
+
+        Order ID: ${order.id}
+        Date: ${new Date(order.orderDate).toLocaleString()}
+
+        Customer Details:
+        Name: ${order.customer.name}
+        Phone: ${order.customer.phone}
+        Email: ${order.customer.email || 'N/A'}
+        Address: ${order.customer.address}
+
+        Items:
+        ${order.items.map(item => `${item.name} - ₹${item.price.toFixed(2)} × ${item.quantity} = ₹${(item.price * item.quantity).toFixed(2)}`).join('\n')}
+
+        Total: ₹${order.total.toFixed(2)}
+        Payment Method: ${order.payment.method.toUpperCase()}
+
+        Estimated Delivery: ${new Date(order.estimatedDelivery).toLocaleDateString()}
+
+        Thank you for shopping with Curemate!
+      `;
+
+      // Create and download file
+      const blob = new Blob([receiptContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Curemate_Receipt_${order.id}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      showSuccessMessage('Receipt downloaded successfully!');
+    }
+
+    // Product sorting functionality
+    function sortProducts() {
+      const sortSelect = document.getElementById('sort-products');
+      const sortValue = sortSelect.value;
+      const productsContainer = document.querySelector('.row.g-4');
+      const productCards = Array.from(productsContainer.children);
+
+      // Extract product data for sorting
+      const products = productCards.map(card => {
+        const titleElement = card.querySelector('.card-title');
+        const priceElement = card.querySelector('.price');
+        const originalPriceElement = card.querySelector('.text-decoration-line-through');
+
+        return {
+          element: card,
+          name: titleElement ? titleElement.textContent.trim() : '',
+          price: priceElement ? parseFloat(priceElement.textContent.replace('₹', '')) : 0,
+          originalPrice: originalPriceElement ? parseFloat(originalPriceElement.textContent.replace('₹', '')) : 0
+        };
+      });
+
+      // Sort products based on selected option
+      let sortedProducts;
+      switch(sortValue) {
+        case 'Price: Low to High':
+          sortedProducts = products.sort((a, b) => a.price - b.price);
+          break;
+        case 'Price: High to Low':
+          sortedProducts = products.sort((a, b) => b.price - a.price);
+          break;
+        case 'Name: A to Z':
+          sortedProducts = products.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'Name: Z to A':
+          sortedProducts = products.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+        default: // Featured
+          // Keep original order for featured
+          sortedProducts = products;
+          break;
+      }
+
+      // Clear container and re-append sorted products
+      productsContainer.innerHTML = '';
+      sortedProducts.forEach(product => {
+        productsContainer.appendChild(product.element);
+      });
+
+      console.log(`Products sorted by: ${sortValue}`);
+    }
+
+    // Initialize cart on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🛒 Cart system initialized');
+      loadCartFromStorage();
+      updateCartBadge();
+      updateCartDisplay();
+
+      // Setup sort functionality
+      const sortSelect = document.getElementById('sort-products');
+      if (sortSelect) {
+        sortSelect.addEventListener('change', sortProducts);
+      }
+
+      // Close cart when clicking outside
+      document.addEventListener('click', function(event) {
+        const cartIcon = document.getElementById('cartIcon');
+        const cartDropdown = document.getElementById('cartDropdown');
+
+        if (isCartOpen && cartIcon && cartDropdown) {
+          if (!cartIcon.contains(event.target) && !cartDropdown.contains(event.target)) {
+            isCartOpen = false;
+            cartDropdown.style.display = 'none';
+          }
+        }
+      });
+    });
+  </script>
 </head>
 <body>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg sticky-top navbar-light border-bottom">
+  <nav class="navbar navbar-expand-lg sticky-top py-3 navbar-light">
     <div class="container">
-      <!-- Logo -->
-      <a class="navbar-brand d-flex align-items-center" href="index.html">
-        <div class="bg-primary p-2 rounded-3 me-2">
-          <i class="fa-solid fa-heart text-white"></i>
-        </div>
-        <span class="fw-bold text-primary">Curemate</span>
+      <a class="navbar-brand fw-bold" href="index.html">
+        <span class="text-primary">Cure</span>mate
       </a>
-      
-      <!-- Mobile Toggle Button -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      
-      <!-- Navbar Content -->
-      <div class="collapse navbar-collapse" id="navbarContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
           <li class="nav-item">
             <a class="nav-link" href="index.html">Home</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle active" href="#" id="shopDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Shop by Health Concern
+              Shop
             </a>
             <ul class="dropdown-menu" aria-labelledby="shopDropdown">
+              <li><a class="dropdown-item" href="medicines.html">Medicines</a></li>
               <li><a class="dropdown-item active" href="healthcare.html">Healthcare</a></li>
-              <li><a class="dropdown-item" href="babycare.html">Baby Care</a></li>
               <li><a class="dropdown-item" href="wellness.html">Wellness</a></li>
-              <li><a class="dropdown-item" href="diabetes.html">Diabetes</a></li>
+              <li><a class="dropdown-item" href="babycare.html">Baby Care</a></li>
             </ul>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Contact</a>
+          </li>
         </ul>
-        
-        <!-- Right Actions -->
-        <div class="d-flex align-items-center gap-3">
-          <a href="#" onclick="openStoreLocator(); return false;" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center">
-            <i class="fa-solid fa-location-dot me-1"></i> Find a Store
-          </a>
-          
-          <a href="vendor-login.html" class="btn btn-outline-primary d-none d-md-flex align-items-center">
-            <i class="fa-solid fa-store me-1"></i> Vendor Signup/Login
-          </a>
-
-          <a href="#" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center">
-            <i class="fa-solid fa-phone me-1"></i> Contact Us
-          </a>
-
-          <!-- ENHANCED CART ICON -->
-          <div style="position: relative; display: inline-block; margin-right: 15px;">
-            <button
-              id="cartIcon"
-              onclick="toggleCartDropdown()"
-              style="
-                cursor: pointer !important;
-                padding: 10px;
-                font-size: 24px;
-                position: relative;
-                display: inline-block;
-                user-select: none;
-                background: none;
-                border: none;
-                transition: all 0.2s ease !important;
-                border-radius: 8px;
-                color: #00BFB3;
-              "
-              title="Click to open shopping cart"
-              onmouseover="
-                this.style.background='rgba(0, 191, 179, 0.1)';
-                this.style.transform='scale(1.05)';
-                this.style.cursor='pointer';
-              "
-              onmouseout="
-                this.style.background='none';
-                this.style.transform='scale(1)';
-              "
-            >
-              <i class="fa-solid fa-shopping-cart"></i>
-              <span
-                id="cartBadge"
-                style="
-                  position: absolute;
-                  top: -2px;
-                  right: -2px;
-                  background: #ff6b35;
-                  color: white;
-                  border-radius: 50%;
-                  width: 20px;
-                  height: 20px;
-                  font-size: 11px;
-                  display: none;
-                  align-items: center;
-                  justify-content: center;
-                  font-weight: bold;
-                  border: 2px solid white;
-                  pointer-events: none;
-                  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                "
-              >
-                0
-              </span>
+        <form class="d-flex search-form me-3">
+          <div class="input-group">
+            <input class="form-control" type="search" placeholder="Search products..." aria-label="Search">
+            <button class="btn btn-outline-primary" type="submit">
+              <i class="fas fa-search"></i>
             </button>
+          </div>
+        </form>
+        <div class="d-flex align-items-center">
+          <div class="nav-icons d-flex align-items-center">
+            <a href="#" class="text-dark me-3" data-bs-toggle="tooltip" title="My Account">
+              <i class="fas fa-user"></i>
+            </a>
+            <a href="#" class="text-dark me-3 position-relative" data-bs-toggle="tooltip" title="Wishlist">
+              <i class="fas fa-heart"></i>
+              <span class="badge bg-primary rounded-pill position-absolute top-0 start-100 translate-middle">2</span>
+            </a>
+            <a href="#" id="cartIcon" class="text-dark position-relative" data-bs-toggle="tooltip" title="Cart" onclick="toggleCartDropdown()">
+              <i class="fas fa-cart-shopping"></i>
+              <span id="cartBadge" class="badge bg-primary rounded-pill position-absolute top-0 start-100 translate-middle" style="display: none;">0</span>
+            </a>
 
             <!-- Enhanced Cart Dropdown -->
             <div
@@ -148,19 +882,62 @@
                   font-size: 12px;
                   font-weight: 600;
                   display: none;
-                "></span>
+                ">0 items</span>
               </div>
 
-              <div id="cartItemsList" style="margin-bottom: 15px;">
+              <div id="cartItemsList">
                 <p style="color: #64748b; text-align: center; padding: 20px; margin: 0;">Your cart is empty</p>
               </div>
 
-              <div style="border-top: 1px solid #e2e8f0; padding-top: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                  <span style="font-weight: 600; color: #334155;">Total:</span>
-                  <span style="font-weight: 700; font-size: 18px; color: #00BFB3;">₹<span id="cartTotalAmount">0.00</span></span>
-                </div>
+              <hr style="margin: 15px 0; border: none; height: 1px; background: #e2e8f0;">
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <strong style="color: #334155; font-size: 16px;">Total: ₹<span id="cartTotalAmount">0.00</span></strong>
               </div>
+
+              <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <button
+                  onclick="clearCart()"
+                  style="
+                    flex: 1;
+                    background: #ef4444;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    padding: 8px 12px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: background-color 0.2s ease;
+                  "
+                  onmouseover="this.style.background='#dc2626'"
+                  onmouseout="this.style.background='#ef4444'"
+                >
+                  <i class="fa-solid fa-trash" style="margin-right: 6px;"></i>
+                  Clear All
+                </button>
+              </div>
+
+              <button
+                onclick="proceedToCheckout()"
+                style="
+                  background: #00BFB3;
+                  color: white;
+                  border: none;
+                  padding: 12px 20px;
+                  border-radius: 8px;
+                  cursor: pointer;
+                  width: 100%;
+                  font-weight: 600;
+                  font-size: 14px;
+                  transition: all 0.2s ease;
+                "
+                onmouseover="this.style.background='#00807A'"
+                onmouseout="this.style.background='#00BFB3'"
+              >
+                <i class="fa-solid fa-credit-card" style="margin-right: 8px;"></i>
+                Proceed to Checkout
+              </button>
             </div>
           </div>
         </div>
@@ -172,153 +949,235 @@
   <section class="category-header py-4 bg-light">
     <div class="container">
       <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0" style="--bs-breadcrumb-item-active-color: #00BFB3;">
-          <li class="breadcrumb-item"><a href="index.html" style="color: #00BFB3; text-decoration: none;">Home</a></li>
-          <li class="breadcrumb-item"><a href="#" style="color: #00BFB3; text-decoration: none;">Shop</a></li>
-          <li class="breadcrumb-item active" aria-current="page" style="color: #00BFB3; font-weight: 600;">Healthcare</li>
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="#">Shop</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Healthcare</li>
         </ol>
       </nav>
     </div>
   </section>
 
-  <!-- Healthcare Products Section -->
-  <section class="py-5">
+  <!-- Products Section -->
+  <section class="products-section py-5">
     <div class="container">
+      <h2 class="section-title mb-4">Healthcare</h2>
+      
       <div class="row mb-4">
-        <div class="col-md-8">
-          <h1 class="section-title">Healthcare Products</h1>
-          <p class="text-muted">Monitor and manage your health with our range of quality healthcare products</p>
+        <div class="col-md-6">
+          <p class="text-muted">Showing 1-12 of 800+ products</p>
         </div>
-        <div class="col-md-4">
-          <div class="d-flex justify-content-end">
-            <select class="form-select" id="sort-products" style="max-width: 200px;">
-              <option value="Featured">Featured</option>
-              <option value="Price: Low to High">Price: Low to High</option>
-              <option value="Price: High to Low">Price: High to Low</option>
-              <option value="Name: A to Z">Name: A to Z</option>
-              <option value="Name: Z to A">Name: Z to A</option>
+        <div class="col-md-6 text-md-end">
+          <div class="d-flex justify-content-md-end align-items-center">
+            <label for="sort-products" class="me-2">Sort by:</label>
+            <select id="sort-products" class="form-select form-select-sm w-auto">
+              <option>Featured</option>
+              <option>Price: Low to High</option>
+              <option>Price: High to Low</option>
+              <option>Name: A to Z</option>
+              <option>Name: Z to A</option>
             </select>
           </div>
         </div>
       </div>
-
+      
       <div class="row g-4">
-        <!-- Digital Blood Pressure Monitor -->
-        <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card h-100 shadow-sm">
-            <div class="position-relative">
-              <span class="badge bg-success position-absolute top-0 start-0 m-2">15% OFF</span>
-              <img src="img/bp-monitor.jpg" class="card-img-top" alt="Digital Blood Pressure Monitor" style="height: 200px; object-fit: cover;">
-            </div>
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">Digital Blood Pressure Monitor</h5>
-              <p class="card-text text-muted small">Accurate digital BP monitor with large display</p>
-              <div class="mt-auto">
-                <div class="d-flex align-items-center mb-2">
-                  <span class="price text-primary fw-bold fs-5">₹2549</span>
-                  <span class="text-muted text-decoration-line-through ms-2">₹2999</span>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="input-group" style="max-width: 100px;">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity('qty1')">-</button>
-                    <input type="number" class="form-control form-control-sm text-center" id="qty1" value="1" min="1" max="10">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity('qty1')">+</button>
-                  </div>
-                  <button class="btn btn-primary btn-sm flex-grow-1" onclick="addToCartWithQuantity('Digital Blood Pressure Monitor', 2549, 'img/bp-monitor.jpg', 'qty1')">
-                    <i class="fa-solid fa-cart-plus me-1"></i>Add to Cart
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Pantop 40mg Tablet -->
-        <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card h-100 shadow-sm">
-            <div class="position-relative">
-              <span class="badge bg-success position-absolute top-0 start-0 m-2">20% OFF</span>
-              <img src="img/pantop-tablet.jpg" class="card-img-top" alt="Pantop 40mg Tablet" style="height: 200px; object-fit: cover;">
-            </div>
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">Pantop 40mg Tablet</h5>
-              <p class="card-text text-muted small">Effective treatment for acidity and heartburn</p>
-              <div class="mt-auto">
-                <div class="d-flex align-items-center mb-2">
-                  <span class="price text-primary fw-bold fs-5">₹120</span>
-                  <span class="text-muted text-decoration-line-through ms-2">₹150</span>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="input-group" style="max-width: 100px;">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity('qty2')">-</button>
-                    <input type="number" class="form-control form-control-sm text-center" id="qty2" value="1" min="1" max="10">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity('qty2')">+</button>
-                  </div>
-                  <button class="btn btn-primary btn-sm flex-grow-1" onclick="addToCartWithQuantity('Pantop 40mg Tablet', 120, 'img/pantop-tablet.jpg', 'qty2')">
-                    <i class="fa-solid fa-cart-plus me-1"></i>Add to Cart
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Omega-3 Fish Oil Capsules -->
-        <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card h-100 shadow-sm">
-            <div class="position-relative">
-              <span class="badge bg-success position-absolute top-0 start-0 m-2">10% OFF</span>
-              <img src="img/omega3-capsules.jpg" class="card-img-top" alt="Omega-3 Fish Oil Capsules" style="height: 200px; object-fit: cover;">
-            </div>
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">Omega-3 Fish Oil Capsules</h5>
-              <p class="card-text text-muted small">Essential fatty acids for heart and brain health</p>
-              <div class="mt-auto">
-                <div class="d-flex align-items-center mb-2">
-                  <span class="price text-primary fw-bold fs-5">₹809</span>
-                  <span class="text-muted text-decoration-line-through ms-2">₹899</span>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="input-group" style="max-width: 100px;">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity('qty3')">-</button>
-                    <input type="number" class="form-control form-control-sm text-center" id="qty3" value="1" min="1" max="10">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity('qty3')">+</button>
-                  </div>
-                  <button class="btn btn-primary btn-sm flex-grow-1" onclick="addToCartWithQuantity('Omega-3 Fish Oil Capsules', 809, 'img/omega3-capsules.jpg', 'qty3')">
-                    <i class="fa-solid fa-cart-plus me-1"></i>Add to Cart
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Heart Health Multivitamin -->
-        <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card h-100 shadow-sm">
+        <!-- Product Card 1 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="product-card h-100">
             <div class="position-relative">
               <span class="badge bg-success position-absolute top-0 start-0 m-2">25% OFF</span>
-              <img src="img/heart-multivitamin.jpg" class="card-img-top" alt="Heart Health Multivitamin" style="height: 200px; object-fit: cover;">
+              <img src="img/Digital Thermometer.jpg.jpg" class="card-img-top" alt="Digital Thermometer" style="height: 200px; object-fit: contain;">
             </div>
             <div class="card-body d-flex flex-column">
-              <h5 class="card-title">Heart Health Multivitamin</h5>
-              <p class="card-text text-muted small">Complete nutrition for cardiovascular health</p>
-              <div class="mt-auto">
-                <div class="d-flex align-items-center mb-2">
-                  <span class="price text-primary fw-bold fs-5">₹449</span>
-                  <span class="text-muted text-decoration-line-through ms-2">₹599</span>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <div class="input-group" style="max-width: 100px;">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="decreaseQuantity('qty4')">-</button>
-                    <input type="number" class="form-control form-control-sm text-center" id="qty4" value="1" min="1" max="10">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="increaseQuantity('qty4')">+</button>
-                  </div>
-                  <button class="btn btn-primary btn-sm flex-grow-1" onclick="addToCartWithQuantity('Heart Health Multivitamin', 449, 'img/heart-multivitamin.jpg', 'qty4')">
-                    <i class="fa-solid fa-cart-plus me-1"></i>Add to Cart
-                  </button>
+              <h5 class="card-title">Digital Thermometer</h5>
+              <div class="price-container mb-3">
+                <span class="text-decoration-line-through text-muted me-2">₹400</span>
+                <span class="price">₹300</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="quantity-controls d-flex align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('healthcare1')">-</button>
+                  <input type="number" id="healthcare1" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 60px;">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('healthcare1')">+</button>
                 </div>
               </div>
+              <button class="btn btn-primary mt-auto" onclick="addToCartWithQuantity('Digital Thermometer', 300, 'img/Digital Thermometer.jpg.jpg', 'healthcare1')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Product Card 2 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="product-card h-100">
+            <div class="position-relative">
+              <span class="badge bg-success position-absolute top-0 start-0 m-2">30% OFF</span>
+              <img src="img/Blood Pressure Monitor.jpg.jpg" class="card-img-top" alt="Blood Pressure Monitor" style="height: 200px; object-fit: contain;">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">Blood Pressure Monitor</h5>
+              <div class="price-container mb-3">
+                <span class="text-decoration-line-through text-muted me-2">₹2500</span>
+                <span class="price">₹1750</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="quantity-controls d-flex align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('healthcare2')">-</button>
+                  <input type="number" id="healthcare2" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 60px;">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('healthcare2')">+</button>
+                </div>
+              </div>
+              <button class="btn btn-primary mt-auto" onclick="addToCartWithQuantity('Blood Pressure Monitor', 1750, 'img/Blood Pressure Monitor.jpg.jpg', 'healthcare2')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Product Card 3 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="product-card h-100">
+            <div class="position-relative">
+              <span class="badge bg-success position-absolute top-0 start-0 m-2">15% OFF</span>
+              <img src="img/Pulse Oximeter.jpg.jpg" class="card-img-top" alt="Pulse Oximeter" style="height: 200px; object-fit: contain;">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">Pulse Oximeter</h5>
+              <div class="price-container mb-3">
+                <span class="text-decoration-line-through text-muted me-2">₹1800</span>
+                <span class="price">₹1530</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="quantity-controls d-flex align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('healthcare3')">-</button>
+                  <input type="number" id="healthcare3" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 60px;">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('healthcare3')">+</button>
+                </div>
+              </div>
+              <button class="btn btn-primary mt-auto" onclick="addToCartWithQuantity('Pulse Oximeter', 1530, 'img/Pulse Oximeter.jpg.jpg', 'healthcare3')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Product Card 4 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="product-card h-100">
+            <div class="position-relative">
+              <span class="badge bg-success position-absolute top-0 start-0 m-2">20% OFF</span>
+              <img src="img/Glucose Monitor.jpg.jpg" class="card-img-top" alt="Glucose Monitor" style="height: 200px; object-fit: contain;">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">Glucose Monitor</h5>
+              <div class="price-container mb-3">
+                <span class="text-decoration-line-through text-muted me-2">₹3000</span>
+                <span class="price">₹2400</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="quantity-controls d-flex align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('healthcare4')">-</button>
+                  <input type="number" id="healthcare4" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 60px;">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('healthcare4')">+</button>
+                </div>
+              </div>
+              <button class="btn btn-primary mt-auto" onclick="addToCartWithQuantity('Glucose Monitor', 2400, 'img/Glucose Monitor.jpg.jpg', 'healthcare4')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Card 5 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="product-card h-100">
+            <div class="position-relative">
+              <span class="badge bg-success position-absolute top-0 start-0 m-2">40% OFF</span>
+              <img src="img/Digital Weighing Scale.jpg.jpg" class="card-img-top" alt="Digital Weighing Scale" style="height: 200px; object-fit: contain;">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">Digital Weighing Scale</h5>
+              <div class="price-container mb-3">
+                <span class="text-decoration-line-through text-muted me-2">₹1500</span>
+                <span class="price">₹900</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="quantity-controls d-flex align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('healthcare5')">-</button>
+                  <input type="number" id="healthcare5" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 60px;">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('healthcare5')">+</button>
+                </div>
+              </div>
+              <button class="btn btn-primary mt-auto" onclick="addToCartWithQuantity('Digital Weighing Scale', 900, 'img/Digital Weighing Scale.jpg.jpg', 'healthcare5')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Product Card 6 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="product-card h-100">
+            <div class="position-relative">
+              <span class="badge bg-success position-absolute top-0 start-0 m-2">10% OFF</span>
+              <img src="img/First Aid Kit.jpg.jpg" class="card-img-top" alt="First Aid Kit" style="height: 200px; object-fit: contain;">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">First Aid Kit</h5>
+              <div class="price-container mb-3">
+                <span class="text-decoration-line-through text-muted me-2">₹800</span>
+                <span class="price">₹720</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="quantity-controls d-flex align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('healthcare6')">-</button>
+                  <input type="number" id="healthcare6" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 60px;">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('healthcare6')">+</button>
+                </div>
+              </div>
+              <button class="btn btn-primary mt-auto" onclick="addToCartWithQuantity('First Aid Kit', 720, 'img/First Aid Kit.jpg.jpg', 'healthcare6')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Card 7 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="product-card h-100">
+            <div class="position-relative">
+              <span class="badge bg-success position-absolute top-0 start-0 m-2">35% OFF</span>
+              <img src="img/N95 Masks (10 Pack).jpg.jpg" class="card-img-top" alt="N95 Masks (10 Pack)" style="height: 200px; object-fit: contain;">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">N95 Masks (10 Pack)</h5>
+              <div class="price-container mb-3">
+                <span class="text-decoration-line-through text-muted me-2">₹500</span>
+                <span class="price">₹325</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="quantity-controls d-flex align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('healthcare7')">-</button>
+                  <input type="number" id="healthcare7" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 60px;">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('healthcare7')">+</button>
+                </div>
+              </div>
+              <button class="btn btn-primary mt-auto" onclick="addToCartWithQuantity('N95 Masks (10 Pack)', 325, 'img/N95 Masks (10 Pack).jpg.jpg', 'healthcare7')">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Card 8 -->
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="product-card h-100">
+            <div class="position-relative">
+              <span class="badge bg-success position-absolute top-0 start-0 m-2">15% OFF</span>
+              <img src="img/Hand Sanitizer 500ml.jpg.jpg" class="card-img-top" alt="Hand Sanitizer 500ml" style="height: 200px; object-fit: contain;">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">Hand Sanitizer 500ml</h5>
+              <div class="price-container mb-3">
+                <span class="text-decoration-line-through text-muted me-2">₹250</span>
+                <span class="price">₹212.50</span>
+              </div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="quantity-controls d-flex align-items-center">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('healthcare8')">-</button>
+                  <input type="number" id="healthcare8" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 60px;">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('healthcare8')">+</button>
+                </div>
+              </div>
+              <button class="btn btn-primary mt-auto" onclick="addToCartWithQuantity('Hand Sanitizer 500ml', 212.50, 'img/Hand Sanitizer 500ml.jpg.jpg', 'healthcare8')">Add to Cart</button>
             </div>
           </div>
         </div>
@@ -326,10 +1185,69 @@
     </div>
   </section>
 
-  <!-- Bootstrap JS -->
+  <!-- Footer -->
+  <footer class="footer py-5 text-white bg-dark">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+          <h5 class="mb-4">Curemate</h5>
+          <p class="mb-4">Your trusted partner for health and wellness solutions. We provide authentic medicines and healthcare products at your doorstep.</p>
+          <div class="social-icons">
+            <a href="#" class="me-2 text-white"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="me-2 text-white"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="me-2 text-white"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5 class="mb-4">Quick Links</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="index.html" class="text-decoration-none text-white">Home</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none text-white">About Us</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none text-white">Services</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none text-white">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h5 class="mb-4">Categories</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="medicines.html" class="text-decoration-none text-white">Medicines</a></li>
+            <li class="mb-2"><a href="healthcare.html" class="text-decoration-none text-white">Healthcare</a></li>
+            <li class="mb-2"><a href="wellness.html" class="text-decoration-none text-white">Wellness</a></li>
+            <li class="mb-2"><a href="babycare.html" class="text-decoration-none text-white">Baby Care</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-4 col-md-6">
+          <h5 class="mb-4">Contact Us</h5>
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="fa-solid fa-location-dot me-2"></i> 123 Healthcare Street, Mumbai, India</li>
+            <li class="mb-2"><i class="fa-solid fa-phone me-2"></i> +91 1234567890</li>
+            <li class="mb-2"><i class="fa-solid fa-envelope me-2"></i> contact@curemate.com</li>
+          </ul>
+          <div class="mt-4">
+            <h6 class="mb-3">Subscribe to our newsletter</h6>
+            <div class="input-group">
+              <input type="email" class="form-control" placeholder="Your email">
+              <button class="btn btn-primary" type="button">Subscribe</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr class="my-4 border-secondary">
+      <div class="row">
+        <div class="col-md-6 mb-3 mb-md-0">
+          <p class="mb-0">&copy; 2023 Curemate Health Hub. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="#" class="text-decoration-none text-white me-3">Privacy Policy</a>
+          <a href="#" class="text-decoration-none text-white me-3">Terms of Service</a>
+          <a href="#" class="text-decoration-none text-white">Sitemap</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <!-- Health Cart System -->
-  <script src="js/health-cart.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
