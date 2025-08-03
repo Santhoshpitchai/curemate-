@@ -332,7 +332,7 @@
                   <div style="text-align: right;">
                     <div style="margin-bottom: 8px;"><strong style="color: #00BFB3; font-size: 15px;">₹${itemTotal.toFixed(2)}</strong></div>
                     <button
-                      onclick="removeFromCart(${index})"
+                      onclick="removeFromCart(${index}, event)"
                       style="
                         background: #ef4444;
                         color: white;
@@ -358,7 +358,7 @@
                     <span style="color: #64748b; font-size: 13px; font-weight: 500;">Quantity:</span>
                     <div style="display: flex; align-items: center; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc;">
                       <button
-                        onclick="decreaseCartQuantity(${index})"
+                        onclick="decreaseCartQuantity(${index}, event)"
                         style="
                           background: none;
                           border: none;
@@ -388,7 +388,7 @@
                         font-size: 14px;
                       ">${item.quantity}</span>
                       <button
-                        onclick="increaseCartQuantity(${index})"
+                        onclick="increaseCartQuantity(${index}, event)"
                         style="
                           background: none;
                           border: none;
@@ -422,7 +422,13 @@
       }
 
       // Increase cart item quantity function
-      function increaseCartQuantity(index) {
+      function increaseCartQuantity(index, event) {
+        // Prevent event bubbling to avoid closing cart
+        if (event) {
+          event.stopPropagation();
+          event.preventDefault();
+        }
+
         if (index >= 0 && index < myCart.length) {
           myCart[index].quantity += 1;
           updateCartBadge();
@@ -433,7 +439,13 @@
       }
 
       // Decrease cart item quantity function
-      function decreaseCartQuantity(index) {
+      function decreaseCartQuantity(index, event) {
+        // Prevent event bubbling to avoid closing cart
+        if (event) {
+          event.stopPropagation();
+          event.preventDefault();
+        }
+
         if (index >= 0 && index < myCart.length) {
           if (myCart[index].quantity > 1) {
             myCart[index].quantity -= 1;
@@ -443,13 +455,19 @@
             showSuccessMessage(`Decreased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
           } else {
             // If quantity is 1, remove the item
-            removeFromCart(index);
+            removeFromCart(index, event);
           }
         }
       }
 
       // Remove item from cart
-      function removeFromCart(index) {
+      function removeFromCart(index, event) {
+        // Prevent event bubbling to avoid closing cart
+        if (event) {
+          event.stopPropagation();
+          event.preventDefault();
+        }
+
         if (index >= 0 && index < myCart.length) {
           const removedItem = myCart[index];
           myCart.splice(index, 1);
@@ -2708,7 +2726,7 @@
         <h2 class="section-title text-center mb-5">Shop by Health Concern</h2>
         <div class="row g-4">
           <div class="col-6 col-md-3">
-            <a href="blood-pressure.html" class="text-decoration-none">
+            <a href="blood-pressure.html" class="text-decoration-none text-dark">
               <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
                 <img src="img/Blood Pressure (BP).jpg.jpg" class="w-100" alt="Blood Pressure (BP)" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
                 <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
@@ -2718,7 +2736,7 @@
             </a>
           </div>
           <div class="col-6 col-md-3">
-            <a href="diabetes.html" class="text-decoration-none">
+            <a href="diabetes.html" class="text-decoration-none text-dark">
               <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
                 <img src="img/Diabetes.jpg.jpg" class="w-100" alt="Diabetes" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
                 <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
@@ -2728,7 +2746,7 @@
             </a>
           </div>
           <div class="col-6 col-md-3">
-            <a href="cholesterol.html" class="text-decoration-none">
+            <a href="cholesterol.html" class="text-decoration-none text-dark">
               <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
                 <img src="img/Cholesterol.jpg.jpg" class="w-100" alt="Cholesterol" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
                 <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
@@ -2738,7 +2756,7 @@
             </a>
           </div>
           <div class="col-6 col-md-3">
-            <a href="pancreatitis.html" class="text-decoration-none">
+            <a href="pancreatitis.html" class="text-decoration-none text-dark">
               <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
                 <img src="img/Pancreatitis.jpg.jpg" class="w-100" alt="Pancreatitis" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
                 <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
