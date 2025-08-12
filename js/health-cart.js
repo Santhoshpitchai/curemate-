@@ -7,35 +7,50 @@ let isCartOpen = false;
 // Load cart from localStorage on page load
 function loadCartFromStorage() {
   try {
+    // Check both possible localStorage keys and merge if needed
     const cureMateCart = localStorage.getItem('cureMateCart');
     const shoppingCart = localStorage.getItem('shoppingCart');
 
+    console.log('🔍 Checking localStorage...');
+    console.log('cureMateCart:', cureMateCart);
+    console.log('shoppingCart:', shoppingCart);
+
     if (cureMateCart) {
       const parsedCart = JSON.parse(cureMateCart);
+      // Validate cart data
       if (Array.isArray(parsedCart) && parsedCart.every(item =>
         item.name && typeof item.price === 'number' && typeof item.quantity === 'number'
       )) {
         myCart = parsedCart;
+        console.log('✅ Valid cart loaded from cureMateCart:', myCart.length, 'items');
       } else {
+        console.warn('⚠️ Invalid cart data in cureMateCart, clearing...');
         localStorage.removeItem('cureMateCart');
         myCart = [];
       }
     } else if (shoppingCart) {
       const parsedCart = JSON.parse(shoppingCart);
+      // Validate and migrate from old cart system
       if (Array.isArray(parsedCart) && parsedCart.every(item =>
         item.name && typeof item.price === 'number' && typeof item.quantity === 'number'
       )) {
         myCart = parsedCart;
+        console.log('✅ Migrated cart from shoppingCart:', myCart.length, 'items');
+        // Save to new key and remove old key
         saveCartToStorage();
         localStorage.removeItem('shoppingCart');
       } else {
+        console.warn('⚠️ Invalid cart data in shoppingCart, clearing...');
         localStorage.removeItem('shoppingCart');
         myCart = [];
       }
     } else {
       myCart = [];
+      console.log('ℹ️ No cart data found, starting with empty cart');
     }
   } catch (error) {
+    console.error('❌ Error loading cart from storage:', error);
+    // Clear corrupted data
     localStorage.removeItem('cureMateCart');
     localStorage.removeItem('shoppingCart');
     myCart = [];
@@ -46,36 +61,51 @@ function loadCartFromStorage() {
 function saveCartToStorage() {
   try {
     localStorage.setItem('cureMateCart', JSON.stringify(myCart));
+    console.log('✅ Cart saved to storage:', myCart.length, 'items');
   } catch (error) {
-    // Silent error handling
+    console.error('❌ Error saving cart to storage:', error);
   }
 }
 
 // Main cart toggle function
 function toggleCartDropdown() {
+  console.log('🛒 Cart icon clicked!');
+
   const dropdown = document.getElementById('cartDropdown');
-  
+  console.log('Cart dropdown element:', dropdown);
+
   if (!dropdown) {
+    console.error('❌ Cart dropdown not found!');
+    alert('Cart dropdown not found! Please refresh the page.');
     return;
   }
+
+  console.log('Current cart state - isCartOpen:', isCartOpen);
+  console.log('Current dropdown display:', dropdown.style.display);
 
   if (isCartOpen) {
     dropdown.style.display = 'none';
     isCartOpen = false;
+    console.log('✅ Cart closed');
   } else {
     dropdown.style.display = 'block';
     isCartOpen = true;
-    loadCartFromStorage();
     updateCartDisplay();
+    console.log('✅ Cart opened - dropdown should be visible now');
+    console.log('Final dropdown display style:', dropdown.style.display);
   }
 }
 
 // Add item to cart function
 function addToSimpleCart(name, price, image) {
+  console.log('🛒 Adding to cart:', name, 'Price:', price);
+
   try {
+    // Check if item already exists
     const existingItem = myCart.find(item => item.name === name);
     if (existingItem) {
       existingItem.quantity += 1;
+      console.log('✅ Increased quantity for:', name);
     } else {
       myCart.push({
         name: name,
@@ -83,13 +113,18 @@ function addToSimpleCart(name, price, image) {
         image: image || 'img/placeholder.jpg',
         quantity: 1
       });
+      console.log('✅ Added new item:', name);
     }
 
     updateCartBadge();
     updateCartDisplay();
     saveCartToStorage();
+
+    // Show success message
     showSuccessMessage('Added ' + name + ' to cart!');
+
   } catch (error) {
+    console.error('❌ Error adding to cart:', error);
     showErrorMessage('Error adding to cart');
   }
 }
@@ -122,10 +157,14 @@ function addToCartWithQuantity(name, price, image, quantityInputId) {
   const quantityInput = document.getElementById(quantityInputId);
   const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
 
+  console.log('🛒 Adding to cart:', name, 'Price:', price, 'Quantity:', quantity);
+
   try {
+    // Check if item already exists
     const existingItem = myCart.find(item => item.name === name);
     if (existingItem) {
       existingItem.quantity += quantity;
+      console.log('✅ Increased quantity for:', name, 'New total:', existingItem.quantity);
     } else {
       myCart.push({
         name: name,
@@ -133,18 +172,23 @@ function addToCartWithQuantity(name, price, image, quantityInputId) {
         image: image || 'img/placeholder.jpg',
         quantity: quantity
       });
+      console.log('✅ Added new item:', name, 'Quantity:', quantity);
     }
 
     updateCartBadge();
     updateCartDisplay();
     saveCartToStorage();
 
+    // Reset quantity to 1
     if (quantityInput) {
       quantityInput.value = 1;
     }
 
+    // Show success message
     showSuccessMessage(`Added ${quantity} x ${name} to cart!`);
+
   } catch (error) {
+    console.error('❌ Error adding to cart:', error);
     showErrorMessage('Error adding to cart');
   }
 }
@@ -153,13 +197,17 @@ function addToCartWithQuantity(name, price, image, quantityInputId) {
 function updateCartBadge() {
   const badge = document.getElementById('cartBadge');
   if (!badge) {
+    console.error('❌ Cart badge element not found!');
     return;
   }
 
   const totalItems = myCart.reduce((sum, item) => sum + item.quantity, 0);
+  console.log('🔄 Updating badge to:', totalItems);
+
   badge.textContent = totalItems;
   badge.style.display = totalItems > 0 ? 'flex' : 'none';
 
+  // Add animation
   if (totalItems > 0) {
     badge.classList.add('cart-badge-animate');
     setTimeout(() => badge.classList.remove('cart-badge-animate'), 300);
@@ -172,9 +220,18 @@ function updateCartDisplay() {
   const cartTotal = document.getElementById('cartTotalAmount');
   const cartItemCount = document.getElementById('cartItemCount');
 
-  if (!cartList || !cartTotal) {
+  if (!cartList) {
+    console.error('❌ Cart items list element not found!');
     return;
   }
+
+  console.log('🔄 Updating cart display...', {
+    cartList: !!cartList,
+    cartTotal: !!cartTotal,
+    cartItemCount: !!cartItemCount,
+    cartLength: myCart.length,
+    cartContents: myCart
+  });
 
   const totalItems = myCart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -190,8 +247,8 @@ function updateCartDisplay() {
 
   if (myCart.length === 0) {
     cartList.innerHTML = '<p style="color: #64748b; text-align: center; padding: 20px; margin: 0;">Your cart is empty</p>';
-    cartTotal.textContent = '0.00';
-    // Update footer even when empty to ensure proper state
+    if (cartTotal) cartTotal.textContent = '0.00';
+    // Update footer with zero total when cart is empty
     updateCartFooter(0);
   } else {
     let total = 0;
@@ -210,7 +267,7 @@ function updateCartDisplay() {
               <span style="color: #00BFB3; font-size: 16px; font-weight: bold;">₹${itemTotal.toFixed(2)}</span>
             </div>
             <button
-              onclick="event.stopPropagation(); removeFromCart(${index})"
+              onclick="removeFromCart(${index}, event)"
               style="
                 background: #ef4444;
                 color: white;
@@ -244,7 +301,7 @@ function updateCartDisplay() {
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="color: #64748b; font-size: 14px;">Quantity:</span>
               <button
-                onclick="event.stopPropagation(); decreaseCartQuantity(${index})"
+                onclick="decreaseCartQuantity(${index}, event)"
                 style="
                   background: #f8f9fa;
                   border: 1px solid #dee2e6;
@@ -279,7 +336,7 @@ function updateCartDisplay() {
                 ${item.quantity}
               </span>
               <button
-                onclick="increaseCartQuantity(${index})"
+                onclick="increaseCartQuantity(${index}, event)"
                 style="
                   background: #f8f9fa;
                   border: 1px solid #dee2e6;
@@ -307,10 +364,8 @@ function updateCartDisplay() {
       `;
     });
 
-    // Direct DOM update
     cartList.innerHTML = html;
-    
-    cartTotal.textContent = total.toFixed(2);
+    if (cartTotal) cartTotal.textContent = total.toFixed(2);
 
     // Update cart footer with buttons
     updateCartFooter(total);
@@ -319,16 +374,20 @@ function updateCartDisplay() {
 
 // Update cart footer with total and buttons
 function updateCartFooter(total) {
+  console.log('🔄 Updating cart footer with total:', total);
+
+  // Find the cart footer element (the div that contains the total and buttons)
   const cartFooter = document.querySelector('#cartDropdown > div:last-child');
 
   if (!cartFooter) {
+    console.error('❌ Cart footer element not found!');
     return;
   }
 
   // Update the footer content
   cartFooter.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-      <strong style="color: #334155; font-size: 16px;">Total: ₹<span id="cartTotalAmount">${total.toFixed(2)}</span></strong>
+      <strong style="color: #334155; font-size: 16px;">Total: ₹${total.toFixed(2)}</strong>
     </div>
     <div style="display: grid; gap: 8px;">
       <button
@@ -382,7 +441,13 @@ function updateCartFooter(total) {
 }
 
 // Cart quantity control functions
-function increaseCartQuantity(index) {
+function increaseCartQuantity(index, event) {
+  // Prevent event bubbling to avoid closing cart
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
   if (index >= 0 && index < myCart.length) {
     myCart[index].quantity += 1;
     updateCartBadge();
@@ -392,7 +457,13 @@ function increaseCartQuantity(index) {
   }
 }
 
-function decreaseCartQuantity(index) {
+function decreaseCartQuantity(index, event) {
+  // Prevent event bubbling to avoid closing cart
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
   if (index >= 0 && index < myCart.length) {
     if (myCart[index].quantity > 1) {
       myCart[index].quantity -= 1;
@@ -406,19 +477,20 @@ function decreaseCartQuantity(index) {
   }
 }
 
-// Remove item from cart - FIXED: No auto-close behavior
-function removeFromCart(index) {
+// Remove item from cart
+function removeFromCart(index, event) {
+  // Prevent event bubbling to avoid closing cart
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
   if (index >= 0 && index < myCart.length) {
     const removedItem = myCart[index];
     myCart.splice(index, 1);
-    
     updateCartBadge();
     updateCartDisplay();
     saveCartToStorage();
-    
-    // REMOVED: Auto-close behavior - cart stays open for better UX
-    // Users can manually close the cart when they want to
-    
     showSuccessMessage('Removed ' + removedItem.name + ' from cart');
   }
 }
@@ -434,16 +506,13 @@ function clearCart() {
   updateCartBadge();
   updateCartDisplay();
   saveCartToStorage();
-  
-  // Auto-close cart after clearing
-  setTimeout(() => {
-    const cartDropdown = document.getElementById('cartDropdown');
-    if (cartDropdown && isCartOpen) {
-      cartDropdown.style.display = 'none';
-      isCartOpen = false;
-    }
-  }, 1000);
-  
+
+  // Force update all total displays to 0
+  const cartTotalElements = document.querySelectorAll('#cartTotalAmount, [id*="cartTotal"], [id*="total"]');
+  cartTotalElements.forEach(element => {
+    if (element) element.textContent = '0.00';
+  });
+
   showSuccessMessage('Cart cleared successfully!');
 }
 
@@ -457,7 +526,7 @@ function proceedToCheckout() {
   const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const itemCount = myCart.reduce((sum, item) => sum + item.quantity, 0);
 
-  showSuccessMessage(`🛒 Proceeding to checkout with ${itemCount} items (₹${total.toFixed(2)})`);
+  showSuccessMessage(`Proceeding to checkout with ${itemCount} items (₹${total.toFixed(2)})`);
 
   // Close cart dropdown
   const cartDropdown = document.getElementById('cartDropdown');
@@ -469,53 +538,81 @@ function proceedToCheckout() {
 
 // Success and error message functions
 function showSuccessMessage(message) {
+  console.log('✅', message);
   showToast(message, 'success');
 }
 
 function showErrorMessage(message) {
+  console.log('❌', message);
   showToast(message, 'error');
 }
 
-// Simple toast notification system
+// Toast notification function
 function showToast(message, type = 'success') {
-  // Remove any existing toast
-  const existingToast = document.getElementById('cartToast');
-  if (existingToast) {
-    existingToast.remove();
-  }
-
   // Create toast element
   const toast = document.createElement('div');
-  toast.id = 'cartToast';
+  const bgColor = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6';
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+
   toast.style.cssText = `
     position: fixed;
     top: 20px;
     right: 20px;
-    background: ${type === 'success' ? '#10b981' : '#ef4444'};
+    background: ${bgColor};
     color: white;
     padding: 12px 20px;
     border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 10000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
+    font-weight: 500;
     max-width: 300px;
     word-wrap: break-word;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideInRight 0.3s ease;
+    font-family: 'Inter', sans-serif;
   `;
-  
-  toast.textContent = message;
+
+  toast.innerHTML = `
+    <span style="font-size: 16px;">${icon}</span>
+    <span>${message}</span>
+  `;
+
+  // Add animation keyframes if not already added
+  if (!document.getElementById('toast-animation-styles')) {
+    const style = document.createElement('style');
+    style.id = 'toast-animation-styles';
+    style.textContent = `
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOutRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   document.body.appendChild(toast);
 
-  // Animate in
+  // Auto-remove after 3 seconds with slide out animation
   setTimeout(() => {
-    toast.style.transform = 'translateX(0)';
-  }, 10);
-
-  // Animate out and remove
-  setTimeout(() => {
-    toast.style.transform = 'translateX(100%)';
+    toast.style.animation = 'slideOutRight 0.3s ease';
     setTimeout(() => {
       if (toast.parentNode) {
         toast.remove();
@@ -524,31 +621,91 @@ function showToast(message, type = 'success') {
   }, 3000);
 }
 
+// Test function to manually open cart
+function testOpenCart() {
+  console.log('🧪 Testing cart open...');
+  const dropdown = document.getElementById('cartDropdown');
+  if (dropdown) {
+    dropdown.style.display = 'block';
+    isCartOpen = true;
+    updateCartDisplay();
+    console.log('✅ Cart manually opened for testing');
+  } else {
+    console.error('❌ Cart dropdown not found for testing');
+  }
+}
 
+// Debug function to check cart state
+function debugCartState() {
+  console.log('=== CART DEBUG INFO ===');
+  console.log('myCart array:', myCart);
+  console.log('myCart length:', myCart.length);
+  console.log('localStorage cureMateCart:', localStorage.getItem('cureMateCart'));
+  console.log('localStorage shoppingCart:', localStorage.getItem('shoppingCart'));
+  console.log('Total items in myCart:', myCart.reduce((sum, item) => sum + item.quantity, 0));
+
+  // Check all total display elements
+  const totalElements = document.querySelectorAll('#cartTotalAmount, [id*="cartTotal"], [id*="total"]');
+  console.log('Total display elements found:', totalElements.length);
+  totalElements.forEach((element, index) => {
+    console.log(`Total element ${index}:`, element.id, '=', element.textContent);
+  });
+
+  console.log('========================');
+}
+
+// Function to clear all cart data (for debugging)
+function clearAllCartData() {
+  console.log('🗑️ Clearing all cart data...');
+  myCart = [];
+  localStorage.removeItem('cureMateCart');
+  localStorage.removeItem('shoppingCart');
+  updateCartBadge();
+  updateCartDisplay();
+  console.log('✅ All cart data cleared');
+}
+
+// Function to force refresh cart display and badge
+function forceRefreshCart() {
+  console.log('🔄 Force refreshing cart...');
+  loadCartFromStorage();
+  updateCartBadge();
+  updateCartDisplay();
+  debugCartState();
+}
 
 // Initialize cart on page load
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('🛒 Health Cart system initialized');
+  console.log('📄 Current page:', window.location.pathname);
+
   loadCartFromStorage();
   updateCartBadge();
   updateCartDisplay();
 
-  // FIXED: Close cart when clicking outside (improved logic)
+  // Debug cart state
+  debugCartState();
+
+  // Test cart elements
+  console.log('🔍 Testing cart elements...');
+  console.log('cartIcon:', document.getElementById('cartIcon'));
+  console.log('cartDropdown:', document.getElementById('cartDropdown'));
+  console.log('cartBadge:', document.getElementById('cartBadge'));
+  console.log('cartItemsList:', document.getElementById('cartItemsList'));
+  console.log('cartTotalAmount:', document.getElementById('cartTotalAmount'));
+  console.log('cartItemCount:', document.getElementById('cartItemCount'));
+
+  // Close cart when clicking outside
   document.addEventListener('click', function(event) {
-    if (!isCartOpen) return; // Don't do anything if cart is already closed
-    
     const cartIcon = document.getElementById('cartIcon');
     const cartDropdown = document.getElementById('cartDropdown');
-    
-    if (!cartIcon || !cartDropdown) return;
 
-    // Check if the click is inside the cart dropdown or on the cart icon
-    const clickedInsideCart = cartDropdown.contains(event.target);
-    const clickedOnCartIcon = cartIcon.contains(event.target);
-    
-    // Only close if clicked completely outside both cart and icon
-    if (!clickedInsideCart && !clickedOnCartIcon) {
-      isCartOpen = false;
-      cartDropdown.style.display = 'none';
+    if (isCartOpen && cartIcon && cartDropdown) {
+      if (!cartIcon.contains(event.target) && !cartDropdown.contains(event.target)) {
+        isCartOpen = false;
+        cartDropdown.style.display = 'none';
+        console.log('🔒 Cart closed by clicking outside');
+      }
     }
   });
 });
@@ -564,3 +721,7 @@ window.decreaseCartQuantity = decreaseCartQuantity;
 window.removeFromCart = removeFromCart;
 window.clearCart = clearCart;
 window.proceedToCheckout = proceedToCheckout;
+window.testOpenCart = testOpenCart;
+window.debugCartState = debugCartState;
+window.clearAllCartData = clearAllCartData;
+window.forceRefreshCart = forceRefreshCart;

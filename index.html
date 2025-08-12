@@ -378,7 +378,7 @@
                   <div style="text-align: right;">
                     <div style="margin-bottom: 8px;"><strong style="color: #00BFB3; font-size: 15px;">₹${itemTotal.toFixed(2)}</strong></div>
                     <button
-                      onclick="removeFromCart(${index})"
+                      onclick="removeFromCart(${index}, event)"
                       style="
                         background: #ef4444;
                         color: white;
@@ -404,7 +404,7 @@
                     <span style="color: #64748b; font-size: 13px; font-weight: 500;">Quantity:</span>
                     <div style="display: flex; align-items: center; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc;">
                       <button
-                        onclick="decreaseCartQuantity(${index})"
+                        onclick="decreaseCartQuantity(${index}, event)"
                         style="
                           background: none;
                           border: none;
@@ -434,7 +434,7 @@
                         font-size: 14px;
                       ">${item.quantity}</span>
                       <button
-                        onclick="increaseCartQuantity(${index})"
+                        onclick="increaseCartQuantity(${index}, event)"
                         style="
                           background: none;
                           border: none;
@@ -468,7 +468,13 @@
       }
 
       // Increase cart item quantity function
-      function increaseCartQuantity(index) {
+      function increaseCartQuantity(index, event) {
+        // Prevent event bubbling to avoid closing cart
+        if (event) {
+          event.stopPropagation();
+          event.preventDefault();
+        }
+
         if (index >= 0 && index < myCart.length) {
           myCart[index].quantity += 1;
           updateCartBadge();
@@ -479,7 +485,13 @@
       }
 
       // Decrease cart item quantity function
-      function decreaseCartQuantity(index) {
+      function decreaseCartQuantity(index, event) {
+        // Prevent event bubbling to avoid closing cart
+        if (event) {
+          event.stopPropagation();
+          event.preventDefault();
+        }
+
         if (index >= 0 && index < myCart.length) {
           if (myCart[index].quantity > 1) {
             myCart[index].quantity -= 1;
@@ -489,13 +501,19 @@
             showSuccessMessage(`Decreased ${myCart[index].name} quantity to ${myCart[index].quantity}`);
           } else {
             // If quantity is 1, remove the item
-            removeFromCart(index);
+            removeFromCart(index, event);
           }
         }
       }
 
       // Remove item from cart
-      function removeFromCart(index) {
+      function removeFromCart(index, event) {
+        // Prevent event bubbling to avoid closing cart
+        if (event) {
+          event.stopPropagation();
+          event.preventDefault();
+        }
+
         if (index >= 0 && index < myCart.length) {
           const removedItem = myCart[index];
           myCart.splice(index, 1);
@@ -3642,7 +3660,7 @@
           <div class="carousel-inner">
             <div class="carousel-item active">
               <div class="row g-4">
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="product-card">
                     <img src="img/multivitamin.jpg.png" class="card-img-top" alt="Multivitamin Complex" style="height: 200px; object-fit: contain;">
                     <div class="card-body">
@@ -3662,7 +3680,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="product-card">
                     <img src="img/thermometer.jpg.png" class="card-img-top" alt="Digital Thermometer" style="height: 200px; object-fit: contain;">
                     <div class="card-body">
@@ -3682,7 +3700,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="product-card">
                     <img src="img/first-aid.jpg.png" class="card-img-top" alt="First Aid Kit" style="height: 200px; object-fit: contain;">
                     <div class="card-body">
@@ -3702,7 +3720,11 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-3">
+              </div>
+            </div>
+            <div class="carousel-item">
+              <div class="row g-4">
+                <div class="col-md-4">
                   <div class="product-card">
                     <img src="img/omega-3-supplements.jpg.png" class="card-img-top" alt="Omega-3 Supplements" style="height: 200px; object-fit: contain;">
                     <div class="card-body">
@@ -3717,16 +3739,12 @@
                       </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹599</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Omega-3 Supplements', 599, 'img/omega-3-supplements.jpg.png', 'featured4')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Omega-3 Supplements', 599, 'img/omega3.jpg.png', 'featured4')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="carousel-item">
-              <div class="row g-4">
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="product-card">
                     <img src="img/blood-pressure-monitor.jpg.png" class="card-img-top" alt="Blood Pressure Monitor" style="height: 200px; object-fit: contain;">
                     <div class="card-body">
@@ -3741,12 +3759,12 @@
                       </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹1299</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Blood Pressure Monitor', 1299, 'img/blood-pressure-monitor.jpg.png', 'featured5')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Blood Pressure Monitor', 1299, 'img/bp-monitor.jpg.png', 'featured5')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="product-card">
                     <img src="img/protein-powder.jpg.png" class="card-img-top" alt="Protein Powder" style="height: 200px; object-fit: contain;">
                     <div class="card-body">
@@ -3761,47 +3779,7 @@
                       </div>
                       <div class="d-flex justify-content-between align-items-center">
                         <span class="price">₹899</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Protein Powder', 899, 'img/protein-powder.jpg.png', 'featured6')">Add to Cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="product-card">
-                    <img src="img/Glucometer-Kit.jpg.png" class="card-img-top" alt="Glucometer Kit" style="height: 200px; object-fit: contain;">
-                    <div class="card-body">
-                      <h5 class="card-title">Glucometer Kit</h5>
-                      <p class="card-text">Blood sugar monitoring device</p>
-                      <div class="d-flex align-items-center justify-content-between mb-2">
-                        <div class="quantity-controls d-flex align-items-center">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured7')">-</button>
-                          <input type="number" id="featured7" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured7')">+</button>
-                        </div>
-                      </div>
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="price">₹1599</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Glucometer Kit', 1599, 'img/Glucometer-Kit.jpg.png', 'featured7')">Add to Cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="product-card">
-                    <img src="img/Vitamin-D3-drops.jpg.png" class="card-img-top" alt="Vitamin D3 Drops" style="height: 200px; object-fit: contain;">
-                    <div class="card-body">
-                      <h5 class="card-title">Vitamin D3 Drops</h5>
-                      <p class="card-text">Essential vitamin D supplement</p>
-                      <div class="d-flex align-items-center justify-content-between mb-2">
-                        <div class="quantity-controls d-flex align-items-center">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured8')">-</button>
-                          <input type="number" id="featured8" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured8')">+</button>
-                        </div>
-                      </div>
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="price">₹399</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Vitamin D3 Drops', 399, 'img/Vitamin-D3-drops.jpg.png', 'featured8')">Add to Cart</button>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Protein Powder', 899, 'img/protein.jpg.png', 'featured6')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -3810,12 +3788,52 @@
             </div>
             <div class="carousel-item">
               <div class="row g-4">
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="product-card">
                     <img src="img/scalpe.jpg.png" class="card-img-top" alt="Scalpe Plus Anti-Dandruff Shampoo" style="height: 200px; object-fit: contain;">
                     <div class="card-body">
                       <h5 class="card-title">Scalpe Plus Anti-Dandruff Shampoo</h5>
                       <p class="card-text">Anti-dandruff hair care solution</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured7')">-</button>
+                          <input type="number" id="featured7" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured7')">+</button>
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="price">₹281.82</span>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Scalpe Plus Anti-Dandruff Shampoo', 281.82, 'img/shampoo.jpg.png', 'featured7')">Add to Cart</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="product-card">
+                    <img src="img/hansaplast.jpg.png" class="card-img-top" alt="Hansaplast Bandages" style="height: 200px; object-fit: contain;">
+                    <div class="card-body">
+                      <h5 class="card-title">Hansaplast Bandages</h5>
+                      <p class="card-text">Sterile wound protection</p>
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="quantity-controls d-flex align-items-center">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured8')">-</button>
+                          <input type="number" id="featured8" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured8')">+</button>
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="price">₹146.25</span>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Hansaplast Bandages', 146.25, 'img/bandages.jpg.png', 'featured8')">Add to Cart</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="product-card">
+                    <img src="img/liveasy-seeds.jpg.png" class="card-img-top" alt="Liveasy Healthy Roasted Seed" style="height: 200px; object-fit: contain;">
+                    <div class="card-body">
+                      <h5 class="card-title">Liveasy Healthy Roasted Seed</h5>
+                      <p class="card-text">Nutritious snack mix</p>
                       <div class="d-flex align-items-center justify-content-between mb-2">
                         <div class="quantity-controls d-flex align-items-center">
                           <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured9')">-</button>
@@ -3824,68 +3842,8 @@
                         </div>
                       </div>
                       <div class="d-flex justify-content-between align-items-center">
-                        <span class="price">₹282</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Scalpe Plus Anti-Dandruff Shampoo', 282, 'img/scalpe.jpg.png', 'featured9')">Add to Cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="product-card">
-                    <img src="img/hansaplast.jpg.png" class="card-img-top" alt="Hansaplast Bandages" style="height: 200px; object-fit: contain;">
-                    <div class="card-body">
-                      <h5 class="card-title">Hansaplast Bandages</h5>
-                      <p class="card-text">Sterile wound protection</p>
-                      <div class="d-flex align-items-center justify-content-between mb-2">
-                        <div class="quantity-controls d-flex align-items-center">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured10')">-</button>
-                          <input type="number" id="featured10" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured10')">+</button>
-                        </div>
-                      </div>
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="price">₹146</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Hansaplast Bandages', 146, 'img/hansaplast.jpg.png', 'featured10')">Add to Cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="product-card">
-                    <img src="img/liveasy-seeds.jpg.png" class="card-img-top" alt="Liveasy Healthy Roasted Seed" style="height: 200px; object-fit: contain;">
-                    <div class="card-body">
-                      <h5 class="card-title">Liveasy Healthy Roasted Seed</h5>
-                      <p class="card-text">Nutritious snack mix</p>
-                      <div class="d-flex align-items-center justify-content-between mb-2">
-                        <div class="quantity-controls d-flex align-items-center">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured11')">-</button>
-                          <input type="number" id="featured11" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured11')">+</button>
-                        </div>
-                      </div>
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="price">₹175</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Liveasy Healthy Roasted Seed', 175, 'img/liveasy-seeds.jpg.png', 'featured11')">Add to Cart</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="product-card">
-                    <img src="img/Collagen-Peptide.jpg.png" class="card-img-top" alt="Collagen Peptide" style="height: 200px; object-fit: contain;">
-                    <div class="card-body">
-                      <h5 class="card-title">Collagen Peptide</h5>
-                      <p class="card-text">Skin and joint health support</p>
-                      <div class="d-flex align-items-center justify-content-between mb-2">
-                        <div class="quantity-controls d-flex align-items-center">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('featured12')">-</button>
-                          <input type="number" id="featured12" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
-                          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('featured12')">+</button>
-                        </div>
-                      </div>
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="price">₹1299</span>
-                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Collagen Peptide', 1299, 'img/Collagen-Peptide.jpg.png', 'featured12')">Add to Cart</button>
+                        <span class="price">₹175.00</span>
+                        <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Liveasy Healthy Roasted Seed', 175.00, 'img/seeds.jpg.png', 'featured9')">Add to Cart</button>
                       </div>
                     </div>
                   </div>
@@ -3912,44 +3870,40 @@
         <div class="row g-4">
           <div class="col-6 col-md-3">
             <a href="blood-pressure.html" class="text-decoration-none text-dark">
-              <div class="category-card hover-lift p-0 d-flex flex-column align-items-stretch">
-                <img src="img/blood-pressure-monitor.jpg.png" class="w-100" alt="Blood Pressure (BP)" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+              <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/Blood Pressure (BP).jpg.jpg" class="w-100" alt="Blood Pressure (BP)" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
                 <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
-                  <h3 class="category-title mb-2">Blood Pressure (BP)</h3>
-                  <p class="category-count mb-0">50+ Products</p>
+                  <h3 class="concern-title mb-2">Blood Pressure (BP)</h3>
                 </div>
               </div>
             </a>
           </div>
           <div class="col-6 col-md-3">
             <a href="diabetes.html" class="text-decoration-none text-dark">
-              <div class="category-card hover-lift p-0 d-flex flex-column align-items-stretch">
-                <img src="img/Glucometer-Kit.jpg.png" class="w-100" alt="Diabetes" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+              <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/Diabetes.jpg.jpg" class="w-100" alt="Diabetes" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
                 <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
-                  <h3 class="category-title mb-2">Diabetes</h3>
-                  <p class="category-count mb-0">60+ Products</p>
+                  <h3 class="concern-title mb-2">Diabetes</h3>
                 </div>
               </div>
             </a>
           </div>
           <div class="col-6 col-md-3">
             <a href="cholesterol.html" class="text-decoration-none text-dark">
-              <div class="category-card hover-lift p-0 d-flex flex-column align-items-stretch">
-                <img src="img/omega-3-supplements.jpg.png" class="w-100" alt="Cholesterol" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+              <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/Cholesterol.jpg.jpg" class="w-100" alt="Cholesterol" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
                 <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
-                  <h3 class="category-title mb-2">Cholesterol</h3>
-                  <p class="category-count mb-0">40+ Products</p>
+                  <h3 class="concern-title mb-2">Cholesterol</h3>
                 </div>
               </div>
             </a>
           </div>
           <div class="col-6 col-md-3">
             <a href="pancreatitis.html" class="text-decoration-none text-dark">
-              <div class="category-card hover-lift p-0 d-flex flex-column align-items-stretch">
-                <img src="img/first-aid.jpg.png" class="w-100" alt="Pancreatitis" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+              <div class="health-concern-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/Pancreatitis.jpg.jpg" class="w-100" alt="Pancreatitis" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
                 <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
-                  <h3 class="category-title mb-2">Pancreatitis</h3>
-                  <p class="category-count mb-0">25+ Products</p>
+                  <h3 class="concern-title mb-2">Pancreatitis</h3>
                 </div>
               </div>
             </a>
@@ -4170,7 +4124,7 @@
         <hr class="my-4 border-secondary">
         <div class="row">
           <div class="col-md-6 mb-3 mb-md-0">
-            <p class="mb-0">&copy; 2025 Curemate Health Hub. All rights reserved.</p>
+            <p class="mb-0">&copy; 2023 Curemate Health Hub. All rights reserved.</p>
           </div>
           <div class="col-md-6 text-md-end">
             <a href="#" class="text-decoration-none text-white me-3">Privacy Policy</a>

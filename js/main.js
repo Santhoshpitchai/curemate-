@@ -841,7 +841,7 @@ function updateCartDisplay() {
             <div style="text-align: right;">
               <div><strong>₹${itemTotal}</strong></div>
               <button
-                onclick="removeFromCart(${index})"
+                onclick="removeFromCart(${index}, event)"
                 style="
                   background: #dc3545;
                   color: white;
@@ -922,17 +922,29 @@ function addToCart(product) {
   updateCartDisplay();
 }
 
-function removeFromCart(productId) {
+function removeFromCart(productId, event) {
+  // Prevent event bubbling to avoid closing cart
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
   cart = cart.filter(item => item.id !== productId);
   saveCart();
   updateCartDisplay();
 }
 
-function updateQuantity(productId, newQuantity) {
+function updateQuantity(productId, newQuantity, event) {
+  // Prevent event bubbling to avoid closing cart
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
   const item = cart.find(item => item.id === productId);
   if (item) {
     if (newQuantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, event);
     } else {
       item.quantity = newQuantity;
       saveCart();
@@ -999,14 +1011,14 @@ function updateCartDisplay() {
             </div>
             <div class="col-3">
               <div class="input-group input-group-sm">
-                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('${item.id}', ${item.quantity - 1})">-</button>
+                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('${item.id}', ${item.quantity - 1}, event)">-</button>
                 <input type="text" class="form-control text-center" value="${item.quantity}" readonly>
-                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('${item.id}', ${item.quantity + 1})">+</button>
+                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('${item.id}', ${item.quantity + 1}, event)">+</button>
               </div>
             </div>
             <div class="col-2 text-end">
               <div class="fw-bold">₹${(item.price * item.quantity).toFixed(2)}</div>
-              <button class="btn btn-sm btn-outline-danger mt-1" onclick="removeFromCart('${item.id}')">
+              <button class="btn btn-sm btn-outline-danger mt-1" onclick="removeFromCart('${item.id}', event)">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </div>
