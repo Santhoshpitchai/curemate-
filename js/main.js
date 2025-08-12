@@ -1,5 +1,16 @@
 // Curemate Health Hub - Main JavaScript
 
+// Import Supabase client
+import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2'
+
+// Initialize Supabase client
+const supabaseUrl = 'https://vahhmwunmhkudepqxrir.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhaGhtd3VubWhrdWRlcHF4cmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NDYyNDQsImV4cCI6MjA2OTUyMjI0NH0.SYiCgyv24BPrQfOT3JzkypsNT_fdrthwRMIdunrdLqg'
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+// Make supabase available globally
+window.supabase = supabase
+
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize tooltips
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -494,43 +505,60 @@ async function initializeAuth() {
   }
 }
 
-function handleLogin(e) {
+async function handleLogin(e) {
   e.preventDefault();
 
   const email = document.getElementById('loginEmail').value;
   const password = document.getElementById('loginPassword').value;
   const rememberMe = document.getElementById('rememberMe').checked;
 
-  // Simulate authentication (in real app, this would be an API call)
-  const users = getStoredUsers();
-  const user = users.find(u => u.email === email && u.password === password);
+  try {
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Logging in...';
+    submitBtn.disabled = true;
 
-  if (user) {
-    // Store user session
-    if (rememberMe) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
+    // Authenticate with Supabase
+    const result = await window.supabaseService.authenticateUser(email, password);
+
+    if (result.success) {
+      // Store user session
+      window.supabaseService.setUserSession(result.user, rememberMe);
+
+      // Update UI
+      updateUIForLoggedInUser(result.user);
+
+      // Close modal
+      const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+      loginModal.hide();
+
+      // Show success message
+      const userName = result.user.first_name || result.user.email;
+      showToast(`Welcome back, ${userName}!`);
+
+      // Reset form
+      document.getElementById('loginForm').reset();
     } else {
-      sessionStorage.setItem('currentUser', JSON.stringify(user));
+      showToast(result.message || 'Invalid email or password. Please try again.', 'error');
     }
 
-    // Update UI
-    updateUIForLoggedInUser(user);
+    // Restore button state
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
 
-    // Close modal
-    const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-    loginModal.hide();
+  } catch (error) {
+    console.error('Login error:', error);
+    showToast('Login failed. Please try again.', 'error');
 
-    // Show success message
-    showToast(`Welcome back, ${user.name}!`);
-
-    // Reset form
-    document.getElementById('loginForm').reset();
-  } else {
-    showToast('Invalid email or password. Please try again.', 'error');
+    // Restore button state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fa-solid fa-sign-in-alt me-2"></i>Login';
+    submitBtn.disabled = false;
   }
 }
 
-function handleSignup(e) {
+async function handleSignup(e) {
   e.preventDefault();
 
   const name = document.getElementById('signupName').value;
@@ -544,42 +572,63 @@ function handleSignup(e) {
     return;
   }
 
-  // Check if user already exists
-  const users = getStoredUsers();
-  if (users.find(u => u.email === email)) {
-    showToast('An account with this email already exists', 'error');
-    return;
+  try {
+    // Show loading state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Creating account...';
+    submitBtn.disabled = true;
+
+    // Check if user already exists
+    const existingUser = await window.supabaseService.getUserByEmail(email);
+    if (existingUser) {
+      showToast('An account with this email already exists', 'error');
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+      return;
+    }
+
+    // Create new user in Supabase
+    const userData = {
+      name: name,
+      firstName: name.split(' ')[0],
+      lastName: name.split(' ').slice(1).join(' '),
+      email: email,
+      password: password // Note: In production, implement proper password hashing
+    };
+
+    const newUser = await window.supabaseService.createUser(userData);
+
+    // Auto-login the new user
+    window.supabaseService.setUserSession(newUser, false);
+
+    // Update UI
+    updateUIForLoggedInUser(newUser);
+
+    // Close modal
+    const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+    signupModal.hide();
+
+    // Show success message
+    const userName = newUser.first_name || newUser.email;
+    showToast(`Welcome to Curemate, ${userName}!`);
+
+    // Reset form
+    document.getElementById('signupForm').reset();
+
+    // Restore button state
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+
+  } catch (error) {
+    console.error('Signup error:', error);
+    showToast('Account creation failed. Please try again.', 'error');
+
+    // Restore button state
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fa-solid fa-user-plus me-2"></i>Create Account';
+    submitBtn.disabled = false;
   }
-
-  // Create new user
-  const newUser = {
-    id: Date.now().toString(),
-    name: name,
-    email: email,
-    password: password, // In real app, this would be hashed
-    type: 'customer',
-    createdAt: new Date().toISOString()
-  };
-
-  // Store user
-  users.push(newUser);
-  localStorage.setItem('users', JSON.stringify(users));
-
-  // Auto-login the new user
-  sessionStorage.setItem('currentUser', JSON.stringify(newUser));
-
-  // Update UI
-  updateUIForLoggedInUser(newUser);
-
-  // Close modal
-  const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
-  signupModal.hide();
-
-  // Show success message
-  showToast(`Welcome to Curemate, ${newUser.name}!`);
-
-  // Reset form
-  document.getElementById('signupForm').reset();
 }
 
 function handleVendorLoginModal(e) {
@@ -628,41 +677,41 @@ function handleVendorLoginModal(e) {
 
 // Helper functions for authentication
 function getCurrentUser() {
-  // Check session storage first, then local storage
-  const sessionUser = sessionStorage.getItem('currentUser');
-  const localUser = localStorage.getItem('currentUser');
-
-  if (sessionUser) {
-    return JSON.parse(sessionUser);
-  } else if (localUser) {
-    return JSON.parse(localUser);
-  }
-
-  return null;
+  return window.supabaseService ? window.supabaseService.getCurrentUser() : null;
 }
 
-function getStoredUsers() {
+function getCurrentVendor() {
+  return window.supabaseService ? window.supabaseService.getCurrentVendor() : null;
+}
+
+async function getStoredUsers() {
+  if (window.supabaseService) {
+    return await window.supabaseService.getAllUsers();
+  }
   return JSON.parse(localStorage.getItem('users') || '[]');
 }
 
-function getStoredVendors() {
+async function getStoredVendors() {
+  if (window.supabaseService) {
+    return await window.supabaseService.getAllVendors();
+  }
   return JSON.parse(localStorage.getItem('vendors') || '[]');
 }
 
 async function updateUIForLoggedInUser(isVendor) {
   const authContainer = document.getElementById('authContainer');
   if (!authContainer) return;
-  
+
   try {
     const user = await getCurrentUser();
     if (!user) return;
-    
-    const profile = isVendor ? 
-      await vendorAuth.getProfile() : 
+
+    const profile = isVendor ?
+      await vendorAuth.getProfile() :
       await userAuth.getProfile();
-    
+
     const displayName = profile?.profile?.first_name || user?.email || 'User';
-    
+
     authContainer.innerHTML = `
       <div class="dropdown">
         <button class="btn btn-link text-decoration-none p-1" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -696,27 +745,29 @@ async function updateUIForLoggedInUser(isVendor) {
 async function logout() {
   try {
     let error = null;
-    
+
     // If user-auth.js is handling auth, use its functions
     if (window.userAuthHandlingUI) {
       const isUserVendor = await isVendor();
-      
-      const result = isUserVendor ? 
-        await vendorAuth.signOut() : 
+
+      const result = isUserVendor ?
+        await vendorAuth.signOut() :
         await userAuth.signOut();
-        
+
       error = result.error;
     } else {
       // Legacy logout - just for fallback
       sessionStorage.removeItem('currentUser');
       localStorage.removeItem('currentUser');
+      sessionStorage.removeItem('currentVendor');
+      localStorage.removeItem('currentVendor');
     }
-    
+
     if (error) {
       showToast(error.message, 'error');
       return;
     }
-    
+
     // Reset UI
     const authContainer = document.getElementById('authContainer');
     if (authContainer) {
@@ -726,10 +777,10 @@ async function logout() {
         </a>
       `;
     }
-    
+
     // Show logout message
     showToast('You have been logged out successfully');
-    
+
   } catch (err) {
     console.error('Logout error:', err);
     showToast('An error occurred during logout', 'error');

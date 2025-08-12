@@ -1,0 +1,39 @@
+SAMPLE PRESCRIPTION FOR TESTING
+
+Dr. Sarah Johnson, MD
+City Medical Center
+Phone: +91 98765 43210
+
+Patient: John Doe
+Date: 10/08/2025
+
+Rx:
+
+1. Paracetamol 650mg - Take 1 tablet twice daily after meals
+2. Azithromycin 500mg - Take 1 tablet once daily for 3 days  
+3. Pantoprazole 40mg - Take 1 tablet before breakfast
+4. Vitamin D3 drops - Take 5 drops daily
+5. Multivitamin tablets - Take 1 tablet daily with food
+
+Instructions:
+- Complete the full course of antibiotics
+- Take medicines with plenty of water
+- Avoid alcohol during treatment
+
+Dr. Sarah Johnson
+Reg. No: MH12345
+
+---
+
+To test the prescription analyzer:
+1. Take a screenshot of this text
+2. Upload it using the "UPLOAD & ANALYZE" button
+3. The AI will read the prescription and find matching products
+4. You can add the found products directly to your cart
+
+Available products that will be detected:
+- Dolo 650mg (Paracetamol)
+- Azithral 500mg (Azithromycin) 
+- Pantop 40mg (Pantoprazole)
+- Vitamin D3 Drops
+- Multivitamin Tablets

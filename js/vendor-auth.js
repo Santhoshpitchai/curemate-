@@ -85,30 +85,30 @@ async function initializeVendorAuth() {
 
 async function handleVendorLogin(e) {
     e.preventDefault();
-    
+
     const email = document.getElementById('vendorEmail').value;
     const password = document.getElementById('vendorPassword').value;
-    
+
     try {
         // Show loading state
         const submitButton = this.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Logging in...';
-        
+
         // Sign in with Supabase
         const { session, user, error, vendor } = await vendorAuth.signIn(email, password);
-        
+
         if (error) {
             showToast(error.message, 'error');
             submitButton.disabled = false;
             submitButton.innerHTML = originalButtonText;
             return;
         }
-        
+
         // Show success message
         showToast(`Welcome back, ${vendor.business_name}!`, 'success');
-        
+
         // Store vendor data in session for backwards compatibility
         sessionStorage.setItem('currentVendor', JSON.stringify({
             id: vendor.id || user.id,
@@ -117,20 +117,20 @@ async function handleVendorLogin(e) {
             firstName: vendor.first_name || '',
             lastName: vendor.last_name || ''
         }));
-        
+
         // Reset any redirect counters
         sessionStorage.setItem('vendorLoginRedirectCount', '0');
         sessionStorage.setItem('vendorRedirectCount', '0');
-        
+
         // Redirect to vendor dashboard with a delay
         setTimeout(() => {
             window.location.href = 'vendor-dashboard.html';
         }, 1500);
-        
+
     } catch (err) {
         console.error('Login error:', err);
         showToast('An error occurred during login. Please try again.', 'error');
-        
+
         // Reset button state
         const submitButton = this.querySelector('button[type="submit"]');
         submitButton.disabled = false;
@@ -140,7 +140,7 @@ async function handleVendorLogin(e) {
 
 async function handleVendorSignup(e) {
     e.preventDefault();
-    
+
     const formData = {
         businessName: document.getElementById('businessName').value,
         firstName: document.getElementById('contactPersonFirstName').value,
@@ -150,20 +150,20 @@ async function handleVendorSignup(e) {
         password: document.getElementById('vendorPassword').value,
         confirmPassword: document.getElementById('confirmVendorPassword').value
     };
-    
+
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
         showToast('Passwords do not match', 'error');
         return;
     }
-    
+
     try {
         // Show loading state
         const submitButton = this.querySelector('button[type="submit"]');
         const originalButtonText = submitButton.innerHTML;
         submitButton.disabled = true;
         submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating account...';
-        
+
         // Sign up with Supabase
         const { user, error } = await vendorAuth.signUp(
             formData.email,
@@ -173,26 +173,25 @@ async function handleVendorSignup(e) {
             formData.businessName,
             formData.phone
         );
-        
+
         if (error) {
             showToast(error.message, 'error');
             submitButton.disabled = false;
             submitButton.innerHTML = originalButtonText;
             return;
         }
-        
+
         // Show success message
         showToast('Vendor account created successfully! Please check your email to confirm your account.', 'success');
-        
         // Redirect to login page after delay
         setTimeout(() => {
             window.location.href = 'vendor-login.html';
         }, 3000);
-        
+
     } catch (err) {
         console.error('Signup error:', err);
         showToast('An error occurred during signup. Please try again.', 'error');
-        
+
         // Reset button state
         const submitButton = this.querySelector('button[type="submit"]');
         submitButton.disabled = false;
