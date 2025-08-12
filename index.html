@@ -3503,9 +3503,9 @@
           <h2 class="text-center mb-4 fw-bold">What are you looking for?</h2>
           <div class="search-bar" style="position: relative;">
             <input
-              type="text"
+              type="search"
               id="medicineSearchInput"
-              class="search-input"
+              class="search-input form-control"
               placeholder="Search for Medicine (e.g., Paracetamol, Aspirin, Vitamin D...)"
               autocomplete="off"
             >
@@ -3538,22 +3538,59 @@
         </div>
         
         <!-- Prescription Upload -->
-        <div class="prescription-upload mt-3">
-          <div class="prescription-text">
-            <i class="fa-solid fa-file-prescription"></i>
-            Order with prescription.
+        <div class="prescription-upload mt-4">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <div class="prescription-info">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="prescription-icon me-3">
+                    <i class="fa-solid fa-file-prescription"></i>
+                  </div>
+                  <div>
+                    <h5 class="mb-1 fw-bold">Order with Prescription</h5>
+                    <p class="mb-0 text-muted">AI will analyze and find matching products!</p>
+                  </div>
+                </div>
+                <div class="selected-file-info mt-2">
+                  <span id="selected-file" class="text-success fw-medium"></span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+              <input type="file" id="prescription-file" accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
+              <div class="upload-actions">
+                <button class="btn btn-primary btn-lg px-4" onclick="document.getElementById('prescription-file').click();">
+                  <i class="fa-solid fa-upload me-2"></i>
+                  UPLOAD & ANALYZE
+                </button>
+                <button class="btn btn-outline-danger ms-2" id="delete-file" onclick="deleteFile();" style="display: none;">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
           </div>
-          <input type="file" id="prescription-file" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" onchange="updateFileName(this)">
-          <div class="d-flex align-items-center">
-            <span id="selected-file" class="me-3 text-muted" style="font-size: 0.9rem;"></span>
-            <div class="d-flex gap-2">
-              <a href="#" class="upload-btn" onclick="document.getElementById('prescription-file').click(); return false;">
-                UPLOAD NOW
-                <i class="fa-solid fa-arrow-right"></i>
-              </a>
-              <a href="#" class="upload-btn text-danger" id="delete-file" onclick="deleteFile(); return false;" style="display: none;">
-                <i class="fa-solid fa-trash"></i>
-              </a>
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="prescription-help text-center">
+                <div class="d-flex justify-content-center align-items-center flex-wrap gap-3 mb-2">
+                  <span class="badge bg-light text-dark">
+                    <i class="fa-solid fa-image me-1"></i>JPG
+                  </span>
+                  <span class="badge bg-light text-dark">
+                    <i class="fa-solid fa-image me-1"></i>PNG
+                  </span>
+                  <span class="badge bg-light text-dark">
+                    <i class="fa-solid fa-file-pdf me-1"></i>PDF
+                  </span>
+                  <span class="badge bg-primary text-white">
+                    <i class="fa-solid fa-robot me-1"></i>AI Powered
+                  </span>
+                </div>
+                <small class="text-muted">
+                  <i class="fa-solid fa-lightbulb me-1"></i>
+                  For best results, ensure prescription is clear and well-lit
+                </small>
+              </div>
             </div>
           </div>
         </div>
@@ -3564,8 +3601,8 @@
             const deleteButton = document.getElementById('delete-file');
             if (input.files && input.files[0]) {
               const fileName = input.files[0].name;
-              fileNameDisplay.textContent = fileName;
-              deleteButton.style.display = 'flex';
+              fileNameDisplay.innerHTML = `<i class="fa-solid fa-check-circle me-2"></i>Selected: ${fileName}`;
+              deleteButton.style.display = 'inline-block';
             }
           }
 
@@ -3574,8 +3611,15 @@
             const fileNameDisplay = document.getElementById('selected-file');
             const deleteButton = document.getElementById('delete-file');
             fileInput.value = '';
-            fileNameDisplay.textContent = '';
+            fileNameDisplay.innerHTML = '';
             deleteButton.style.display = 'none';
+            
+            // Show feedback
+            const uploadBtn = document.querySelector('.upload-actions .btn-primary');
+            const originalText = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = '<i class="fa-solid fa-upload me-2"></i>UPLOAD & ANALYZE';
+            uploadBtn.classList.remove('btn-success');
+            uploadBtn.classList.add('btn-primary');
           }
         </script>
       </div>
@@ -4383,8 +4427,13 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
 
+    <!-- Tesseract.js for OCR -->
+    <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+    
     <!-- Custom JavaScript -->
     <script src="js/supabase-service.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/prescription-analyzer.js"></script>
     <script type="module" src="js/main.js"></script>
   </body>
 </html>

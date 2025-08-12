@@ -48,6 +48,59 @@
   --radius: 0.75rem;
 }
 
+/* Global layout and responsiveness */
+*, *::before, *::after { 
+  box-sizing: border-box; 
+}
+
+html, body { 
+  width: 100%; 
+  overflow-x: hidden;
+}
+
+/* Container improvements */
+.container, .container-fluid {
+  padding-left: 15px;
+  padding-right: 15px;
+  max-width: 100%;
+}
+
+@media (min-width: 576px) {
+  .container, .container-fluid {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container, .container-fluid {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+}
+
+/* Section spacing */
+section { 
+  padding: 3rem 0; 
+}
+
+@media (max-width: 768px) {
+  section {
+    padding: 2rem 0;
+  }
+}
+
+.section-title { 
+  margin-bottom: 2.5rem; 
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
+}
+
 /* Global Styles */
 body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -598,4 +651,545 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Search Dropdown Styles */
+.search-dropdown {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.search-result-item {
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.search-result-item:hover,
+.search-result-item.active {
+  background-color: #f8f9fa !important;
+  border-left-color: #007bff;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item img {
+  border: 1px solid #e9ecef;
+}
+
+.search-result-item mark {
+  background: #fff3cd;
+  padding: 1px 2px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+/* Enhanced search input focus */
+.search-form input[type="search"]:focus,
+.search-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Main search bar positioning */
+.search-bar {
+  position: relative;
+}
+
+/* Prescription Analysis Styles */
+.prescription-results .card {
+  transition: all 0.3s ease;
+}
+
+.prescription-results .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.prescription-results .quantity-controls {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.prescription-results .quantity-controls input {
+  border: none;
+  background: white;
+}
+
+.prescription-results .price-info {
+  font-weight: 600;
+}
+
+/* Toast container positioning */
+.toast-container {
+  z-index: 1060;
+}
+
+/* Analysis progress styles */
+#analysisProgressModal .modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#analysisProgressModal .progress {
+  height: 8px;
+  border-radius: 4px;
+}
+
+/* Prescription upload enhancements */
+.prescription-upload {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.prescription-upload:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 25px rgba(0, 191, 179, 0.15);
+  transform: translateY(-2px);
+}
+
+.prescription-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.prescription-info h5 {
+  color: var(--foreground);
+  font-size: 1.25rem;
+}
+
+.prescription-info p {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.upload-actions .btn-lg {
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.upload-actions .btn-lg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+.prescription-help {
+  background: rgba(0, 191, 179, 0.05);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(0, 191, 179, 0.1);
+}
+
+.selected-file-info {
+  min-height: 1.5rem;
+}
+
+#selected-file {
+  font-size: 0.9rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(40, 167, 69, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+/* Search bar responsiveness */
+.search-container .search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-container .search-input { 
+  flex: 1; 
+  min-width: 0; 
+  padding: 12px 16px;
+  font-size: 1rem;
+  border-radius: 8px;
+}
+
+.search-container .search-btn { 
+  white-space: nowrap;
+  padding: 12px 24px;
+  border-radius: 8px;
+}
+
+@media (max-width: 576px) {
+  .search-container .search-bar { 
+    flex-direction: column; 
+    align-items: stretch; 
+  }
+  
+  .search-container .search-btn { 
+    width: 100%; 
+    margin-top: 8px;
+  }
+}
+
+/* Product card responsiveness */
+.product-card {
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-card .card-img-top { 
+  height: 200px; 
+  object-fit: contain; 
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .product-card .card-img-top {
+    height: 150px;
+  }
+}
+
+/* Grid system improvements */
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.row > * {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+@media (min-width: 768px) {
+  .row > * {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Carousel responsiveness */
+.carousel .row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.carousel-item {
+  padding: 0 15px;
+}
+
+@media (max-width: 768px) {
+  .carousel-item {
+    padding: 0 10px;
+  }
+}
+
+/* Category cards responsiveness */
+.category-card {
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Navbar responsiveness */
+.navbar {
+  padding: 1rem 0;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.5rem 0;
+  }
+  
+  .navbar-nav {
+    text-align: center;
+  }
+  
+  .navbar-nav .nav-link {
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* Hero section responsiveness */
+.hero-section {
+  padding: 4rem 0;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 2rem 0;
+  }
+  
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+  
+  .hero-section p {
+    font-size: 1rem;
+  }
+}
+
+/* Prescription upload responsiveness */
+@media (max-width: 768px) {
+  .prescription-upload {
+    padding: 1.5rem;
+  }
+  
+  .prescription-info {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .upload-actions {
+    text-align: center;
+  }
+  
+  .upload-actions .btn-lg {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .prescription-help {
+    margin-top: 1rem;
+  }
+}
+
+/* Button responsiveness */
+@media (max-width: 576px) {
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* Footer responsiveness */
+.footer {
+  padding: 3rem 0;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 2rem 0;
+  }
+  
+  .footer .col-lg-4,
+  .footer .col-lg-2 {
+    margin-bottom: 2rem;
+  }
+}
+
+/* Additional responsive utilities */
+.min-vh-75 {
+  min-height: 75vh;
+}
+
+@media (max-width: 768px) {
+  .min-vh-75 {
+    min-height: auto;
+  }
+}
+
+/* Fix for button groups on mobile */
+@media (max-width: 576px) {
+  .d-flex.gap-3 {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}
+
+/* Ensure images don't overflow */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Fix carousel navigation on mobile */
+@media (max-width: 768px) {
+  .carousel-control-prev,
+  .carousel-control-next {
+    width: 8%;
+  }
+  
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Improve spacing for mobile */
+@media (max-width: 576px) {
+  .mb-4 {
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .py-5 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  
+  .py-4 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+}
+
+/* Fix for store cards layout */
+.store-card {
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .store-card .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Quantity controls responsive */
+.quantity-controls {
+  min-width: 120px;
+}
+
+@media (max-width: 576px) {
+  .quantity-controls {
+    min-width: 100px;
+  }
+  
+  .quantity-controls input {
+    width: 40px !important;
+  }
+}
+
+/* Fix text overflow and alignment issues */
+.card-title {
+  font-size: 1rem;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .card-title {
+    font-size: 0.9rem;
+  }
+}
+
+/* Improve mobile navigation */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Fix modal responsiveness */
+@media (max-width: 768px) {
+  .modal-dialog {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+  
+  .modal-xl {
+    max-width: calc(100% - 2rem);
+  }
+}
+
+/* Improve form elements on mobile */
+@media (max-width: 576px) {
+  .form-control {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Fix prescription upload on very small screens */
+@media (max-width: 480px) {
+  .prescription-upload {
+    padding: 1rem;
+  }
+  
+  .prescription-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  
+  .upload-actions .btn-lg {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Ensure proper spacing in carousels */
+.carousel-inner {
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .carousel-inner {
+    overflow: hidden;
+  }
+}
+
+/* Fix badge spacing */
+.badge {
+  font-size: 0.75em;
+  margin: 0.125rem;
+}
+
+/* Improve table responsiveness if any */
+.table-responsive {
+  border: none;
+}
+
+/* Fix any remaining overflow issues */
+.container-fluid {
+  overflow-x: hidden;
+}
+
+/* Improve text readability on mobile */
+@media (max-width: 576px) {
+  body {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .lead {
+    font-size: 1.1rem;
+  }
+  
+  .display-4 {
+    font-size: 2rem;
+  }
 }
