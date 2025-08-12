@@ -1,15 +1,51 @@
 // Vendor Dashboard JavaScript
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if vendor is logged in
-    const currentVendor = getCurrentVendor();
-    if (!currentVendor) {
-        // Redirect to login if not authenticated
-        window.location.href = 'vendor-login.html';
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('Vendor dashboard initializing...');
+    
+    // Check if we're in a redirect loop
+    const redirectCount = parseInt(sessionStorage.getItem('vendorRedirectCount') || '0');
+    if (redirectCount > 2) {
+        console.warn('Detected possible redirect loop, staying on dashboard page');
+        sessionStorage.setItem('vendorRedirectCount', '0');
+        showToast('Authentication issue detected. Please try logging in again.', 'warning');
         return;
     }
 
-    // Initialize dashboard
-    initializeDashboard(currentVendor);
+    // Check if there's a Supabase session first
+    try {
+        // If Supabase is available, try to check authentication that way
+        if (window.supabase && window.isVendor) {
+            const isUserVendor = await isVendor();
+            if (isUserVendor) {
+                // We have a valid vendor in Supabase, load dashboard
+                const vendorData = await getCurrentVendorData();
+                if (vendorData) {
+                    console.log('Valid vendor authenticated via Supabase');
+                    initializeDashboard(vendorData);
+                    // Reset redirect counter
+                    sessionStorage.setItem('vendorRedirectCount', '0');
+                    return;
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error checking Supabase vendor authentication:', error);
+    }
+    
+    // Fallback to legacy authentication
+    const currentVendor = getCurrentVendor();
+    if (currentVendor) {
+        console.log('Valid vendor authenticated via legacy storage');
+        initializeDashboard(currentVendor);
+        // Reset redirect counter
+        sessionStorage.setItem('vendorRedirectCount', '0');
+        return;
+    }
+    
+    // No valid vendor authentication found, redirect to login
+    console.log('No valid vendor authentication, redirecting to login');
+    sessionStorage.setItem('vendorRedirectCount', (redirectCount + 1).toString());
+    window.location.href = 'auth.html';
 });
 
 function initializeDashboard(vendor) {
@@ -39,8 +75,39 @@ function loadRecentOrders() {
     console.log('Recent orders loaded');
 }
 
-function getCurrentVendor() {
-    // Check session storage first, then local storage
+async function getCurrentVendorData() {
+    // First check if we have Supabase authentication
+    try {
+        if (typeof supabase !== 'undefined' && typeof vendorAuth !== 'undefined') {
+            // Check if user is logged in and is a vendor
+            const user = await getCurrentUser();
+            if (!user) return null;
+            
+            const isVendorUser = await isVendor();
+            if (!isVendorUser) return null;
+            
+            // Get vendor profile from Supabase
+            const { profile, error } = await vendorAuth.getProfile();
+            if (error || !profile) {
+                console.error('Error getting vendor profile:', error);
+                return null;
+            }
+            
+            // Format the vendor data 
+            return {
+                id: profile.id,
+                email: profile.email,
+                businessName: profile.business_name,
+                firstName: profile.first_name,
+                lastName: profile.last_name,
+                phone: profile.phone
+            };
+        }
+    } catch (err) {
+        console.error('Error in getCurrentVendorData:', err);
+    }
+    
+    // Fallback to session/local storage (legacy approach)
     const sessionVendor = sessionStorage.getItem('currentVendor');
     const localVendor = localStorage.getItem('currentVendor');
     
@@ -53,6 +120,22 @@ function getCurrentVendor() {
     return null;
 }
 
+// Helper function to get vendor synchronously (for backward compatibility)
+function getCurrentVendor() {
+    // For backward compatibility, if we have a cached version, return it immediately
+    const sessionVendor = sessionStorage.getItem('currentVendor');
+    const localVendor = localStorage.getItem('currentVendor');
+    
+    if (sessionVendor) {
+        return JSON.parse(sessionVendor);
+    } else if (localVendor) {
+        return JSON.parse(localVendor);
+    }
+    
+    // Otherwise we should return null and the caller should redirect to login
+    return null;
+}
+
 function vendorLogout() {
     // Clear vendor session
     sessionStorage.removeItem('currentVendor');
@@ -61,9 +144,9 @@ function vendorLogout() {
     // Show logout message
     showToast('You have been logged out successfully');
     
-    // Redirect to login page
+    // Redirect to universal login page
     setTimeout(() => {
-        window.location.href = 'vendor-login.html';
+        window.location.href = 'auth.html';
     }, 1500);
 }
 

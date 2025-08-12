@@ -32,6 +32,8 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Custom Fixes CSS -->
+    <link rel="stylesheet" href="css/custom-fixes.css">
 
     <!-- Cart Icon Styles -->
     <style>
@@ -3296,203 +3298,126 @@
 
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg sticky-top navbar-light border-bottom">
-      <div class="container">
-        <!-- Logo -->
-        <a class="navbar-brand d-flex align-items-center" href="#">
-          <div class="bg-primary p-2 rounded-3 me-2">
-            <i class="fa-solid fa-heart text-white"></i>
-          </div>
-          <span class="fw-bold text-primary">Curemate</span>
-        </a>
-        
-        <!-- Mobile Toggle Button -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <!-- Navbar Content -->
-        <div class="collapse navbar-collapse" id="navbarContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link" href="#about">About Us</a>
-            </li>
-          </ul>
-          
-          <!-- Right Actions -->
-          <div class="d-flex align-items-center gap-3">
-            <a href="#" onclick="openStoreLocator(); return false;" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center">
-              <i class="fa-solid fa-location-dot me-1"></i> Find a Store
+    <!-- New Navbar Design -->
+    <nav class="navbar navbar-expand-lg sticky-top navbar-light bg-white shadow-sm">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <div class="bg-primary p-2 rounded-3 me-2">
+                    <i class="fa-solid fa-heart text-white"></i>
+                </div>
+                <span class="fw-bold text-primary">Curemate</span>
             </a>
             
-            <a href="vendor-login.html" class="btn btn-outline-primary d-none d-md-flex align-items-center">
-              <i class="fa-solid fa-store me-1"></i> Vendor Signup/Login
-            </a>
-
-            <a href="#" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center">
-              <i class="fa-solid fa-phone me-1"></i> Contact Us
-            </a>
-
-            <!-- ENHANCED CART ICON -->
-            <div style="position: relative; display: inline-block; margin-right: 15px;">
-              <button
-                id="cartIcon"
-                onclick="toggleCartDropdown()"
-                style="
-                  cursor: pointer !important;
-                  padding: 10px;
-                  font-size: 24px;
-                  position: relative;
-                  display: inline-block;
-                  user-select: none;
-                  background: none;
-                  border: none;
-                  transition: all 0.2s ease !important;
-                  border-radius: 8px;
-                  color: #00BFB3;
-                "
-                title="Click to open shopping cart"
-                onmouseover="
-                  this.style.background='rgba(0, 191, 179, 0.1)';
-                  this.style.transform='scale(1.05)';
-                  this.style.cursor='pointer';
-                "
-                onmouseout="
-                  this.style.background='none';
-                  this.style.transform='scale(1)';
-                "
-              >
-                <i class="fa-solid fa-shopping-cart"></i>
-                <span
-                  id="cartBadge"
-                  style="
-                    position: absolute;
-                    top: -2px;
-                    right: -2px;
-                    background: #ff6b35;
-                    color: white;
-                    border-radius: 50%;
-                    width: 20px;
-                    height: 20px;
-                    font-size: 11px;
-                    display: none;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: bold;
-                    border: 2px solid white;
-                    pointer-events: none;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                  "
-                >
-                  0
-                </span>
-              </button>
-
-              <!-- Enhanced Cart Dropdown -->
-              <div
-                id="cartDropdown"
-                style="
-                  display: none;
-                  position: absolute;
-                  top: 100%;
-                  right: 0;
-                  background: white;
-                  border: 1px solid #e2e8f0;
-                  border-radius: 12px;
-                  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-                  width: 350px;
-                  max-height: 450px;
-                  overflow-y: auto;
-                  z-index: 9999;
-                  padding: 20px;
-                  margin-top: 10px;
-                  font-family: 'Inter', sans-serif;
-                "
-              >
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                  <div style="display: flex; align-items: center;">
-                    <i class="fa-solid fa-shopping-cart" style="color: #00BFB3; margin-right: 8px; font-size: 18px;"></i>
-                    <h5 style="margin: 0; color: #334155; font-weight: 600;">Shopping Cart</h5>
-                  </div>
-                  <span id="cartItemCount" style="
-                    background: #00BFB3;
-                    color: white;
-                    padding: 4px 8px;
-                    border-radius: 12px;
-                    font-size: 12px;
-                    font-weight: 600;
-                    display: none;
-                  ">0 items</span>
+            <!-- Mobile Toggle Button -->
+            <div class="d-flex align-items-center order-lg-3">
+                <!-- Cart Icon for Mobile -->
+                <div class="position-relative d-lg-none me-2">
+                    <button id="cartIconMobile" onclick="toggleCartDropdown()" class="btn btn-link p-1 position-relative" style="color: #00BFB3;">
+                        <i class="fa-solid fa-shopping-cart" style="font-size: 1.25rem;"></i>
+                        <span id="cartBadgeMobile" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">0</span>
+                    </button>
                 </div>
-
-                <div id="cartItemsList">
-                  <p style="color: #64748b; text-align: center; padding: 20px; margin: 0;">Your cart is empty</p>
-                </div>
-
-                <hr style="margin: 15px 0; border: none; height: 1px; background: #e2e8f0;">
-
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                  <strong style="color: #334155; font-size: 16px;">Total: ₹<span id="cartTotalAmount">0.00</span></strong>
-                </div>
-
-                <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                  <button
-                    onclick="clearCart()"
-                    style="
-                      flex: 1;
-                      background: #ef4444;
-                      color: white;
-                      border: none;
-                      border-radius: 6px;
-                      padding: 8px 12px;
-                      font-weight: 500;
-                      cursor: pointer;
-                      font-size: 14px;
-                      transition: background-color 0.2s ease;
-                    "
-                    onmouseover="this.style.background='#dc2626'"
-                    onmouseout="this.style.background='#ef4444'"
-                  >
-                    <i class="fa-solid fa-trash" style="margin-right: 6px;"></i>
-                    Clear All
-                  </button>
-                </div>
-
-                <button
-                  onclick="proceedToCheckout()"
-                  style="
-                    background: #00BFB3;
-                    color: white;
-                    border: none;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    width: 100%;
-                    font-weight: 600;
-                    font-size: 14px;
-                    transition: all 0.2s ease;
-                  "
-                  onmouseover="this.style.background='#00807A'"
-                  onmouseout="this.style.background='#00BFB3'"
-                >
-                  <i class="fa-solid fa-credit-card" style="margin-right: 8px;"></i>
-                  Proceed to Checkout
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
                 </button>
-              </div>
             </div>
+            
+            <!-- Navbar Content -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Main Navigation Links -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services">Services</a>
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a class="nav-link" href="#" onclick="openStoreLocator(); return false;">
+                            <i class="fa-solid fa-location-dot me-2"></i>Find a Store
+                        </a>
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a class="nav-link" href="#">
+                            <i class="fa-solid fa-phone me-2"></i>Contact Us
+                        </a>
+                    </li>
+                    <li class="d-lg-none">
+                        <hr class="dropdown-divider mx-2">
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <a class="nav-link" href="auth.html">
+                            <i class="fa-solid fa-user-circle me-2"></i>Account
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Right Actions for Desktop -->
+                <div class="d-none d-lg-flex align-items-center">
+                    <!-- Store Locator -->
+                    <a href="#" onclick="openStoreLocator(); return false;" class="btn btn-link text-decoration-none text-dark me-3">
+                        <i class="fa-solid fa-location-dot me-1"></i> Find a Store
+                    </a>
+                    
+                    <!-- Contact Us -->
+                    <a href="#" class="btn btn-link text-decoration-none text-dark me-3">
+                        <i class="fa-solid fa-phone me-1"></i> Contact Us
+                    </a>
 
+                    <!-- Shopping Cart -->
+                    <div class="position-relative me-3">
+                        <button id="cartIcon" onclick="toggleCartDropdown()" class="btn btn-link p-1 position-relative" style="color: #00BFB3;">
+                            <i class="fa-solid fa-shopping-cart" style="font-size: 1.25rem;"></i>
+                            <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; font-size: 0.6rem;">0</span>
+                        </button>
+                    </div>
 
-
-            <!-- User Authentication Section -->
-            <div id="userAuthSection">
-              <a href="#" class="btn btn-primary d-flex align-items-center" id="loginBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
-                <i class="fa-solid fa-user me-2"></i> Login
-              </a>
+                    <!-- Authentication Button - Will be replaced by auth system -->
+                    <div id="authContainer">
+                        <a href="auth.html" class="btn btn-primary">
+                            <i class="fa-solid fa-user-circle me-1"></i> Account
+                        </a>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </nav>
+    
+    <!-- Cart Dropdown -->
+    <div id="cartDropdown" class="position-absolute bg-white rounded-3 shadow-lg border-0" style="display: none; right: 10px; top: 70px; width: 350px; max-height: 450px; overflow-y: auto; z-index: 1050; padding: 20px;">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-shopping-cart text-primary me-2"></i>
+                <h5 class="m-0 fw-bold">Shopping Cart</h5>
+            </div>
+            <span id="cartItemCount" class="badge bg-primary rounded-pill" style="display: none;">0 items</span>
+        </div>
+
+        <div id="cartItemsList">
+            <p class="text-muted text-center py-4 m-0">Your cart is empty</p>
+        </div>
+
+        <hr>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <strong>Total: ₹<span id="cartTotalAmount">0.00</span></strong>
+        </div>
+
+        <div class="d-flex gap-2 mb-2">
+            <button onclick="clearCart()" class="btn btn-danger btn-sm flex-grow-1">
+                <i class="fa-solid fa-trash me-1"></i> Clear All
+            </button>
+        </div>
+
+        <button onclick="proceedToCheckout()" class="btn btn-primary w-100">
+            <i class="fa-solid fa-credit-card me-1"></i> Proceed to Checkout
+        </button>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero-section py-5 bg-hero-gradient">
@@ -4146,153 +4071,253 @@
       </div>
     </div>
 
-    <!-- Login Modal -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <!-- Unified Authentication Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="loginModalLabel">
-              <i class="fa-solid fa-user me-2"></i>Login to Curemate
+          <div class="modal-header bg-light">
+            <h5 class="modal-title" id="authModalLabel">
+              <i class="fa-solid fa-user-shield me-2"></i>Account Access
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <!-- Login Type Selection -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <div class="btn-group w-100" role="group" aria-label="Login type">
+          <div class="modal-body p-0">
+            <!-- Main Tabs -->
+            <ul class="nav nav-tabs nav-fill" id="authTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
+                  <i class="fa-solid fa-sign-in-alt me-2"></i>Login
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup-tab-pane" type="button" role="tab" aria-controls="signup-tab-pane" aria-selected="false">
+                  <i class="fa-solid fa-user-plus me-2"></i>Sign Up
+                </button>
+              </li>
+            </ul>
+            
+            <!-- Tab Content -->
+            <div class="tab-content p-4" id="authTabContent">
+              <!-- Login Tab -->
+              <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                <!-- User Type Selection -->
+                <div class="btn-group w-100 mb-4" role="group" aria-label="User type">
                   <input type="radio" class="btn-check" name="loginType" id="customerLogin" value="customer" checked>
                   <label class="btn btn-outline-primary" for="customerLogin">
-                    <i class="fa-solid fa-user me-2"></i>Customer Login
+                    <i class="fa-solid fa-user me-2"></i>Customer
                   </label>
 
                   <input type="radio" class="btn-check" name="loginType" id="vendorLogin" value="vendor">
                   <label class="btn btn-outline-primary" for="vendorLogin">
-                    <i class="fa-solid fa-store me-2"></i>Vendor Login
+                    <i class="fa-solid fa-store me-2"></i>Vendor
                   </label>
                 </div>
-              </div>
-            </div>
 
-            <!-- Customer Login Form -->
-            <div id="customerLoginForm" class="login-form-section">
-              <form id="loginForm">
-                <div class="mb-3">
-                  <label for="loginEmail" class="form-label">Email address</label>
-                  <input type="email" class="form-control" id="loginEmail" required>
+                <!-- Customer Login Form -->
+                <div id="customerLoginForm" class="login-form-section">
+                  <form id="loginForm">
+                    <div class="mb-3">
+                      <label for="loginEmail" class="form-label">Email address</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="your.email@example.com" required>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="loginPassword" class="form-label">Password</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" class="form-control" id="loginPassword" required>
+                        <button class="btn btn-outline-secondary" type="button" id="toggleCustomerPassword">
+                          <i class="fa-solid fa-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                      </div>
+                      <a href="#" class="text-primary text-decoration-none small">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                      <i class="fa-solid fa-sign-in-alt me-2"></i>Login as Customer
+                    </button>
+                  </form>
+                  
+                  <!-- Demo Credentials -->
+                  <div class="alert alert-info mt-3 mb-0">
+                    <div class="d-flex align-items-center">
+                      <i class="fa-solid fa-info-circle me-2 fs-5"></i>
+                      <div>
+                        <h6 class="alert-heading mb-1">Demo Customer Credentials</h6>
+                        <p class="mb-1 small"><strong>Email:</strong> john@example.com</p>
+                        <p class="mb-0 small"><strong>Password:</strong> password123</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="mb-3">
-                  <label for="loginPassword" class="form-label">Password</label>
-                  <input type="password" class="form-control" id="loginPassword" required>
+
+                <!-- Vendor Login Form -->
+                <div id="vendorLoginForm" class="login-form-section" style="display: none;">
+                  <form id="vendorLoginFormModal">
+                    <div class="mb-3">
+                      <label for="vendorLoginEmail" class="form-label">Business Email</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                        <input type="email" class="form-control" id="vendorLoginEmail" placeholder="business@example.com" required>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="vendorLoginPassword" class="form-label">Password</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" class="form-control" id="vendorLoginPassword" required>
+                        <button class="btn btn-outline-secondary" type="button" id="toggleVendorPassword">
+                          <i class="fa-solid fa-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="vendorRememberMe">
+                        <label class="form-check-label" for="vendorRememberMe">Remember me</label>
+                      </div>
+                      <a href="#" class="text-primary text-decoration-none small">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                      <i class="fa-solid fa-sign-in-alt me-2"></i>Login to Vendor Dashboard
+                    </button>
+                  </form>
+                  
+                  <!-- Demo Credentials -->
+                  <div class="alert alert-success mt-3 mb-0">
+                    <div class="d-flex align-items-center">
+                      <i class="fa-solid fa-info-circle me-2 fs-5"></i>
+                      <div>
+                        <h6 class="alert-heading mb-1">Demo Vendor Credentials</h6>
+                        <p class="mb-1 small"><strong>Email:</strong> vendor@test.com</p>
+                        <p class="mb-0 small"><strong>Password:</strong> password123</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" id="rememberMe">
-                  <label class="form-check-label" for="rememberMe">
-                    Remember me
+              </div>
+              
+              <!-- Signup Tab -->
+              <div class="tab-pane fade" id="signup-tab-pane" role="tabpanel" aria-labelledby="signup-tab" tabindex="0">
+                <!-- User Type Selection -->
+                <div class="btn-group w-100 mb-4" role="group" aria-label="User type">
+                  <input type="radio" class="btn-check" name="signupType" id="customerSignup" value="customer" checked>
+                  <label class="btn btn-outline-primary" for="customerSignup">
+                    <i class="fa-solid fa-user me-2"></i>Customer
+                  </label>
+
+                  <input type="radio" class="btn-check" name="signupType" id="vendorSignup" value="vendor">
+                  <label class="btn btn-outline-primary" for="vendorSignup">
+                    <i class="fa-solid fa-store me-2"></i>Vendor
                   </label>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Login as Customer</button>
-              </form>
-              <hr>
-              <!-- Demo Credentials -->
-              <div class="alert alert-info">
-                <h6 class="alert-heading">
-                  <i class="fa-solid fa-info-circle me-2"></i>Demo Customer Credentials
-                </h6>
-                <p class="mb-1"><strong>Email:</strong> john@example.com</p>
-                <p class="mb-0"><strong>Password:</strong> password123</p>
-              </div>
-              <div class="text-center">
-                <p class="mb-2">Don't have a customer account?</p>
-                <button type="button" class="btn btn-outline-primary" onclick="switchToSignup()">
-                  Create Customer Account
-                </button>
-              </div>
-            </div>
-
-            <!-- Vendor Login Form -->
-            <div id="vendorLoginForm" class="login-form-section" style="display: none;">
-              <form id="vendorLoginFormModal">
-                <div class="mb-3">
-                  <label for="vendorLoginEmail" class="form-label">Business Email</label>
-                  <input type="email" class="form-control" id="vendorLoginEmail" required>
+                
+                <!-- Customer Signup Form -->
+                <div id="customerSignupForm" class="signup-form-section">
+                  <form id="signupForm">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="signupFirstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="signupFirstName" required>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="signupLastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="signupLastName" required>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="signupEmail" class="form-label">Email Address</label>
+                      <input type="email" class="form-control" id="signupEmail" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="signupPhone" class="form-label">Phone Number</label>
+                      <input type="tel" class="form-control" id="signupPhone">
+                    </div>
+                    <div class="mb-3">
+                      <label for="signupPassword" class="form-label">Password</label>
+                      <div class="input-group">
+                        <input type="password" class="form-control" id="signupPassword" required minlength="6">
+                        <button class="btn btn-outline-secondary" type="button" id="toggleSignupPassword">
+                          <i class="fa-solid fa-eye"></i>
+                        </button>
+                      </div>
+                      <div class="form-text">Password must be at least 6 characters long.</div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="confirmPassword" class="form-label">Confirm Password</label>
+                      <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                      <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                      <label class="form-check-label" for="agreeTerms">
+                        I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
+                      </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                      <i class="fa-solid fa-user-plus me-2"></i>Create Customer Account
+                    </button>
+                  </form>
                 </div>
-                <div class="mb-3">
-                  <label for="vendorLoginPassword" class="form-label">Password</label>
-                  <input type="password" class="form-control" id="vendorLoginPassword" required>
+                
+                <!-- Vendor Signup Form -->
+                <div id="vendorSignupForm" class="signup-form-section" style="display: none;">
+                  <p class="text-center mb-3">Please fill out the form below to create your vendor account</p>
+                  <form id="vendorSignupFormModal">
+                    <div class="mb-3">
+                      <label for="businessName" class="form-label">Business Name</label>
+                      <input type="text" class="form-control" id="businessName" required>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="vendorFirstName" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="vendorFirstName" required>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label for="vendorLastName" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="vendorLastName" required>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="vendorEmail" class="form-label">Business Email</label>
+                      <input type="email" class="form-control" id="vendorEmail" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="vendorPhone" class="form-label">Phone Number</label>
+                      <input type="tel" class="form-control" id="vendorPhone">
+                    </div>
+                    <div class="mb-3">
+                      <label for="vendorSignupPassword" class="form-label">Password</label>
+                      <div class="input-group">
+                        <input type="password" class="form-control" id="vendorSignupPassword" required minlength="6">
+                        <button class="btn btn-outline-secondary" type="button" id="toggleVendorSignupPassword">
+                          <i class="fa-solid fa-eye"></i>
+                        </button>
+                      </div>
+                      <div class="form-text">Password must be at least 6 characters long.</div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="vendorConfirmPassword" class="form-label">Confirm Password</label>
+                      <input type="password" class="form-control" id="vendorConfirmPassword" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                      <input type="checkbox" class="form-check-input" id="vendorAgreeTerms" required>
+                      <label class="form-check-label" for="vendorAgreeTerms">
+                        I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
+                      </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                      <i class="fa-solid fa-store me-2"></i>Create Vendor Account
+                    </button>
+                  </form>
                 </div>
-                <div class="mb-3 form-check">
-                  <input type="checkbox" class="form-check-input" id="vendorRememberMe">
-                  <label class="form-check-label" for="vendorRememberMe">
-                    Remember me
-                  </label>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Login to Vendor Dashboard</button>
-              </form>
-              <hr>
-              <!-- Demo Credentials -->
-              <div class="alert alert-success">
-                <h6 class="alert-heading">
-                  <i class="fa-solid fa-info-circle me-2"></i>Demo Vendor Credentials
-                </h6>
-                <p class="mb-1"><strong>Email:</strong> vendor@test.com</p>
-                <p class="mb-0"><strong>Password:</strong> password123</p>
               </div>
-              <div class="text-center">
-                <p class="mb-2">Don't have a vendor account?</p>
-                <a href="vendor-signup.html" class="btn btn-outline-primary" onclick="closeModal()">
-                  Create Vendor Account
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Signup Modal -->
-    <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="signupModalLabel">
-              <i class="fa-solid fa-user-plus me-2"></i>Create Account
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form id="signupForm">
-              <div class="mb-3">
-                <label for="signupName" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="signupName" required>
-              </div>
-              <div class="mb-3">
-                <label for="signupEmail" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="signupEmail" required>
-              </div>
-              <div class="mb-3">
-                <label for="signupPassword" class="form-label">Password</label>
-                <input type="password" class="form-control" id="signupPassword" required minlength="6">
-                <div class="form-text">Password must be at least 6 characters long.</div>
-              </div>
-              <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="confirmPassword" required>
-              </div>
-              <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="agreeTerms" required>
-                <label class="form-check-label" for="agreeTerms">
-                  I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
-                </label>
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Create Account</button>
-            </form>
-            <hr>
-            <div class="text-center">
-              <p class="mb-2">Already have an account?</p>
-              <button type="button" class="btn btn-outline-primary" onclick="switchToLogin()">
-                Login
-              </button>
             </div>
           </div>
         </div>
@@ -4345,5 +4370,17 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
+            
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    
+    <!-- Supabase Config -->
+    <script src="js/supabase-config.js"></script>
+    
+    <!-- Auth JS -->
+    <script src="js/auth.js"></script>
+    
+    <!-- User Auth JS -->
+    <script src="js/user-auth.js"></script>
   </body>
 </html>

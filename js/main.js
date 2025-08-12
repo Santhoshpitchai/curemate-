@@ -219,41 +219,124 @@ function closeModal() {
   }
 }
 
-// Function to switch from login to signup modal
-function switchToSignup() {
-  const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-  const signupModal = new bootstrap.Modal(document.getElementById('signupModal'));
-
-  if (loginModal) {
-    loginModal.hide();
+// Function to handle authentication modal tabs and forms
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle password visibility toggles
+  const togglePasswordButtons = [
+    { buttonId: 'toggleCustomerPassword', inputId: 'loginPassword' },
+    { buttonId: 'toggleVendorPassword', inputId: 'vendorLoginPassword' },
+    { buttonId: 'toggleSignupPassword', inputId: 'signupPassword' },
+    { buttonId: 'toggleVendorSignupPassword', inputId: 'vendorSignupPassword' }
+  ];
+  
+  togglePasswordButtons.forEach(item => {
+    const button = document.getElementById(item.buttonId);
+    if (button) {
+      button.addEventListener('click', function() {
+        const input = document.getElementById(item.inputId);
+        const icon = this.querySelector('i');
+        
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    }
+  });
+  
+  // Handle login type switching
+  const loginTypeRadios = document.querySelectorAll('input[name="loginType"]');
+  if (loginTypeRadios.length > 0) {
+    loginTypeRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        const customerForm = document.getElementById('customerLoginForm');
+        const vendorForm = document.getElementById('vendorLoginForm');
+        
+        if (this.value === 'customer') {
+          customerForm.style.display = 'block';
+          vendorForm.style.display = 'none';
+        } else {
+          customerForm.style.display = 'none';
+          vendorForm.style.display = 'block';
+        }
+      });
+    });
   }
+  
+  // Handle signup type switching
+  const signupTypeRadios = document.querySelectorAll('input[name="signupType"]');
+  if (signupTypeRadios.length > 0) {
+    signupTypeRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        const customerForm = document.getElementById('customerSignupForm');
+        const vendorForm = document.getElementById('vendorSignupForm');
+        
+        if (this.value === 'customer') {
+          customerForm.style.display = 'block';
+          vendorForm.style.display = 'none';
+        } else {
+          customerForm.style.display = 'none';
+          vendorForm.style.display = 'block';
+        }
+      });
+    });
+  }
+  
+  // Handle tab switching
+  const authModal = document.getElementById('loginModal');
+  if (authModal) {
+    authModal.addEventListener('shown.bs.modal', function() {
+      // Reset to login tab when modal is shown
+      const loginTab = document.getElementById('login-tab');
+      if (loginTab) {
+        const tabInstance = new bootstrap.Tab(loginTab);
+        tabInstance.show();
+      }
+      
+      // Reset to customer type when modal is shown
+      const customerLoginRadio = document.getElementById('customerLogin');
+      if (customerLoginRadio) {
+        customerLoginRadio.checked = true;
+        const event = new Event('change');
+        customerLoginRadio.dispatchEvent(event);
+      }
+      
+      const customerSignupRadio = document.getElementById('customerSignup');
+      if (customerSignupRadio) {
+        customerSignupRadio.checked = true;
+        const event = new Event('change');
+        customerSignupRadio.dispatchEvent(event);
+      }
+    });
+  }
+});
 
-  setTimeout(() => {
-    signupModal.show();
-  }, 300);
+// Authentication System using Supabase
+async function initializeAuth() {
+  // Initialize Supabase
+  initSupabase();
+  
+  // Initialize user authentication system
+  if (typeof initializeUserAuth === 'function') {
+    await initializeUserAuth();
+  } else {
+    console.warn('initializeUserAuth function not found. Auth UI may not be updated correctly.');
+    
+    // Fallback to basic auth check if user-auth.js is not loaded
+    const isUserLoggedIn = await isLoggedIn();
+    const isUserVendor = await isVendor();
+    
+    // Only update UI if user-auth.js isn't handling it
+    if (isUserLoggedIn && !window.userAuthHandlingUI) {
+      updateUIForLoggedInUser(isUserVendor);
+    }
+  }
 }
-
-// Function to switch from signup to login modal
-function switchToLogin() {
-  const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
-  const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-
-  if (signupModal) {
-    signupModal.hide();
-  }
-
-  setTimeout(() => {
-    loginModal.show();
-  }, 300);
-}
-
-// Authentication System
-function initializeAuth() {
-  // Check if user is already logged in
-  const currentUser = getCurrentUser();
-  if (currentUser) {
-    updateUIForLoggedInUser(currentUser);
-  }
 
   // Login type switching
   const loginTypeRadios = document.querySelectorAll('input[name="loginType"]');
@@ -275,19 +358,126 @@ function initializeAuth() {
   // Customer login form handler
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
-    loginForm.addEventListener('submit', handleLogin);
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      try {
+        const { session, user, error } = await userAuth.signIn(email, password);
+        
+        if (error) {
+          showToast(error.message, 'error');
+          return;
+        }
+        
+        // Close modal
+        const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        if (loginModal) loginModal.hide();
+        
+        // Show success message
+        const { profile } = await userAuth.getProfile();
+        showToast(`Welcome back, ${profile.first_name}!`);
+        
+        // Update UI
+        updateUIForLoggedInUser(false);
+        
+        // Reset form
+        loginForm.reset();
+        
+      } catch (err) {
+        console.error('Login error:', err);
+        showToast('An error occurred during login. Please try again.', 'error');
+      }
+    });
   }
 
   // Vendor login form handler (from modal)
   const vendorLoginFormModal = document.getElementById('vendorLoginFormModal');
   if (vendorLoginFormModal) {
-    vendorLoginFormModal.addEventListener('submit', handleVendorLoginModal);
+    vendorLoginFormModal.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('vendorLoginEmail').value;
+      const password = document.getElementById('vendorLoginPassword').value;
+      
+      try {
+        const { session, user, error, vendor } = await vendorAuth.signIn(email, password);
+        
+        if (error) {
+          showToast(error.message, 'error');
+          return;
+        }
+        
+        // Close modal
+        const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        if (loginModal) loginModal.hide();
+        
+        // Show success message
+        showToast(`Welcome back, ${vendor.business_name}!`, 'success');
+        
+        // Redirect to vendor dashboard
+        setTimeout(() => {
+          window.location.href = 'vendor-dashboard.html';
+        }, 1500);
+        
+        // Reset form
+        vendorLoginFormModal.reset();
+        
+      } catch (err) {
+        console.error('Login error:', err);
+        showToast('An error occurred during login. Please try again.', 'error');
+      }
+    });
   }
 
   // Signup form handler
   const signupForm = document.getElementById('signupForm');
   if (signupForm) {
-    signupForm.addEventListener('submit', handleSignup);
+    signupForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const firstName = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      // Validate passwords match
+      if (password !== confirmPassword) {
+        showToast('Passwords do not match', 'error');
+        return;
+      }
+      
+      try {
+        const { user, error } = await userAuth.signUp(
+          email,
+          password,
+          firstName,
+          '', // Last name (empty for now)
+          null // Phone (null for now)
+        );
+        
+        if (error) {
+          showToast(error.message, 'error');
+          return;
+        }
+        
+        // Close modal
+        const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+        if (signupModal) signupModal.hide();
+        
+        // Show success message
+        showToast('Account created successfully! Please check your email to confirm your account.', 'success');
+        
+        // Reset form
+        signupForm.reset();
+        
+      } catch (err) {
+        console.error('Signup error:', err);
+        showToast('An error occurred during signup. Please try again.', 'error');
+      }
+    });
   }
 
   // Password confirmation validation
@@ -459,43 +649,91 @@ function getStoredVendors() {
   return JSON.parse(localStorage.getItem('vendors') || '[]');
 }
 
-function updateUIForLoggedInUser(user) {
-  const userAuthSection = document.getElementById('userAuthSection');
-  if (userAuthSection) {
-    userAuthSection.innerHTML = `
+async function updateUIForLoggedInUser(isVendor) {
+  const authContainer = document.getElementById('authContainer');
+  if (!authContainer) return;
+  
+  try {
+    const user = await getCurrentUser();
+    if (!user) return;
+    
+    const profile = isVendor ? 
+      await vendorAuth.getProfile() : 
+      await userAuth.getProfile();
+    
+    const displayName = profile?.profile?.first_name || user?.email || 'User';
+    
+    authContainer.innerHTML = `
       <div class="dropdown">
-        <button class="btn btn-primary dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fa-solid fa-user me-2"></i> ${user.name}
+        <button class="btn btn-link text-decoration-none p-1" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <div class="user-avatar-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
         </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
-          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-clock me-2"></i>Order History</a></li>
-          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-heart me-2"></i>Wishlist</a></li>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+          <li class="dropdown-header">${displayName}</li>
+          ${isVendor ? 
+            '<li><a class="dropdown-item" href="vendor-dashboard.html"><i class="fa-solid fa-gauge me-2"></i>Dashboard</a></li>' : 
+            '<li><a class="dropdown-item" href="#"><i class="fa-solid fa-user me-2"></i>My Profile</a></li>'
+          }
+          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-shopping-bag me-2"></i>My Orders</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fa-solid fa-sign-out-alt me-2"></i>Logout</a></li>
+          <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fa-solid fa-sign-out-alt me-2"></i>Logout</a></li>
         </ul>
       </div>
     `;
+    
+    // Add logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      await logout();
+    });
+  } catch (err) {
+    console.error('Error updating UI for logged in user:', err);
   }
 }
 
-function logout() {
-  // Clear user session
-  sessionStorage.removeItem('currentUser');
-  localStorage.removeItem('currentUser');
-
-  // Reset UI
-  const userAuthSection = document.getElementById('userAuthSection');
-  if (userAuthSection) {
-    userAuthSection.innerHTML = `
-      <a href="#" class="btn btn-primary d-flex align-items-center" id="loginBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
-        <i class="fa-solid fa-user me-2"></i> Login
-      </a>
-    `;
+async function logout() {
+  try {
+    let error = null;
+    
+    // If user-auth.js is handling auth, use its functions
+    if (window.userAuthHandlingUI) {
+      const isUserVendor = await isVendor();
+      
+      const result = isUserVendor ? 
+        await vendorAuth.signOut() : 
+        await userAuth.signOut();
+        
+      error = result.error;
+    } else {
+      // Legacy logout - just for fallback
+      sessionStorage.removeItem('currentUser');
+      localStorage.removeItem('currentUser');
+    }
+    
+    if (error) {
+      showToast(error.message, 'error');
+      return;
+    }
+    
+    // Reset UI
+    const authContainer = document.getElementById('authContainer');
+    if (authContainer) {
+      authContainer.innerHTML = `
+        <a href="auth.html" class="btn btn-primary">
+          <i class="fa-solid fa-user-circle me-1"></i> Account
+        </a>
+      `;
+    }
+    
+    // Show logout message
+    showToast('You have been logged out successfully');
+    
+  } catch (err) {
+    console.error('Logout error:', err);
+    showToast('An error occurred during logout', 'error');
   }
-
-  // Show logout message
-  showToast('You have been logged out successfully');
 }
 
 // Initialize demo users if none exist
@@ -888,6 +1126,7 @@ window.showCartDropdown = showCartDropdown;
 window.addToSimpleCart = addToSimpleCart;
 window.removeFromCart = removeFromCart;
 window.proceedToCheckout = proceedToCheckout;
+window.logout = logout;
 
 // Shopping Cart Functions
 let cart = [];
