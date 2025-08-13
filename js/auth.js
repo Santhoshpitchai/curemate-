@@ -341,16 +341,22 @@ const vendorAuth = {
     // This is likely a temporary fix until the database is properly set up
     if ((vendorError || !vendorData) && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
       console.warn('Development environment detected - bypassing vendor check');
+      const devVendor = { 
+        id: data.user.id,
+        email: email,
+        business_name: "Dev Vendor",
+        first_name: data.user.user_metadata?.first_name || "Dev",
+        last_name: data.user.user_metadata?.last_name || "User"
+      };
+      
+      // Store vendor session data
+      localStorage.setItem('currentVendor', JSON.stringify(devVendor));
+      sessionStorage.setItem('currentVendor', JSON.stringify(devVendor));
+      
       return { 
         session: data.session, 
         user: data.user, 
-        vendor: { 
-          id: data.user.id,
-          email: email,
-          business_name: "Dev Vendor",
-          first_name: data.user.user_metadata?.first_name || "Dev",
-          last_name: data.user.user_metadata?.last_name || "User"
-        } 
+        vendor: devVendor
       };
     }
     
@@ -359,6 +365,19 @@ const vendorAuth = {
       await supabase.auth.signOut();
       return { error: { message: 'User is not a vendor' } };
     }
+    
+    // Store vendor session data to ensure persistence
+    const formattedVendor = {
+      id: vendorData.id,
+      email: vendorData.email,
+      businessName: vendorData.business_name,
+      firstName: vendorData.first_name,
+      lastName: vendorData.last_name,
+      phone: vendorData.phone
+    };
+    
+    localStorage.setItem('currentVendor', JSON.stringify(formattedVendor));
+    sessionStorage.setItem('currentVendor', JSON.stringify(formattedVendor));
     
     return { session: data.session, user: data.user, vendor: vendorData };
   },

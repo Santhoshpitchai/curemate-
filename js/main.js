@@ -1,15 +1,56 @@
 // Curemate Health Hub - Main JavaScript
 
-// Import Supabase client
-import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2'
-
 // Initialize Supabase client
-const supabaseUrl = 'https://vahhmwunmhkudepqxrir.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhaGhtd3VubWhrdWRlcHF4cmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NDYyNDQsImV4cCI6MjA2OTUyMjI0NH0.SYiCgyv24BPrQfOT3JzkypsNT_fdrthwRMIdunrdLqg'
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = 'https://vahhmwunmhkudepqxrir.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhaGhtd3VubWhrdWRlcHF4cmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NDYyNDQsImV4cCI6MjA2OTUyMjI0NH0.SYiCgyv24BPrQfOT3JzkypsNT_fdrthwRMIdunrdLqg';
 
-// Make supabase available globally
-window.supabase = supabase
+// Initialize Supabase when the script loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if Supabase JS is loaded
+    if (typeof supabaseClient !== 'undefined') {
+        try {
+            // Initialize Supabase client using the global supabaseClient
+            window.supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
+            console.log('Supabase initialized successfully from main.js');
+            
+            // Initialize Supabase service
+            if (typeof window.supabaseService !== 'undefined') {
+                window.supabaseService.supabase = window.supabase;
+                console.log('Supabase client set in supabaseService');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Supabase:', error);
+        }
+    } else {
+        // Try alternative global variable names
+        const possibleSupabaseGlobals = ['supabase', 'createClient', 'Supabase'];
+        let initialized = false;
+        
+        for (const globalName of possibleSupabaseGlobals) {
+            if (typeof window[globalName] !== 'undefined' && typeof window[globalName].createClient === 'function') {
+                try {
+                    window.supabase = window[globalName].createClient(supabaseUrl, supabaseKey);
+                    console.log(`Supabase initialized successfully using ${globalName}`);
+                    
+                    // Initialize Supabase service
+                    if (typeof window.supabaseService !== 'undefined') {
+                        window.supabaseService.supabase = window.supabase;
+                        console.log('Supabase client set in supabaseService');
+                    }
+                    
+                    initialized = true;
+                    break;
+                } catch (error) {
+                    console.error(`Failed to initialize Supabase using ${globalName}:`, error);
+                }
+            }
+        }
+        
+        if (!initialized) {
+            console.error('Supabase JS not loaded or not accessible. Make sure to include the Supabase script in your HTML.');
+        }
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize tooltips
@@ -218,8 +259,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Test cart functionality
   console.log('Simple cart system initialized');
-  console.log('Cart button element:', document.getElementById('cartButton'));
-  console.log('Cart dropdown element:', document.getElementById('cartDropdown'));
+  
+  // Only log cart elements if we're on a page that has them
+  // Using different variable names to avoid redeclaration
+  const cartBtnElement = document.getElementById('cartButton');
+  const cartDropElement = document.getElementById('cartDropdown');
+  
+  if (cartBtnElement) {
+    console.log('Cart button element found');
+  } else {
+    console.log('Cart button element not found on this page - this is normal for admin/vendor pages');
+  }
+  
+  if (cartDropElement) {
+    console.log('Cart dropdown element found');
+  } else {
+    console.log('Cart dropdown element not found on this page - this is normal for admin/vendor pages');
+  }
 });
 
 // Function to close modal (used by vendor signup link)
@@ -339,15 +395,29 @@ async function initializeAuth() {
     console.warn('initializeUserAuth function not found. Auth UI may not be updated correctly.');
     
     // Fallback to basic auth check if user-auth.js is not loaded
-    const isUserLoggedIn = await isLoggedIn();
-    const isUserVendor = await isVendor();
-    
-    // Only update UI if user-auth.js isn't handling it
-    if (isUserLoggedIn && !window.userAuthHandlingUI) {
-      updateUIForLoggedInUser(isUserVendor);
+    try {
+      // Define fallback functions if they don't exist
+      const isLoggedIn = window.isLoggedIn || (async function() {
+        console.log('Using fallback isLoggedIn function');
+        return localStorage.getItem('user') !== null || sessionStorage.getItem('user') !== null;
+      });
+      
+      const isVendor = window.isVendor || (async function() {
+        console.log('Using fallback isVendor function');
+        return localStorage.getItem('vendor') !== null || sessionStorage.getItem('vendor') !== null;
+      });
+      
+      const isUserLoggedIn = await isLoggedIn();
+      const isUserVendor = await isVendor();
+      
+      // Only update UI if user-auth.js isn't handling it
+      if (isUserLoggedIn && !window.userAuthHandlingUI && typeof updateUIForLoggedInUser === 'function') {
+        updateUIForLoggedInUser(isUserVendor);
+      }
+    } catch (err) {
+      console.warn('Error checking login status:', err);
     }
   }
-}
 
   // Login type switching
   const loginTypeRadios = document.querySelectorAll('input[name="loginType"]');
@@ -933,15 +1003,29 @@ function setupCartIcon() {
 
 // Setup Add to Cart Buttons
 function setupAddToCartButtons() {
+  // Check if we're on a page that should have Add to Cart buttons
+  // This function might be called on admin/vendor pages where these buttons don't exist
+  if (window.location.pathname.includes('vendor-dashboard') || 
+      window.location.pathname.includes('admin') ||
+      window.location.pathname.includes('supabase-test')) {
+    console.log('Not setting up Add to Cart buttons on admin/vendor page');
+    return;
+  }
+
   console.log('Setting up Add to Cart buttons...'); // Debug log
 
   // Find all "Add to Cart" buttons
   const allButtons = document.querySelectorAll('button');
   console.log('Total buttons found:', allButtons.length); // Debug log
 
+  if (allButtons.length === 0) {
+    console.log('No buttons found on this page - this may be normal depending on the page');
+    return;
+  }
+
   let addToCartCount = 0;
   allButtons.forEach(button => {
-    if (button.textContent.trim().includes('Add to Cart')) {
+    if (button && button.textContent && button.textContent.trim().includes('Add to Cart')) {
       addToCartCount++;
       console.log('Found Add to Cart button:', button.textContent.trim()); // Debug log
 
@@ -953,6 +1037,10 @@ function setupAddToCartButtons() {
   });
 
   console.log('Total Add to Cart buttons set up:', addToCartCount); // Debug log
+  
+  if (addToCartCount === 0) {
+    console.log('No Add to Cart buttons found - this may be normal depending on the page');
+  }
 }
 
 function handleAddToCart(e) {
