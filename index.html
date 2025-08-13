@@ -527,6 +527,13 @@
           return;
         }
 
+        // Check if user is logged in
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+          showLoginRequiredModal();
+          return;
+        }
+
         // Show checkout modal
         showCheckoutModal();
       }
@@ -784,6 +791,60 @@
       // Get customer orders
       function getCustomerOrders() {
         return JSON.parse(localStorage.getItem('customerOrders') || '[]');
+      }
+
+      // Show login required modal
+      function showLoginRequiredModal() {
+        const loginRequiredHTML = `
+          <div class="modal fade" id="loginRequiredModal" tabindex="-1" aria-labelledby="loginRequiredLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
+                  <h5 class="modal-title" id="loginRequiredLabel">
+                    <i class="fa-solid fa-exclamation-triangle me-2"></i>Login Required
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                  <div class="mb-4">
+                    <i class="fa-solid fa-user-lock" style="font-size: 64px; color: #ef4444;"></i>
+                  </div>
+                  <h4 class="mb-3">Please Log In to Place Your Order</h4>
+                  <p class="text-muted mb-4">You need to be logged in to complete your purchase and track your orders.</p>
+                  
+                  <div class="alert alert-info">
+                    <h6 class="alert-heading"><i class="fa-solid fa-info-circle me-2"></i>Benefits of Logging In:</h6>
+                    <ul class="list-unstyled mb-0 text-start">
+                      <li><i class="fa-solid fa-check text-success me-2"></i>Track your order status</li>
+                      <li><i class="fa-solid fa-check text-success me-2"></i>View order history</li>
+                      <li><i class="fa-solid fa-check text-success me-2"></i>Save delivery addresses</li>
+                      <li><i class="fa-solid fa-check text-success me-2"></i>Get exclusive offers</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Shopping</button>
+                  <button type="button" class="btn btn-primary" onclick="openLoginModal()" style="background: #00BFB3; border-color: #00BFB3;">
+                    <i class="fa-solid fa-sign-in-alt me-2"></i>Login Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('loginRequiredModal');
+        if (existingModal) {
+          existingModal.remove();
+        }
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', loginRequiredHTML);
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('loginRequiredModal'));
+        modal.show();
       }
 
       // Show order confirmation modal
@@ -2533,6 +2594,37 @@
         }
       }
 
+      // Smooth scrolling functions
+      function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }
+
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+
+      // Open login modal function
+      function openLoginModal() {
+        // Close login required modal if open
+        const loginRequiredModal = bootstrap.Modal.getInstance(document.getElementById('loginRequiredModal'));
+        if (loginRequiredModal) {
+          loginRequiredModal.hide();
+        }
+
+        // Open login modal
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+      }
+
       // Make functions globally available
       window.toggleCartDropdown = toggleCartDropdown;
       window.addToSimpleCart = addToSimpleCart;
@@ -2562,6 +2654,9 @@
       window.showAllStoresOnMap = showAllStoresOnMap;
       window.searchStoresRealTime = searchStoresRealTime;
       window.getDirections = getDirections;
+      window.scrollToSection = scrollToSection;
+      window.scrollToTop = scrollToTop;
+      window.openLoginModal = openLoginModal;
 
       // Show order tracking modal
       function showOrderTracking(order) {
@@ -3276,12 +3371,12 @@
     </script>
   </head>
 
-  <body>
+  <body id="top">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg sticky-top navbar-light border-bottom">
       <div class="container">
         <!-- Logo -->
-        <a class="navbar-brand d-flex align-items-center" href="#">
+        <a class="navbar-brand d-flex align-items-center" href="index.html" onclick="window.location.reload(); return false;">
           <div class="bg-primary p-2 rounded-3 me-2">
             <i class="fa-solid fa-heart text-white"></i>
           </div>
@@ -3311,7 +3406,7 @@
               <i class="fa-solid fa-store me-1"></i> Vendor Signup/Login
             </a>
 
-            <a href="#" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center">
+            <a href="#contact" class="btn btn-link text-decoration-none text-dark d-none d-md-flex align-items-center" onclick="scrollToSection('contact')">
               <i class="fa-solid fa-phone me-1"></i> Contact Us
             </a>
 
@@ -3484,8 +3579,8 @@
             <h1 class="display-4 fw-bold mb-4">Discounts!! that cure a part of your sickness.</h1>
             <p class="lead mb-4">Discover a wide range of healthcare products and services designed to keep you and your family healthy.</p>
             <div class="d-flex gap-3">
-              <a href="#" class="btn btn-primary btn-lg">Shop Now</a>
-              <a href="#" class="btn btn-outline-primary btn-lg">Learn More</a>
+              <a href="#products" class="btn btn-primary btn-lg" onclick="scrollToSection('products')">Shop Now</a>
+              <a href="#about" class="btn btn-outline-primary btn-lg" onclick="scrollToSection('about')">Learn More</a>
             </div>
           </div>
           <div class="col-lg-6">
@@ -3537,96 +3632,12 @@
           </div>
         </div>
         
-        <!-- Prescription Upload -->
-        <div class="prescription-upload mt-4">
-          <div class="row align-items-center">
-            <div class="col-md-8">
-              <div class="prescription-info">
-                <div class="d-flex align-items-center mb-2">
-                  <div class="prescription-icon me-3">
-                    <i class="fa-solid fa-file-prescription"></i>
-                  </div>
-                  <div>
-                    <h5 class="mb-1 fw-bold">Order with Prescription</h5>
-                    <p class="mb-0 text-muted">AI will analyze and find matching products!</p>
-                  </div>
-                </div>
-                <div class="selected-file-info mt-2">
-                  <span id="selected-file" class="text-success fw-medium"></span>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4 text-md-end">
-              <input type="file" id="prescription-file" accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
-              <div class="upload-actions">
-                <button class="btn btn-primary btn-lg px-4" onclick="document.getElementById('prescription-file').click();">
-                  <i class="fa-solid fa-upload me-2"></i>
-                  UPLOAD & ANALYZE
-                </button>
-                <button class="btn btn-outline-danger ms-2" id="delete-file" onclick="deleteFile();" style="display: none;">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-12">
-              <div class="prescription-help text-center">
-                <div class="d-flex justify-content-center align-items-center flex-wrap gap-3 mb-2">
-                  <span class="badge bg-light text-dark">
-                    <i class="fa-solid fa-image me-1"></i>JPG
-                  </span>
-                  <span class="badge bg-light text-dark">
-                    <i class="fa-solid fa-image me-1"></i>PNG
-                  </span>
-                  <span class="badge bg-light text-dark">
-                    <i class="fa-solid fa-file-pdf me-1"></i>PDF
-                  </span>
-                  <span class="badge bg-primary text-white">
-                    <i class="fa-solid fa-robot me-1"></i>AI Powered
-                  </span>
-                </div>
-                <small class="text-muted">
-                  <i class="fa-solid fa-lightbulb me-1"></i>
-                  For best results, ensure prescription is clear and well-lit
-                </small>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <script>
-          function updateFileName(input) {
-            const fileNameDisplay = document.getElementById('selected-file');
-            const deleteButton = document.getElementById('delete-file');
-            if (input.files && input.files[0]) {
-              const fileName = input.files[0].name;
-              fileNameDisplay.innerHTML = `<i class="fa-solid fa-check-circle me-2"></i>Selected: ${fileName}`;
-              deleteButton.style.display = 'inline-block';
-            }
-          }
-
-          function deleteFile() {
-            const fileInput = document.getElementById('prescription-file');
-            const fileNameDisplay = document.getElementById('selected-file');
-            const deleteButton = document.getElementById('delete-file');
-            fileInput.value = '';
-            fileNameDisplay.innerHTML = '';
-            deleteButton.style.display = 'none';
-            
-            // Show feedback
-            const uploadBtn = document.querySelector('.upload-actions .btn-primary');
-            const originalText = uploadBtn.innerHTML;
-            uploadBtn.innerHTML = '<i class="fa-solid fa-upload me-2"></i>UPLOAD & ANALYZE';
-            uploadBtn.classList.remove('btn-success');
-            uploadBtn.classList.add('btn-primary');
-          }
-        </script>
       </div>
     </section>
 
-    <!-- Category Section -->
-    <section class="category-section py-5">
+    <!-- Products Section -->
+    <section id="products" class="category-section py-5">
       <div class="container">
         <h2 class="section-title text-center mb-5">Shop by Category</h2>
         <div class="row g-4">
@@ -3670,6 +3681,50 @@
                 <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
                   <h3 class="category-title mb-2">Baby Care</h3>
                   <p class="category-count mb-0">300+ Products</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-6 col-md-3">
+            <a href="diabetes.html" class="text-decoration-none text-dark">
+              <div class="category-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/Glucometer-Kit.jpg.png" class="w-100" alt="Diabetes Care" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+                <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
+                  <h3 class="category-title mb-2">Diabetes Care</h3>
+                  <p class="category-count mb-0">60+ Products</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-6 col-md-3">
+            <a href="blood-pressure.html" class="text-decoration-none text-dark">
+              <div class="category-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/blood-pressure-monitor.jpg.png" class="w-100" alt="Blood Pressure" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+                <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
+                  <h3 class="category-title mb-2">Blood Pressure</h3>
+                  <p class="category-count mb-0">50+ Products</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-6 col-md-3">
+            <a href="cholesterol.html" class="text-decoration-none text-dark">
+              <div class="category-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/omega-3-supplements.jpg.png" class="w-100" alt="Cholesterol" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+                <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
+                  <h3 class="category-title mb-2">Cholesterol</h3>
+                  <p class="category-count mb-0">40+ Products</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-6 col-md-3">
+            <a href="pancreatitis.html" class="text-decoration-none text-dark">
+              <div class="category-card hover-lift p-0 d-flex flex-column align-items-stretch">
+                <img src="img/first-aid.jpg.png" class="w-100" alt="Pancreatitis" style="height:320px; object-fit:cover; border-radius:0.75rem 0.75rem 0 0;" />
+                <div class="p-4 text-center flex-grow-1 d-flex flex-column justify-content-center">
+                  <h3 class="category-title mb-2">Pancreatitis</h3>
+                  <p class="category-count mb-0">25+ Products</p>
                 </div>
               </div>
             </a>
@@ -4119,21 +4174,134 @@
             </div>
           </div>
         </div>
+        
+        <!-- Additional Trending Products Row -->
+        <div class="row g-4 mt-4">
+          <div class="col-md-3 col-6">
+            <div class="product-card hover-lift">
+              <div class="badge bg-warning position-absolute top-0 end-0 m-2">Popular</div>
+              <img src="img/Ashwagandha Capsules.jpg.jpg" class="card-img-top" alt="Ashwagandha Capsules" style="height: 200px; object-fit: contain;">
+              <div class="card-body">
+                <h5 class="card-title">Ashwagandha Capsules</h5>
+                <div class="rating mb-2">
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <span class="ms-1">4.8</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="quantity-controls d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('trending5')">-</button>
+                    <input type="number" id="trending5" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('trending5')">+</button>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price">₹599</span>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Ashwagandha Capsules', 599, 'img/Ashwagandha Capsules.jpg.jpg', 'trending5')">Add to Cart</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="product-card hover-lift">
+              <div class="badge bg-info position-absolute top-0 end-0 m-2">Trending</div>
+              <img src="img/Green Tea Extract Capsules.jpg.jpg" class="card-img-top" alt="Green Tea Extract" style="height: 200px; object-fit: contain;">
+              <div class="card-body">
+                <h5 class="card-title">Green Tea Extract</h5>
+                <div class="rating mb-2">
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-regular fa-star text-warning"></i>
+                  <span class="ms-1">4.3</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="quantity-controls d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('trending6')">-</button>
+                    <input type="number" id="trending6" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('trending6')">+</button>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price">₹449</span>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Green Tea Extract', 449, 'img/Green Tea Extract Capsules.jpg.jpg', 'trending6')">Add to Cart</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="product-card hover-lift">
+              <div class="badge bg-danger position-absolute top-0 end-0 m-2">Hot</div>
+              <img src="img/Plant-based protein powder.jpg.jpg" class="card-img-top" alt="Plant Protein Powder" style="height: 200px; object-fit: contain;">
+              <div class="card-body">
+                <h5 class="card-title">Plant Protein Powder</h5>
+                <div class="rating mb-2">
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star-half-stroke text-warning"></i>
+                  <span class="ms-1">4.6</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="quantity-controls d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('trending7')">-</button>
+                    <input type="number" id="trending7" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('trending7')">+</button>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price">₹799</span>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Plant Protein Powder', 799, 'img/Plant-based protein powder.jpg.jpg', 'trending7')">Add to Cart</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="product-card hover-lift">
+              <div class="badge bg-primary position-absolute top-0 end-0 m-2">Featured</div>
+              <img src="img/Digital Weighing Scale.jpg.jpg" class="card-img-top" alt="Digital Weighing Scale" style="height: 200px; object-fit: contain;">
+              <div class="card-body">
+                <h5 class="card-title">Digital Weighing Scale</h5>
+                <div class="rating mb-2">
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <i class="fa-solid fa-star text-warning"></i>
+                  <span class="ms-1">4.9</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="quantity-controls d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decreaseQuantity('trending8')">-</button>
+                    <input type="number" id="trending8" class="form-control form-control-sm mx-2 text-center" value="1" min="1" max="10" style="width: 50px;">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increaseQuantity('trending8')">+</button>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="price">₹899</span>
+                  <button class="btn btn-sm btn-primary add-to-cart-btn" onclick="addToCartWithQuantity('Digital Weighing Scale', 899, 'img/Digital Weighing Scale.jpg.jpg', 'trending8')">Add to Cart</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- About Section -->
     <section id="about" class="about-section py-5">
       <div class="container">
-        <div class="row align-items-center">
-          <div class="col-lg-6 mb-4 mb-lg-0">
-            <img src="img/promo-banner-1.jpg" alt="About Curemate" class="img-fluid rounded-4 shadow">
-          </div>
-          <div class="col-lg-6">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
             <h2 class="section-title mb-4">About Curemate</h2>
-            <p class="lead mb-4">We're dedicated to providing quality healthcare products and services to improve the well-being of our customers.</p>
+            <p class="lead mb-4">We have built this website to help users find the nearest pharmacy to call and check stock availability. If the stock is unavailable locally, users can order directly from our website. We are partnering with multiple pharmacies to deliver products that are not easily available near the user's location. This is our beta version, and more features will be added soon.</p>
             <div class="row g-4 mb-4 justify-content-center">
-              <div class="col-6">
+              <div class="col-md-6">
                 <div class="feature-item text-center">
                   <div class="feature-icon bg-primary-light text-primary mx-auto">
                     <i class="fa-solid fa-certificate"></i>
@@ -4143,7 +4311,6 @@
                 </div>
               </div>
             </div>
-            <a href="#" class="btn btn-primary">Learn More About Us</a>
           </div>
         </div>
       </div>
@@ -4171,10 +4338,10 @@
           <div class="col-lg-2 col-md-6">
             <h5 class="mb-4">Quick Links</h5>
             <ul class="list-unstyled">
-              <li class="mb-2"><a href="#" class="text-decoration-none text-white">Home</a></li>
-              <li class="mb-2"><a href="#" class="text-decoration-none text-white">About Us</a></li>
-              <li class="mb-2"><a href="#" class="text-decoration-none text-white">Products</a></li>
-              <li class="mb-2"><a href="#" class="text-decoration-none text-white">Contact</a></li>
+              <li class="mb-2"><a href="#top" class="text-decoration-none text-white" onclick="scrollToTop()">Home</a></li>
+              <li class="mb-2"><a href="#about" class="text-decoration-none text-white" onclick="scrollToSection('about')">About Us</a></li>
+              <li class="mb-2"><a href="#products" class="text-decoration-none text-white" onclick="scrollToSection('products')">Products</a></li>
+              <li class="mb-2"><a href="#contact" class="text-decoration-none text-white" onclick="scrollToSection('contact')">Contact</a></li>
             </ul>
           </div>
           <div class="col-lg-2 col-md-6">
@@ -4186,12 +4353,12 @@
               <li class="mb-2"><a href="babycare.html" class="text-decoration-none text-white">Baby Care</a></li>
             </ul>
           </div>
-          <div class="col-lg-4 col-md-6">
+          <div class="col-lg-4 col-md-6" id="contact">
             <h5 class="mb-4">Contact Us</h5>
             <ul class="list-unstyled">
-              <li class="mb-2"><i class="fa-solid fa-location-dot me-2"></i> 123 Healthcare Street, Mumbai, India</li>
+              <li class="mb-2"><i class="fa-solid fa-location-dot me-2"></i> 10th Milestone, Bommanahalli, Bangalore 560068</li>
               <li class="mb-2"><i class="fa-solid fa-phone me-2"></i> +91 1234567890</li>
-              <li class="mb-2"><i class="fa-solid fa-envelope me-2"></i> contact@curemate.com</li>
+              <li class="mb-2"><i class="fa-solid fa-envelope me-2"></i> curemate86@gmail.com</li>
             </ul>
             <div class="mt-4">
               <h6 class="mb-3">Subscribe to our newsletter</h6>
@@ -4426,14 +4593,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
-
-    <!-- Tesseract.js for OCR -->
-    <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
     
     <!-- Custom JavaScript -->
     <script src="js/supabase-service.js"></script>
     <script src="js/search.js"></script>
-    <script src="js/prescription-analyzer.js"></script>
     <script type="module" src="js/main.js"></script>
   </body>
 </html>

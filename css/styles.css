@@ -56,6 +56,7 @@
 html, body { 
   width: 100%; 
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 /* Container improvements */
@@ -487,42 +488,7 @@ body {
   margin-left: 0.5rem;
 } 
 
-/* Prescription Upload */
-.prescription-upload {
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius);
-  padding: 1rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 800px;
-  margin: 0 auto;
-  box-shadow: var(--shadow-soft);
-}
 
-.prescription-text {
-  display: flex;
-  align-items: center;
-  font-weight: 500;
-  color: var(--card-foreground);
-}
-
-.prescription-text i {
-  margin-right: 0.75rem;
-  color: var(--primary);
-  font-size: 1.25rem;
-}
-
-.upload-btn {
-  color: var(--primary);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-}
-
-.upload-btn i {
-  margin-left: 0.5rem;
-}
 
 /* Authentication Modal Styles */
 .modal-content {
@@ -737,75 +703,9 @@ body {
   border-radius: 4px;
 }
 
-/* Prescription upload enhancements */
-.prescription-upload {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border: 2px solid #e9ecef;
-  border-radius: 16px;
-  padding: 2rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
 
-.prescription-upload:hover {
-  border-color: var(--primary);
-  box-shadow: 0 8px 25px rgba(0, 191, 179, 0.15);
-  transform: translateY(-2px);
-}
 
-.prescription-icon {
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-}
 
-.prescription-info h5 {
-  color: var(--foreground);
-  font-size: 1.25rem;
-}
-
-.prescription-info p {
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-.upload-actions .btn-lg {
-  padding: 0.75rem 2rem;
-  font-weight: 600;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-  transition: all 0.3s ease;
-}
-
-.upload-actions .btn-lg:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-}
-
-.prescription-help {
-  background: rgba(0, 191, 179, 0.05);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  border: 1px solid rgba(0, 191, 179, 0.1);
-}
-
-.selected-file-info {
-  min-height: 1.5rem;
-}
-
-#selected-file {
-  font-size: 0.9rem;
-  padding: 0.25rem 0.75rem;
-  background: rgba(40, 167, 69, 0.1);
-  border-radius: 6px;
-  border: 1px solid rgba(40, 167, 69, 0.2);
-}
 
 /* Search bar responsiveness */
 .search-container .search-bar {
@@ -819,15 +719,45 @@ body {
 .search-container .search-input { 
   flex: 1; 
   min-width: 0; 
-  padding: 12px 16px;
+  padding: 16px 20px;
   font-size: 1rem;
-  border-radius: 8px;
+  border-radius: 50px;
+  border: 2px solid var(--border);
+  transition: all 0.3s ease;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 191, 179, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.search-container .search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 8px 32px rgba(0, 191, 179, 0.25);
+  transform: translateY(-3px);
+}
+
+.search-container .search-input::placeholder {
+  color: var(--muted-foreground);
+  font-weight: 400;
+  opacity: 0.8;
 }
 
 .search-container .search-btn { 
   white-space: nowrap;
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 16px 28px;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 191, 179, 0.3);
+}
+
+.search-container .search-btn:hover {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0, 191, 179, 0.4);
 }
 
 @media (max-width: 576px) {
@@ -948,30 +878,7 @@ body {
   }
 }
 
-/* Prescription upload responsiveness */
-@media (max-width: 768px) {
-  .prescription-upload {
-    padding: 1.5rem;
-  }
-  
-  .prescription-info {
-    text-align: center;
-    margin-bottom: 1.5rem;
-  }
-  
-  .upload-actions {
-    text-align: center;
-  }
-  
-  .upload-actions .btn-lg {
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-  
-  .prescription-help {
-    margin-top: 1rem;
-  }
-}
+
 
 /* Button responsiveness */
 @media (max-width: 576px) {
@@ -1133,23 +1040,7 @@ img {
   }
 }
 
-/* Fix prescription upload on very small screens */
-@media (max-width: 480px) {
-  .prescription-upload {
-    padding: 1rem;
-  }
-  
-  .prescription-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
-  }
-  
-  .upload-actions .btn-lg {
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-  }
-}
+
 
 /* Ensure proper spacing in carousels */
 .carousel-inner {
