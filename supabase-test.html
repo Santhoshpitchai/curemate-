@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Supabase Test - Curemate Health Hub</title>
+    <title>Supabase Integration Test - Curemate Health Hub</title>
+    <meta name="description" content="Supabase Integration Test for Curemate Health Hub">
     
     <!-- Favicon -->
     <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -16,6 +17,9 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
 </head>
 <body class="bg-light">
     <!-- Navigation -->
@@ -25,51 +29,95 @@
                 <div class="bg-primary p-2 rounded-3 me-2">
                     <i class="fa-solid fa-heart text-white"></i>
                 </div>
-                <span class="fw-bold text-primary">Curemate</span>
+                <span>Curemate Health Hub</span>
             </a>
-            <div class="d-flex align-items-center">
-                <a href="index.html" class="btn btn-outline-primary me-2">
-                    <i class="fa-solid fa-home me-1"></i> Back to Home
-                </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation" title="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="vendor-dashboard.html">Vendor Dashboard</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <div class="container py-5">
+    <div class="container my-5">
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-lg border-0">
-                    <div class="card-body p-5">
-                        <h2 class="text-center mb-4">Supabase Connection Test</h2>
-                        
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="h4 mb-0">Supabase Integration Test</h1>
+                    </div>
+                    <div class="card-body">
                         <div class="mb-4">
-                            <h5>Test Results:</h5>
-                            <div id="testResults" class="p-3 bg-light rounded">
-                                <p>Click the buttons below to test Supabase connection.</p>
-                            </div>
+                            <h2 class="h5">Overall Status: <span id="overallStatus">Running tests...</span></h2>
                         </div>
                         
-                        <div class="d-grid gap-2">
-                            <button id="testInitButton" class="btn btn-primary">
-                                <i class="fa-solid fa-vial me-2"></i>Test Supabase Initialization
-                            </button>
-                            <button id="testAuthButton" class="btn btn-info">
-                                <i class="fa-solid fa-user-shield me-2"></i>Test Auth Status
-                            </button>
-                            <button id="testTablesButton" class="btn btn-success">
-                                <i class="fa-solid fa-table me-2"></i>Test Database Tables
-                            </button>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Test</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Supabase Client Library Loaded</td>
+                                        <td id="supabaseLoaded">Running...</td>
+                                    </tr>
+                                    <tr>
+                                        <td>window.supabase Initialized</td>
+                                        <td id="windowSupabase">Running...</td>
+                                    </tr>
+                                    <tr>
+                                        <td>supabaseService Defined</td>
+                                        <td id="supabaseService">Running...</td>
+                                    </tr>
+                                    <tr>
+                                        <td>supabaseService.supabase Initialized</td>
+                                        <td id="supabaseServiceClient">Running...</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Connection to Supabase</td>
+                                        <td id="connection">Running...</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Vendors Table Exists</td>
+                                        <td id="vendorsTable">Running...</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Shops Table Exists</td>
+                                        <td id="shopsTable">Running...</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Products Table Exists</td>
+                                        <td id="productsTable">Running...</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Orders Table Exists</td>
+                                        <td id="ordersTable">Running...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         
-                        <hr class="my-4">
-                        
-                        <div class="mb-4">
-                            <h5>Debug Information:</h5>
-                            <div id="debugInfo" class="p-3 bg-light rounded">
-                                <p>Supabase URL: <code id="supabaseUrl">Checking...</code></p>
-                                <p>Supabase Client Initialized: <code id="supabaseInitialized">Checking...</code></p>
-                                <p>Browser: <code id="browserInfo">Checking...</code></p>
+                        <div class="mt-4">
+                            <p class="text-muted">Check the browser console for detailed test results.</p>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button class="btn btn-primary" onclick="runSupabaseTests()">
+                                    <i class="fa-solid fa-sync me-2"></i>Run Tests Again
+                                </button>
+                                <a href="vendor-dashboard.html" class="btn btn-outline-primary">
+                                    <i class="fa-solid fa-arrow-right me-2"></i>Go to Vendor Dashboard
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -78,179 +126,30 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Curemate Health Hub</h5>
+                    <p class="text-muted">Your trusted healthcare partner</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">© 2023 Curemate. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
-    
     <!-- Supabase Config -->
     <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-service.js"></script>
+    <script src="js/main.js"></script>
     
-    <!-- Auth JS -->
-    <script src="js/auth.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Display browser info
-            document.getElementById('browserInfo').textContent = navigator.userAgent;
-            
-            // Check if Supabase is defined
-            if (typeof window.supabase !== 'undefined') {
-                document.getElementById('supabaseUrl').textContent = 'Supabase library loaded';
-            } else {
-                document.getElementById('supabaseUrl').textContent = 'Supabase library NOT loaded';
-            }
-            
-            // Initialize Supabase
-            try {
-                const supabaseInstance = initSupabase();
-                if (supabaseInstance) {
-                    document.getElementById('supabaseInitialized').textContent = 'Yes';
-                } else {
-                    document.getElementById('supabaseInitialized').textContent = 'No';
-                }
-            } catch (error) {
-                document.getElementById('supabaseInitialized').textContent = 'Error: ' + error.message;
-            }
-            
-            // Test Supabase Initialization Button
-            document.getElementById('testInitButton').addEventListener('click', function() {
-                const testResults = document.getElementById('testResults');
-                testResults.innerHTML = '<div class="d-flex align-items-center"><div class="spinner-border text-primary me-2" role="status"></div> Testing Supabase initialization...</div>';
-                
-                try {
-                    const result = testSupabaseConnection();
-                    
-                    if (result.success) {
-                        testResults.innerHTML = `
-                            <div class="alert alert-success">
-                                <i class="fa-solid fa-check-circle me-2"></i> ${result.message}
-                            </div>
-                        `;
-                    } else {
-                        testResults.innerHTML = `
-                            <div class="alert alert-danger">
-                                <i class="fa-solid fa-exclamation-circle me-2"></i> ${result.message}
-                            </div>
-                        `;
-                    }
-                } catch (error) {
-                    testResults.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fa-solid fa-exclamation-circle me-2"></i> Error: ${error.message}
-                        </div>
-                    `;
-                }
-            });
-            
-            // Test Auth Status Button
-            document.getElementById('testAuthButton').addEventListener('click', async function() {
-                const testResults = document.getElementById('testResults');
-                testResults.innerHTML = '<div class="d-flex align-items-center"><div class="spinner-border text-primary me-2" role="status"></div> Testing authentication status...</div>';
-                
-                try {
-                    const isUserLoggedIn = await isLoggedIn();
-                    const user = await getCurrentUser();
-                    const isUserVendor = await isVendor();
-                    
-                    let html = '';
-                    if (isUserLoggedIn) {
-                        html = `
-                            <div class="alert alert-success">
-                                <i class="fa-solid fa-check-circle me-2"></i> User is logged in
-                                <hr>
-                                <p><strong>User ID:</strong> ${user.id}</p>
-                                <p><strong>Email:</strong> ${user.email}</p>
-                                <p><strong>User Type:</strong> ${isUserVendor ? 'Vendor' : 'Customer'}</p>
-                            </div>
-                        `;
-                    } else {
-                        html = `
-                            <div class="alert alert-warning">
-                                <i class="fa-solid fa-exclamation-circle me-2"></i> User is not logged in
-                            </div>
-                        `;
-                    }
-                    testResults.innerHTML = html;
-                } catch (error) {
-                    testResults.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fa-solid fa-exclamation-circle me-2"></i> Error: ${error.message}
-                        </div>
-                    `;
-                }
-            });
-            
-            // Test Database Tables Button
-            document.getElementById('testTablesButton').addEventListener('click', async function() {
-                const testResults = document.getElementById('testResults');
-                testResults.innerHTML = '<div class="d-flex align-items-center"><div class="spinner-border text-primary me-2" role="status"></div> Testing database tables...</div>';
-                
-                try {
-                    const supabase = window.getSupabase();
-                    if (!supabase) {
-                        testResults.innerHTML = `
-                            <div class="alert alert-danger">
-                                <i class="fa-solid fa-exclamation-circle me-2"></i> Supabase client is not initialized
-                            </div>
-                        `;
-                        return;
-                    }
-                    
-                    // Test users table
-                    const { data: users, error: usersError } = await supabase
-                        .from('users')
-                        .select('count')
-                        .limit(1);
-                    
-                    // Test vendors table
-                    const { data: vendors, error: vendorsError } = await supabase
-                        .from('vendors')
-                        .select('count')
-                        .limit(1);
-                    
-                    let html = '<div class="alert alert-info">';
-                    
-                    if (usersError) {
-                        html += `
-                            <div class="mb-3">
-                                <i class="fa-solid fa-times-circle me-2"></i> <strong>Users Table:</strong> Error - ${usersError.message}
-                            </div>
-                        `;
-                    } else {
-                        html += `
-                            <div class="mb-3">
-                                <i class="fa-solid fa-check-circle me-2"></i> <strong>Users Table:</strong> Connected successfully
-                            </div>
-                        `;
-                    }
-                    
-                    if (vendorsError) {
-                        html += `
-                            <div>
-                                <i class="fa-solid fa-times-circle me-2"></i> <strong>Vendors Table:</strong> Error - ${vendorsError.message}
-                            </div>
-                        `;
-                    } else {
-                        html += `
-                            <div>
-                                <i class="fa-solid fa-check-circle me-2"></i> <strong>Vendors Table:</strong> Connected successfully
-                            </div>
-                        `;
-                    }
-                    
-                    html += '</div>';
-                    testResults.innerHTML = html;
-                } catch (error) {
-                    testResults.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fa-solid fa-exclamation-circle me-2"></i> Error: ${error.message}
-                        </div>
-                    `;
-                }
-            });
-        });
-    </script>
+    <!-- Test Script -->
+    <script src="js/supabase-test.js"></script>
 </body>
 </html>

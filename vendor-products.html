@@ -51,7 +51,7 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 px-0">
-                <div class="bg-white shadow-sm min-vh-100">
+                <div class="bg-white shadow-sm" style="min-height: 100vh;">
                     <div class="list-group list-group-flush">
                         <a href="vendor-dashboard.html" class="list-group-item list-group-item-action">
                             <i class="fa-solid fa-tachometer-alt me-2"></i>Dashboard
@@ -62,13 +62,13 @@
                         <a href="vendor-orders.html" class="list-group-item list-group-item-action">
                             <i class="fa-solid fa-shopping-cart me-2"></i>Orders
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action">
+                        <a href="vendor-analytics.html" class="list-group-item list-group-item-action">
                             <i class="fa-solid fa-chart-bar me-2"></i>Analytics
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action">
+                        <a href="vendor-customers.html" class="list-group-item list-group-item-action">
                             <i class="fa-solid fa-users me-2"></i>Customers
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action">
+                        <a href="vendor-payments.html" class="list-group-item list-group-item-action">
                             <i class="fa-solid fa-money-bill-wave me-2"></i>Payments
                         </a>
                     </div>
@@ -76,7 +76,7 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 p-4">
+            <div class="col-md-9 col-lg-10 p-4" style="min-height: 100vh; background-color: #f8f9fa;">
                 <!-- Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -174,7 +174,13 @@
                         </div>
                         <div class="mb-3">
                             <label for="productImage" class="form-label">Product Image URL</label>
-                            <input type="url" class="form-control" id="productImage" placeholder="https://example.com/image.jpg">
+                            <input type="url" class="form-control" id="productImage" placeholder="https://example.com/product-image.jpg (optional - leave blank for default image)">
+                            <div class="form-text">
+                                <small class="text-muted">
+                                    <i class="fa-solid fa-info-circle me-1"></i>
+                                    Optional: Provide a valid image URL. If left blank, a default image will be used based on the product category.
+                                </small>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -232,8 +238,13 @@
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    
     <!-- Custom JavaScript -->
+    <script src="js/supabase-config.js"></script>
     <script src="js/supabase-service.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/vendor-products.js"></script>
 </body>
 </html>
