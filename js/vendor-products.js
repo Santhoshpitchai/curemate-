@@ -671,8 +671,13 @@ function displayProducts(products) {
 
     // Helper function to validate and get image URL
     function getImageUrl(product) {
+        // Prefer explicit image field from local storage
         if (product.image && product.image.trim() !== '') {
             return product.image;
+        }
+        // Support Supabase schema where the column is image_url
+        if (product.image_url && String(product.image_url).trim() !== '') {
+            return product.image_url;
         }
         return getDefaultImage(product.category);
     }
@@ -1180,7 +1185,7 @@ async function clearDemoProducts() {
     }
 }
 
-function editProduct(productId) {
+async function editProduct(productId) {
     console.log('Edit product:', productId);
     
     // Get current vendor
@@ -1192,7 +1197,29 @@ function editProduct(productId) {
 
     // Get products
     const products = getVendorProducts(currentVendor.id, currentVendor.currentShopId);
-    const product = products.find(p => p.id === productId);
+    let product = products.find(p => p.id === productId);
+    
+    // If not found locally, try fetching from Supabase
+    if (!product && typeof window.supabaseService !== 'undefined') {
+        try {
+            const dbProduct = await window.supabaseService.getProductById(productId);
+            if (dbProduct) {
+                product = {
+                    id: dbProduct.id,
+                    name: dbProduct.name,
+                    category: dbProduct.category,
+                    price: dbProduct.price,
+                    stock: dbProduct.stock,
+                    description: dbProduct.description || '',
+                    image: dbProduct.image_url || dbProduct.image || '',
+                    vendorId: dbProduct.vendor_id,
+                    shopId: dbProduct.shop_id
+                };
+            }
+        } catch (fetchErr) {
+            console.warn('Failed to fetch product from Supabase:', fetchErr);
+        }
+    }
     
     if (!product) {
         showToast('Product not found', 'error');
@@ -1245,7 +1272,7 @@ function editProduct(productId) {
                             </div>
                             <div class="mb-3">
                                 <label for="editProductImage" class="form-label">Product Image URL</label>
-                                <input type="url" class="form-control" id="editProductImage" value="${product.image || ''}" placeholder="https://example.com/product-image.jpg">
+                                <input type="url" class="form-control" id="editProductImage" value="${product.image || product.image_url || ''}" placeholder="https://example.com/product-image.jpg">
                                 <div class="form-text">
                                     <small class="text-muted">
                                         <i class="fa-solid fa-info-circle me-1"></i>
@@ -1294,25 +1321,25 @@ function deleteProduct(productId) {
         }
 
         try {
-            let products = getVendorProducts(currentVendor.id, currentVendor.currentShopId);
-            const initialCount = products.length;
-            
-            // Filter out the product to delete
-            products = products.filter(p => p.id !== productId);
-            
-            if (products.length === initialCount) {
-                showToast('Product not found', 'error');
-                return;
+            // Remove from the full local cache (not just current shop view)
+            const storageKey = `vendorProducts_${currentVendor.id}`;
+            const allLocalProducts = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            const hadLocalProduct = allLocalProducts.some(p => p.id === productId);
+            const updatedLocalProducts = allLocalProducts.filter(p => p.id !== productId);
+            if (hadLocalProduct) {
+                localStorage.setItem(storageKey, JSON.stringify(updatedLocalProducts));
             }
-
-            // Save updated products
-            saveVendorProducts(currentVendor.id, products);
 
             // Update Supabase if available
             if (typeof window.supabaseService !== 'undefined') {
                 window.supabaseService.deleteProduct(productId)
                     .then(() => console.log('Product deleted from Supabase'))
                     .catch(err => console.warn('Error deleting from Supabase:', err));
+            }
+            
+            // If neither local nor Supabase path was available, still proceed with UI refresh
+            if (!hadLocalProduct && typeof window.supabaseService === 'undefined') {
+                console.warn('Product not found locally and Supabase not available. Proceeding to refresh UI.');
             }
 
             showToast('Product deleted successfully', 'success');
@@ -1362,8 +1389,26 @@ async function handleEditProduct() {
         const productIndex = products.findIndex(p => p.id === productId);
         
         if (productIndex === -1) {
-            showToast('Product not found', 'error');
-            return;
+            // Not in local storage. Try updating directly in Supabase, then refresh UI
+            if (typeof window.supabaseService !== 'undefined') {
+                const updateData = {
+                    ...formData,
+                    vendorId: currentVendor.id,
+                    shopId: shopId
+                };
+                await window.supabaseService.updateProduct(productId, updateData);
+                // Close modal and refresh UI
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editProductModal'));
+                modal.hide();
+                showToast('Product updated successfully', 'success');
+                setTimeout(() => {
+                    loadVendorProducts(shopId);
+                }, 500);
+                return;
+            } else {
+                showToast('Product not found', 'error');
+                return;
+            }
         }
 
         // Update product data
