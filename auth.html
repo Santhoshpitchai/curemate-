@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Access - Curemate Health Hub</title>
+    <meta name="description" content="Login or Sign Up - Curemate Health Hub">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <div class="bg-primary p-2 rounded-3 me-2">
+                    <i class="fa-solid fa-heart text-white"></i>
+                </div>
+                <span class="fw-bold text-primary">Curemate</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="index.html" class="btn btn-outline-primary me-2">
+                    <i class="fa-solid fa-home me-1"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            <!-- Left Side - Branding -->
+            <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-primary">
+                <div class="text-center text-white p-5">
+                    <div class="mb-4">
+                        <i class="fa-solid fa-user-shield display-1 mb-3"></i>
+                        <h1 class="display-4 fw-bold mb-3">Welcome to Curemate</h1>
+                        <p class="lead mb-4">Your health journey starts here</p>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-4">
+                            <div class="p-3">
+                                <i class="fa-solid fa-pills fa-2x mb-3"></i>
+                                <h5>Quality Medicines</h5>
+                                <p class="small">Verified products from trusted sources</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="p-3">
+                                <i class="fa-solid fa-truck-fast fa-2x mb-3"></i>
+                                <h5>Fast Delivery</h5>
+                                <p class="small">Get your medicines delivered quickly</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="p-3">
+                                <i class="fa-solid fa-headset fa-2x mb-3"></i>
+                                <h5>24/7 Support</h5>
+                                <p class="small">Our team is always ready to help</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Side - Authentication Forms -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center">
+                <div class="card border-0 shadow-sm w-100" style="max-width: 500px;">
+                    <div class="card-body p-4">
+                        <!-- Auth Tabs -->
+                        <ul class="nav nav-tabs nav-fill mb-4" id="authTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-tab-pane" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
+                                    <i class="fa-solid fa-sign-in-alt me-2"></i>Login
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup-tab-pane" type="button" role="tab" aria-controls="signup-tab-pane" aria-selected="false">
+                                    <i class="fa-solid fa-user-plus me-2"></i>Sign Up
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="authTabContent">
+                            <!-- Login Tab -->
+                            <div class="tab-pane fade show active" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                                <!-- User Type Selection -->
+                                <div class="btn-group w-100 mb-4" role="group" aria-label="User type">
+                                    <input type="radio" class="btn-check" name="loginType" id="customerLogin" value="customer" checked>
+                                    <label class="btn btn-outline-primary" for="customerLogin">
+                                        <i class="fa-solid fa-user me-2"></i>Customer
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="loginType" id="vendorLogin" value="vendor">
+                                    <label class="btn btn-outline-primary" for="vendorLogin">
+                                        <i class="fa-solid fa-store me-2"></i>Vendor
+                                    </label>
+                                </div>
+
+                                <!-- Customer Login Form -->
+                                <div id="customerLoginForm" class="login-form-section">
+                                    <form id="loginForm">
+                                        <div class="mb-3">
+                                            <label for="loginEmail" class="form-label">Email address</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                                <input type="email" class="form-control" id="loginEmail" placeholder="your.email@example.com" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="loginPassword" class="form-label">Password</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                                <input type="password" class="form-control" id="loginPassword" required>
+                                                <button class="btn btn-outline-secondary" type="button" id="toggleCustomerPassword">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                                <label class="form-check-label" for="rememberMe">Remember me</label>
+                                            </div>
+                                            <a href="#" class="text-primary text-decoration-none small">Forgot password?</a>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fa-solid fa-sign-in-alt me-2"></i>Login as Customer
+                                        </button>
+                                    </form>
+                                    
+
+                                </div>
+
+                                <!-- Vendor Login Form -->
+                                <div id="vendorLoginForm" class="login-form-section" style="display: none;">
+                                    <form id="vendorLoginFormModal">
+                                        <div class="mb-3">
+                                            <label for="vendorLoginEmail" class="form-label">Business Email</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                                <input type="email" class="form-control" id="vendorLoginEmail" placeholder="business@example.com" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="vendorLoginPassword" class="form-label">Password</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                                <input type="password" class="form-control" id="vendorLoginPassword" required>
+                                                <button class="btn btn-outline-secondary" type="button" id="toggleVendorPassword">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="vendorRememberMe">
+                                                <label class="form-check-label" for="vendorRememberMe">Remember me</label>
+                                            </div>
+                                            <a href="#" class="text-primary text-decoration-none small">Forgot password?</a>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fa-solid fa-sign-in-alt me-2"></i>Login to Vendor Dashboard
+                                        </button>
+                                    </form>
+                                    
+
+                                </div>
+                            </div>
+                            
+                            <!-- Signup Tab -->
+                            <div class="tab-pane fade" id="signup-tab-pane" role="tabpanel" aria-labelledby="signup-tab" tabindex="0">
+                                <!-- User Type Selection -->
+                                <div class="btn-group w-100 mb-4" role="group" aria-label="User type">
+                                    <input type="radio" class="btn-check" name="signupType" id="customerSignup" value="customer" checked>
+                                    <label class="btn btn-outline-primary" for="customerSignup">
+                                        <i class="fa-solid fa-user me-2"></i>Customer
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="signupType" id="vendorSignup" value="vendor">
+                                    <label class="btn btn-outline-primary" for="vendorSignup">
+                                        <i class="fa-solid fa-store me-2"></i>Vendor
+                                    </label>
+                                </div>
+                                
+                                <!-- Customer Signup Form -->
+                                <div id="customerSignupForm" class="signup-form-section">
+                                    <form id="signupForm">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="signupFirstName" class="form-label">First Name</label>
+                                                <input type="text" class="form-control" id="signupFirstName" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="signupLastName" class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" id="signupLastName" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="signupEmail" class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="signupEmail" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="signupPhone" class="form-label">Phone Number</label>
+                                            <input type="tel" class="form-control" id="signupPhone">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="signupPassword" class="form-label">Password</label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="signupPassword" required minlength="6">
+                                                <button class="btn btn-outline-secondary" type="button" id="toggleSignupPassword">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div class="form-text">Password must be at least 6 characters long.</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                            <input type="password" class="form-control" id="confirmPassword" required>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                            <label class="form-check-label" for="agreeTerms">
+                                                I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
+                                            </label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fa-solid fa-user-plus me-2"></i>Create Customer Account
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <!-- Vendor Signup Form -->
+                                <div id="vendorSignupForm" class="signup-form-section" style="display: none;">
+                                    <p class="text-center mb-3">Please fill out the form below to create your vendor account</p>
+                                    <form id="vendorSignupFormModal">
+                                        <div class="mb-3">
+                                            <label for="businessName" class="form-label">Business Name</label>
+                                            <input type="text" class="form-control" id="businessName" required>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="vendorFirstName" class="form-label">First Name</label>
+                                                <input type="text" class="form-control" id="vendorFirstName" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="vendorLastName" class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" id="vendorLastName" required>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="vendorEmail" class="form-label">Business Email</label>
+                                            <input type="email" class="form-control" id="vendorEmail" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="vendorPhone" class="form-label">Phone Number</label>
+                                            <input type="tel" class="form-control" id="vendorPhone">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="vendorSignupPassword" class="form-label">Password</label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="vendorSignupPassword" required minlength="6">
+                                                <button class="btn btn-outline-secondary" type="button" id="toggleVendorSignupPassword">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div class="form-text">Password must be at least 6 characters long.</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="vendorConfirmPassword" class="form-label">Confirm Password</label>
+                                            <input type="password" class="form-control" id="vendorConfirmPassword" required>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="vendorAgreeTerms" required>
+                                            <label class="form-check-label" for="vendorAgreeTerms">
+                                                I agree to the <a href="#" class="text-primary">Terms and Conditions</a>
+                                            </label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fa-solid fa-store me-2"></i>Create Vendor Account
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-top py-3 mt-auto">
+        <div class="container">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 Curemate Health Hub. All rights reserved.</p>
+                <div class="mt-2">
+                    <a href="#" class="text-decoration-none text-muted me-3 small">Privacy Policy</a>
+                    <a href="#" class="text-decoration-none text-muted me-3 small">Terms of Service</a>
+                    <a href="#" class="text-decoration-none text-muted small">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Supabase Config -->
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-service.js"></script>
+    <script src="js/main.js"></script>
+    
+    <!-- Auth JS -->
+    <script src="js/auth.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Supabase
+            initSupabase();
+            
+            // Handle password visibility toggles
+            const togglePasswordButtons = [
+                { buttonId: 'toggleCustomerPassword', inputId: 'loginPassword' },
+                { buttonId: 'toggleVendorPassword', inputId: 'vendorLoginPassword' },
+                { buttonId: 'toggleSignupPassword', inputId: 'signupPassword' },
+                { buttonId: 'toggleVendorSignupPassword', inputId: 'vendorSignupPassword' }
+            ];
+            
+            togglePasswordButtons.forEach(item => {
+                const button = document.getElementById(item.buttonId);
+                if (button) {
+                    button.addEventListener('click', function() {
+                        const input = document.getElementById(item.inputId);
+                        const icon = this.querySelector('i');
+                        
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            icon.classList.remove('fa-eye');
+                            icon.classList.add('fa-eye-slash');
+                        } else {
+                            input.type = 'password';
+                            icon.classList.remove('fa-eye-slash');
+                            icon.classList.add('fa-eye');
+                        }
+                    });
+                }
+            });
+            
+            // Handle login type switching
+            const loginTypeRadios = document.querySelectorAll('input[name="loginType"]');
+            if (loginTypeRadios.length > 0) {
+                loginTypeRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const customerForm = document.getElementById('customerLoginForm');
+                        const vendorForm = document.getElementById('vendorLoginForm');
+                        
+                        if (this.value === 'customer') {
+                            customerForm.style.display = 'block';
+                            vendorForm.style.display = 'none';
+                        } else {
+                            customerForm.style.display = 'none';
+                            vendorForm.style.display = 'block';
+                        }
+                    });
+                });
+            }
+            
+            // Handle signup type switching
+            const signupTypeRadios = document.querySelectorAll('input[name="signupType"]');
+            if (signupTypeRadios.length > 0) {
+                signupTypeRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const customerForm = document.getElementById('customerSignupForm');
+                        const vendorForm = document.getElementById('vendorSignupForm');
+                        
+                        if (this.value === 'customer') {
+                            customerForm.style.display = 'block';
+                            vendorForm.style.display = 'none';
+                        } else {
+                            customerForm.style.display = 'none';
+                            vendorForm.style.display = 'block';
+                        }
+                    });
+                });
+            }
+            
+            // Handle customer login form submission
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('loginEmail').value;
+                    const password = document.getElementById('loginPassword').value;
+                    
+                    console.log('Customer login attempt:', { email, password });
+                    
+                    try {
+                        const result = await userAuth.signIn(email, password);
+                        console.log('Customer login result:', result);
+                        
+                        if (result.error) {
+                            alert('Login failed: ' + result.error.message);
+                        } else {
+                            alert('Login successful!');
+                            console.log('Redirecting to home page...');
+                            window.location.href = 'index.html';
+                        }
+                    } catch (error) {
+                        console.error('Login error:', error);
+                        alert('An unexpected error occurred during login.');
+                    }
+                });
+            }
+            
+            // Handle vendor login form submission
+            const vendorLoginForm = document.getElementById('vendorLoginFormModal');
+            if (vendorLoginForm) {
+                vendorLoginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('vendorLoginEmail').value;
+                    const password = document.getElementById('vendorLoginPassword').value;
+                    
+                    console.log('Vendor login attempt:', { email, password });
+                    
+                    try {
+                        const result = await vendorAuth.signIn(email, password);
+                        console.log('Vendor login result:', result);
+                        
+                        if (result.error) {
+                            alert('Login failed: ' + result.error.message);
+                        } else {
+                            alert('Login successful!');
+                            console.log('Redirecting to vendor dashboard...');
+                            window.location.href = 'vendor-dashboard.html';
+                        }
+                    } catch (error) {
+                        console.error('Login error:', error);
+                        alert('An unexpected error occurred during login.');
+                    }
+                });
+            }
+            
+            // Handle customer signup form submission
+            const signupForm = document.getElementById('signupForm');
+            if (signupForm) {
+                signupForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const firstName = document.getElementById('signupFirstName').value;
+                    const lastName = document.getElementById('signupLastName').value;
+                    const email = document.getElementById('signupEmail').value;
+                    const phone = document.getElementById('signupPhone').value;
+                    const password = document.getElementById('signupPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    if (password !== confirmPassword) {
+                        alert('Passwords do not match!');
+                        return;
+                    }
+                    
+                    try {
+                        const { user, error } = await userAuth.signUp(email, password, firstName, lastName, phone);
+                        
+                        if (error) {
+                            alert('Signup failed: ' + error.message);
+                        } else {
+                            alert('Account created successfully!');
+                            window.location.href = 'index.html';
+                        }
+                    } catch (error) {
+                        console.error('Signup error:', error);
+                        alert('An unexpected error occurred during signup.');
+                    }
+                });
+            }
+            
+            // Handle vendor signup form submission
+            const vendorSignupForm = document.getElementById('vendorSignupFormModal');
+            if (vendorSignupForm) {
+                vendorSignupForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const businessName = document.getElementById('businessName').value;
+                    const firstName = document.getElementById('vendorFirstName').value;
+                    const lastName = document.getElementById('vendorLastName').value;
+                    const email = document.getElementById('vendorEmail').value;
+                    const phone = document.getElementById('vendorPhone').value;
+                    const password = document.getElementById('vendorSignupPassword').value;
+                    const confirmPassword = document.getElementById('vendorConfirmPassword').value;
+                    
+                    if (password !== confirmPassword) {
+                        alert('Passwords do not match!');
+                        return;
+                    }
+                    
+                    try {
+                        const { user, error } = await vendorAuth.signUp(
+                            email, 
+                            password, 
+                            firstName, 
+                            lastName, 
+                            businessName, 
+                            phone
+                        );
+                        
+                        if (error) {
+                            alert('Signup failed: ' + error.message);
+                        } else {
+                            alert('Vendor account created successfully!');
+                            window.location.href = 'vendor-dashboard.html';
+                        }
+                    } catch (error) {
+                        console.error('Signup error:', error);
+                        alert('An unexpected error occurred during signup.');
+                    }
+                });
+            }
+            
+            // Check URL parameters to determine which tab to show
+            const urlParams = new URLSearchParams(window.location.search);
+            const action = urlParams.get('action');
+            const userType = urlParams.get('type');
+            
+            if (action === 'signup') {
+                const signupTab = document.getElementById('signup-tab');
+                if (signupTab) {
+                    const tab = new bootstrap.Tab(signupTab);
+                    tab.show();
+                }
+                
+                if (userType === 'vendor') {
+                    const vendorRadio = document.getElementById('vendorSignup');
+                    if (vendorRadio) {
+                        vendorRadio.checked = true;
+                        const event = new Event('change');
+                        vendorRadio.dispatchEvent(event);
+                    }
+                }
+            } else if (action === 'login' && userType === 'vendor') {
+                const vendorRadio = document.getElementById('vendorLogin');
+                if (vendorRadio) {
+                    vendorRadio.checked = true;
+                    const event = new Event('change');
+                    vendorRadio.dispatchEvent(event);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

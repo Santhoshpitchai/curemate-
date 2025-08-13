@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Management - Vendor Dashboard</title>
-    <meta name="description" content="Vendor Order Management - Curemate Health Hub">
+    <title>Customers - Vendor Dashboard</title>
+    <meta name="description" content="Vendor Customers - Curemate Health Hub">
     
     <!-- Favicon -->
     <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -51,7 +51,7 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-md-3 col-lg-2 px-0">
-                <div class="bg-white shadow-sm min-vh-100">
+                <div class="bg-white shadow-sm" style="min-height: 100vh;">
                     <div class="list-group list-group-flush">
                         <a href="vendor-dashboard.html" class="list-group-item list-group-item-action">
                             <i class="fa-solid fa-tachometer-alt me-2"></i>Dashboard
@@ -59,13 +59,13 @@
                         <a href="vendor-products.html" class="list-group-item list-group-item-action">
                             <i class="fa-solid fa-box me-2"></i>Products
                         </a>
-                        <a href="vendor-orders.html" class="list-group-item list-group-item-action active">
+                        <a href="vendor-orders.html" class="list-group-item list-group-item-action">
                             <i class="fa-solid fa-shopping-cart me-2"></i>Orders
                         </a>
                         <a href="vendor-analytics.html" class="list-group-item list-group-item-action">
                             <i class="fa-solid fa-chart-bar me-2"></i>Analytics
                         </a>
-                        <a href="vendor-customers.html" class="list-group-item list-group-item-action">
+                        <a href="vendor-customers.html" class="list-group-item list-group-item-action active">
                             <i class="fa-solid fa-users me-2"></i>Customers
                         </a>
                         <a href="vendor-payments.html" class="list-group-item list-group-item-action">
@@ -76,77 +76,57 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 p-4">
+            <div class="col-md-9 col-lg-10 p-4" style="min-height: 100vh; background-color: #f8f9fa;">
                 <!-- Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h1 class="h3 mb-0">Order Management</h1>
-                        <p class="text-muted">Track and manage your product orders</p>
-                    </div>
-                    <div>
-                        <a href="vendor-products.html" class="btn btn-primary">
-                            <i class="fa-solid fa-cart-plus me-2"></i>Place New Order
-                        </a>
+                        <h2 class="mb-1">Customers</h2>
+                        <p class="text-muted mb-0">Manage your customer relationships</p>
                     </div>
                 </div>
 
-                <!-- Order Stats -->
+                <!-- Stats Cards -->
                 <div class="row mb-4">
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="card-title" id="pendingOrders">0</h4>
-                                        <p class="card-text">Pending Orders</p>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fa-solid fa-clock fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-info text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="card-title" id="shippedOrders">0</h4>
-                                        <p class="card-text">Shipped Orders</p>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fa-solid fa-truck fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-success text-white">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <h4 class="card-title" id="deliveredOrders">0</h4>
-                                        <p class="card-text">Delivered Orders</p>
-                                    </div>
-                                    <div class="align-self-center">
-                                        <i class="fa-solid fa-check fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="card bg-primary text-white">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h4 class="card-title" id="totalOrders">0</h4>
-                                        <p class="card-text">Total Orders</p>
+                                        <h4 class="mb-0" id="totalCustomers">0</h4>
+                                        <p class="mb-0">Total Customers</p>
                                     </div>
                                     <div class="align-self-center">
-                                        <i class="fa-solid fa-shopping-cart fa-2x"></i>
+                                        <i class="fa-solid fa-users fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0" id="activeCustomers">0</h4>
+                                        <p class="mb-0">Active Customers</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-user-check fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="mb-0" id="repeatCustomers">0</h4>
+                                        <p class="mb-0">Repeat Customers</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fa-solid fa-redo fa-2x"></i>
                                     </div>
                                 </div>
                             </div>
@@ -154,55 +134,43 @@
                     </div>
                 </div>
 
-                <!-- Orders Table -->
+                <!-- Customers Table -->
                 <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Recent Orders</h5>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Customer List</h5>
+                        <div class="input-group" style="max-width: 300px;">
+                            <input type="text" class="form-control" placeholder="Search customers..." id="searchCustomers">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fa-solid fa-search"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Order ID</th>
-                                        <th>Date</th>
-                                        <th>Items</th>
-                                        <th>Total Amount</th>
-                                        <th>Status</th>
+                                        <th>Customer</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Total Orders</th>
+                                        <th>Total Spent</th>
+                                        <th>Last Order</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="ordersTableBody">
-                                    <!-- Orders will be loaded here -->
+                                <tbody id="customersTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <i class="fa-solid fa-users fa-3x text-muted mb-3"></i>
+                                            <h6 class="text-muted">No customers found</h6>
+                                            <p class="text-muted">Customer data will appear here</p>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div id="noOrdersMessage" class="text-center py-5" style="display: none;">
-                            <i class="fa-solid fa-shopping-cart fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">No orders found</h5>
-                            <p class="text-muted">Place your first order to get started</p>
-                            <a href="vendor-products.html" class="btn btn-primary">
-                                <i class="fa-solid fa-cart-plus me-2"></i>Place Order
-                            </a>
-                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Order Details Modal -->
-    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="orderDetailsModalLabel">
-                        <i class="fa-solid fa-receipt me-2"></i>Order Details
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="orderDetailsContent">
-                    <!-- Order details will be loaded here -->
                 </div>
             </div>
         </div>
@@ -211,8 +179,13 @@
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    
     <!-- Custom JavaScript -->
+    <script src="js/supabase-config.js"></script>
     <script src="js/supabase-service.js"></script>
-    <script src="js/vendor-orders.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/vendor-customers.js"></script>
 </body>
 </html>

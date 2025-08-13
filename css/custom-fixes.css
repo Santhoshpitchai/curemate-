@@ -1,0 +1,17 @@
+/* Hide any third-party navigation bars */
+body > nav:first-of-type:not(.navbar),
+body > header:first-of-type > nav:not(.navbar),
+body > div:first-of-type > nav:not(.navbar) {
+  display: none !important;
+}
+
+/* Hide any Login/Sign Up buttons in the top navigation */
+[href*="login"], 
+[href*="Login"],
+[href*="sign-up"],
+[href*="Sign-Up"],
+[href*="signup"],
+[href*="SignUp"] {
+  display: none !important;
+}
+

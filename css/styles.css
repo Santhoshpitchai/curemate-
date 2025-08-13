@@ -1,5 +1,70 @@
 /* Curemate Healthcare Design System */
 
+/* User Avatar Circle */
+.user-avatar-circle {
+  background-color: #00BFB3;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.user-avatar-circle:hover {
+  background-color: #009990;
+  transform: scale(1.05);
+}
+
+/* Navbar Styles */
+.navbar {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+}
+
+.nav-link {
+  font-weight: 500;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary) !important;
+}
+
+.navbar .dropdown-menu {
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: none;
+  padding: 0.75rem 0;
+}
+
+.navbar .dropdown-item {
+  padding: 0.5rem 1.5rem;
+}
+
+.navbar .dropdown-item:hover {
+  background-color: rgba(0, 191, 179, 0.1);
+  color: var(--primary);
+}
+
+@media (max-width: 991.98px) {
+  .navbar .dropdown-menu {
+    border: none;
+    box-shadow: none;
+    padding-left: 1rem;
+  }
+}
+
 :root {
   /* Healthcare Brand Colors */
   --background: 0 0% 100%;
@@ -619,6 +684,63 @@ body {
   justify-content: center;
 }
 
+
+/* ===== BREADCRUMB STYLES ===== */
+.breadcrumb {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.breadcrumb-item {
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.breadcrumb-item a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  content: "›";
+  color: var(--muted-foreground);
+  font-weight: 600;
+  margin: 0 0.5rem;
+}
+
+/* Category Header Styling */
+.category-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.category-header .breadcrumb-item {
+  font-size: 0.95rem;
+}
+
+.category-header .breadcrumb-item a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.category-header .breadcrumb-item.active {
+  color: var(--primary-dark);
+  font-weight: 700;
+
 /* Search Dropdown Styles */
 .search-dropdown {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -702,6 +824,7 @@ body {
   height: 8px;
   border-radius: 4px;
 }
+
 
 
 
@@ -1083,4 +1206,5 @@ img {
   .display-4 {
     font-size: 2rem;
   }
+
 }

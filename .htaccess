@@ -1,0 +1,6 @@
+# Redirect old auth pages to the new unified auth page
+Redirect 301 /user-login.html /auth.html?action=login&type=customer
+Redirect 301 /user-signup.html /auth.html?action=signup&type=customer
+Redirect 301 /vendor-login.html /auth.html?action=login&type=vendor
+Redirect 301 /vendor-signup.html /auth.html?action=signup&type=vendor
+

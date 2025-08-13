@@ -18,42 +18,13 @@
     // Load cart from localStorage on page load
     function loadCartFromStorage() {
       try {
-        // Check both possible localStorage keys and merge if needed
-        const cureMateCart = localStorage.getItem('cureMateCart');
-        const shoppingCart = localStorage.getItem('shoppingCart');
-
-        console.log('🔍 Checking localStorage...');
-        console.log('cureMateCart:', cureMateCart);
-        console.log('shoppingCart:', shoppingCart);
-
-        if (cureMateCart) {
-          myCart = JSON.parse(cureMateCart);
-          console.log('✅ Cart loaded from cureMateCart:', myCart.length, 'items');
-        } else if (shoppingCart) {
-          const parsedCart = JSON.parse(shoppingCart);
-          // Validate and migrate from old cart system
-          if (Array.isArray(parsedCart) && parsedCart.every(item =>
-            item.name && typeof item.price === 'number' && typeof item.quantity === 'number'
-          )) {
-            myCart = parsedCart;
-            console.log('✅ Migrated cart from shoppingCart:', myCart.length, 'items');
-            // Save to new key and remove old key
-            saveCartToStorage();
-            localStorage.removeItem('shoppingCart');
-          } else {
-            console.warn('⚠️ Invalid cart data in shoppingCart, clearing...');
-            localStorage.removeItem('shoppingCart');
-            myCart = [];
-          }
-        } else {
-          myCart = [];
-          console.log('ℹ️ No cart data found, starting with empty cart');
+        const savedCart = localStorage.getItem('cureMateCart');
+        if (savedCart) {
+          myCart = JSON.parse(savedCart);
+          console.log('✅ Cart loaded from storage:', myCart.length, 'items');
         }
       } catch (error) {
         console.error('❌ Error loading cart from storage:', error);
-        // Clear corrupted data
-        localStorage.removeItem('cureMateCart');
-        localStorage.removeItem('shoppingCart');
         myCart = [];
       }
     }
@@ -148,13 +119,16 @@
       }
     }
 
-    // Add item to cart function
+    // Add item to cart function (legacy support)
     function addToSimpleCart(name, price, image) {
+      console.log('🛒 Adding to cart:', name, 'Price:', price);
+
       try {
         // Check if item already exists
         const existingItem = myCart.find(item => item.name === name);
         if (existingItem) {
           existingItem.quantity += 1;
+          console.log('✅ Increased quantity for:', name);
         } else {
           myCart.push({
             name: name,
@@ -162,18 +136,18 @@
             image: image || 'img/placeholder.jpg',
             quantity: 1
           });
+          console.log('✅ Added new item:', name);
         }
 
-        saveCartToStorage();
         updateCartBadge();
         updateCartDisplay();
 
-        // Show success message
-        showSuccessMessage('✅ Added ' + name + ' to cart!');
+        // Show success message (removed alert for smoother UX)
+        console.log('✅ Added ' + name + ' to cart!');
 
       } catch (error) {
         console.error('❌ Error adding to cart:', error);
-        showErrorMessage('❌ Error adding to cart');
+        console.log('❌ Error adding to cart');
       }
     }
 
@@ -367,88 +341,6 @@
       updateCartDisplay();
       saveCartToStorage();
       console.log('✅ Cart cleared successfully!');
-    }
-
-    // Debug function - can be called from browser console
-    function debugCart() {
-      console.log('=== CART DEBUG INFO ===');
-      console.log('myCart variable:', myCart);
-      console.log('myCart length:', myCart.length);
-      console.log('Total items:', myCart.reduce((sum, item) => sum + item.quantity, 0));
-      console.log('localStorage cureMateCart:', localStorage.getItem('cureMateCart'));
-      console.log('localStorage shoppingCart:', localStorage.getItem('shoppingCart'));
-      console.log('Cart badge element:', document.getElementById('cartBadge'));
-      console.log('Cart items list element:', document.getElementById('cartItemsList'));
-      console.log('Cart total element:', document.getElementById('cartTotalAmount'));
-      console.log('=== END DEBUG INFO ===');
-    }
-
-    // Make debug function globally available
-    window.debugCart = debugCart;
-
-    // Simple toast notification function
-    function showSuccessMessage(message) {
-      console.log('✅', message);
-      // Create a simple toast notification
-      const toast = document.createElement('div');
-      toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #00BFB3;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        z-index: 10000;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideIn 0.3s ease;
-      `;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-
-      // Add CSS animation
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-      `;
-      document.head.appendChild(style);
-
-      // Remove after 3 seconds
-      setTimeout(() => {
-        toast.style.animation = 'slideIn 0.3s ease reverse';
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
-    }
-
-    function showErrorMessage(message) {
-      console.log('❌', message);
-      // Create a simple error toast notification
-      const toast = document.createElement('div');
-      toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #ef4444;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        z-index: 10000;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideIn 0.3s ease;
-      `;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-
-      // Remove after 3 seconds
-      setTimeout(() => {
-        toast.style.animation = 'slideIn 0.3s ease reverse';
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
     }
 
     // Enhanced checkout function with order processing
@@ -1357,5 +1249,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/search.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

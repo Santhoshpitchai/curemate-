@@ -1,5 +1,8 @@
-// Vendor Authentication System
+// Vendor Authentication System using Supabase
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Supabase
+    initSupabase();
+    
     // Initialize vendor authentication
     initializeVendorAuth();
     
@@ -23,17 +26,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function initializeVendorAuth() {
-    // Check if user is already logged in as vendor
-    const currentVendor = getCurrentVendor();
-    if (currentVendor) {
-        // Redirect to vendor dashboard
-        window.location.href = 'vendor-dashboard.html';
+async function initializeVendorAuth() {
+    console.log('Initializing vendor authentication...');
+    
+    // Check if we're in a redirect loop
+    const redirectCount = parseInt(sessionStorage.getItem('vendorLoginRedirectCount') || '0');
+    if (redirectCount > 2) {
+        console.warn('Detected possible redirect loop, staying on login page');
+        sessionStorage.setItem('vendorLoginRedirectCount', '0');
+        showToast('Authentication issue detected. Please try logging in again.', 'warning');
         return;
     }
-
-    // Initialize demo vendors if none exist
-    initializeDemoVendors();
+    
+    try {
+        // Check if user is already logged in as vendor
+        const isVendorUser = await isVendor();
+        if (isVendorUser) {
+            // Increment redirect counter before redirecting
+            sessionStorage.setItem('vendorLoginRedirectCount', (redirectCount + 1).toString());
+            // Redirect to vendor dashboard
+            window.location.href = 'vendor-dashboard.html';
+            return;
+        }
+        
+        // Reset redirect counter if we're staying on this page
+        sessionStorage.setItem('vendorLoginRedirectCount', '0');
+    } catch (error) {
+        console.error('Error checking vendor authentication:', error);
+        // Reset redirect counter if there's an error
+        sessionStorage.setItem('vendorLoginRedirectCount', '0');
+    }
 
     // Vendor login form handler
     const vendorLoginForm = document.getElementById('vendorLoginForm');
@@ -66,47 +88,53 @@ async function handleVendorLogin(e) {
 
     const email = document.getElementById('vendorEmail').value;
     const password = document.getElementById('vendorPassword').value;
-    const rememberMe = document.getElementById('vendorRememberMe').checked;
 
     try {
         // Show loading state
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Logging in...';
-        submitBtn.disabled = true;
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Logging in...';
 
-        // Authenticate with Supabase
-        const result = await window.supabaseService.authenticateVendor(email, password);
+        // Sign in with Supabase
+        const { session, user, error, vendor } = await vendorAuth.signIn(email, password);
 
-        if (result.success) {
-            // Store vendor session
-            window.supabaseService.setVendorSession(result.vendor, rememberMe);
-
-            // Show success message
-            const vendorName = result.vendor.first_name || result.vendor.email;
-            showToast(`Welcome back, ${vendorName}!`, 'success');
-
-            // Redirect to vendor dashboard
-            setTimeout(() => {
-                window.location.href = 'vendor-dashboard.html';
-            }, 1500);
-
-        } else {
-            showToast(result.message || 'Invalid email or password. Please try again.', 'error');
+        if (error) {
+            showToast(error.message, 'error');
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+            return;
         }
 
-        // Restore button state
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+        // Show success message
+        showToast(`Welcome back, ${vendor.business_name}!`, 'success');
 
-    } catch (error) {
-        console.error('Vendor login error:', error);
-        showToast('Login failed. Please try again.', 'error');
+        // Store vendor data in session for backwards compatibility
+        sessionStorage.setItem('currentVendor', JSON.stringify({
+            id: vendor.id || user.id,
+            email: email,
+            businessName: vendor.business_name || 'Vendor',
+            firstName: vendor.first_name || '',
+            lastName: vendor.last_name || ''
+        }));
 
-        // Restore button state
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        submitBtn.innerHTML = '<i class="fa-solid fa-sign-in-alt me-2"></i>Login to Dashboard';
-        submitBtn.disabled = false;
+        // Reset any redirect counters
+        sessionStorage.setItem('vendorLoginRedirectCount', '0');
+        sessionStorage.setItem('vendorRedirectCount', '0');
+
+        // Redirect to vendor dashboard with a delay
+        setTimeout(() => {
+            window.location.href = 'vendor-dashboard.html';
+        }, 1500);
+
+    } catch (err) {
+        console.error('Login error:', err);
+        showToast('An error occurred during login. Please try again.', 'error');
+
+        // Reset button state
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fa-solid fa-sign-in-alt me-2"></i>Login to Dashboard';
     }
 }
 
@@ -115,13 +143,10 @@ async function handleVendorSignup(e) {
 
     const formData = {
         businessName: document.getElementById('businessName').value,
-        businessType: document.getElementById('businessType').value,
-        contactPerson: document.getElementById('contactPerson').value,
-        phoneNumber: document.getElementById('phoneNumber').value,
+        firstName: document.getElementById('contactPersonFirstName').value,
+        lastName: document.getElementById('contactPersonLastName').value,
+        phone: document.getElementById('phoneNumber').value,
         email: document.getElementById('businessEmail').value,
-        address: document.getElementById('businessAddress').value,
-        licenseNumber: document.getElementById('licenseNumber').value,
-        gstNumber: document.getElementById('gstNumber').value,
         password: document.getElementById('vendorPassword').value,
         confirmPassword: document.getElementById('confirmVendorPassword').value
     };
@@ -134,106 +159,43 @@ async function handleVendorSignup(e) {
 
     try {
         // Show loading state
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Creating account...';
-        submitBtn.disabled = true;
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating account...';
 
-        // Check if vendor already exists
-        const existingVendor = await window.supabaseService.getVendorByEmail(formData.email);
-        if (existingVendor) {
-            showToast('A vendor account with this email already exists', 'error');
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+        // Sign up with Supabase
+        const { user, error } = await vendorAuth.signUp(
+            formData.email,
+            formData.password,
+            formData.firstName,
+            formData.lastName,
+            formData.businessName,
+            formData.phone
+        );
+
+        if (error) {
+            showToast(error.message, 'error');
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
             return;
         }
 
-        // Create new vendor in Supabase
-        const vendorData = {
-            email: formData.email,
-            contactPerson: formData.contactPerson,
-            phoneNumber: formData.phoneNumber,
-            businessName: formData.businessName,
-            businessType: formData.businessType,
-            address: formData.address,
-            licenseNumber: formData.licenseNumber,
-            gstNumber: formData.gstNumber,
-            password: formData.password // Note: In production, implement proper password hashing
-        };
-
-        const newVendor = await window.supabaseService.createVendor(vendorData);
-
         // Show success message
-        showToast('Vendor account created successfully! You can now login with your credentials.', 'success');
-
+        showToast('Vendor account created successfully! Please check your email to confirm your account.', 'success');
         // Redirect to login page after delay
         setTimeout(() => {
             window.location.href = 'vendor-login.html';
         }, 3000);
 
-        // Restore button state
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+    } catch (err) {
+        console.error('Signup error:', err);
+        showToast('An error occurred during signup. Please try again.', 'error');
 
-    } catch (error) {
-        console.error('Vendor signup error:', error);
-        showToast('Account creation failed. Please try again.', 'error');
-
-        // Restore button state
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        submitBtn.innerHTML = '<i class="fa-solid fa-user-plus me-2"></i>Create Vendor Account';
-        submitBtn.disabled = false;
-    }
-}
-
-// Helper functions
-function getCurrentVendor() {
-    return window.supabaseService ? window.supabaseService.getCurrentVendor() : null;
-}
-
-async function getStoredVendors() {
-    if (window.supabaseService) {
-        return await window.supabaseService.getAllVendors();
-    }
-    return JSON.parse(localStorage.getItem('vendors') || '[]');
-}
-
-function initializeDemoVendors() {
-    const vendors = getStoredVendors();
-    if (vendors.length === 0) {
-        const demoVendors = [
-            {
-                id: '1',
-                businessName: 'HealthCare Pharmacy',
-                businessType: 'pharmacy',
-                contactPerson: 'Dr. Smith',
-                phoneNumber: '+1234567890',
-                email: 'vendor@test.com',
-                address: '123 Health Street, Medical District',
-                licenseNumber: 'PH12345',
-                gstNumber: 'GST123456789',
-                password: 'password123',
-                status: 'approved',
-                createdAt: new Date().toISOString(),
-                approvedAt: new Date().toISOString()
-            },
-            {
-                id: '2',
-                businessName: 'City Medical Clinic',
-                businessType: 'clinic',
-                contactPerson: 'Dr. Johnson',
-                phoneNumber: '+1234567891',
-                email: 'admin@healthcare-pharmacy.com',
-                address: '456 Clinic Avenue, Downtown',
-                licenseNumber: 'CL67890',
-                gstNumber: 'GST987654321',
-                password: 'vendor123',
-                status: 'approved',
-                createdAt: new Date().toISOString(),
-                approvedAt: new Date().toISOString()
-            }
-        ];
-        localStorage.setItem('vendors', JSON.stringify(demoVendors));
+        // Reset button state
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="fa-solid fa-user-plus me-2"></i>Create Vendor Account';
     }
 }
 

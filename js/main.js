@@ -1,15 +1,56 @@
 // Curemate Health Hub - Main JavaScript
 
-// Import Supabase client
-import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2'
-
 // Initialize Supabase client
-const supabaseUrl = 'https://vahhmwunmhkudepqxrir.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhaGhtd3VubWhrdWRlcHF4cmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NDYyNDQsImV4cCI6MjA2OTUyMjI0NH0.SYiCgyv24BPrQfOT3JzkypsNT_fdrthwRMIdunrdLqg'
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = 'https://vahhmwunmhkudepqxrir.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZhaGhtd3VubWhrdWRlcHF4cmlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NDYyNDQsImV4cCI6MjA2OTUyMjI0NH0.SYiCgyv24BPrQfOT3JzkypsNT_fdrthwRMIdunrdLqg';
 
-// Make supabase available globally
-window.supabase = supabase
+// Initialize Supabase when the script loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if Supabase JS is loaded
+    if (typeof supabaseClient !== 'undefined') {
+        try {
+            // Initialize Supabase client using the global supabaseClient
+            window.supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
+            console.log('Supabase initialized successfully from main.js');
+            
+            // Initialize Supabase service
+            if (typeof window.supabaseService !== 'undefined') {
+                window.supabaseService.supabase = window.supabase;
+                console.log('Supabase client set in supabaseService');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Supabase:', error);
+        }
+    } else {
+        // Try alternative global variable names
+        const possibleSupabaseGlobals = ['supabase', 'createClient', 'Supabase'];
+        let initialized = false;
+        
+        for (const globalName of possibleSupabaseGlobals) {
+            if (typeof window[globalName] !== 'undefined' && typeof window[globalName].createClient === 'function') {
+                try {
+                    window.supabase = window[globalName].createClient(supabaseUrl, supabaseKey);
+                    console.log(`Supabase initialized successfully using ${globalName}`);
+                    
+                    // Initialize Supabase service
+                    if (typeof window.supabaseService !== 'undefined') {
+                        window.supabaseService.supabase = window.supabase;
+                        console.log('Supabase client set in supabaseService');
+                    }
+                    
+                    initialized = true;
+                    break;
+                } catch (error) {
+                    console.error(`Failed to initialize Supabase using ${globalName}:`, error);
+                }
+            }
+        }
+        
+        if (!initialized) {
+            console.error('Supabase JS not loaded or not accessible. Make sure to include the Supabase script in your HTML.');
+        }
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize tooltips
@@ -218,8 +259,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Test cart functionality
   console.log('Simple cart system initialized');
-  console.log('Cart button element:', document.getElementById('cartButton'));
-  console.log('Cart dropdown element:', document.getElementById('cartDropdown'));
+  
+  // Only log cart elements if we're on a page that has them
+  // Using different variable names to avoid redeclaration
+  const cartBtnElement = document.getElementById('cartButton');
+  const cartDropElement = document.getElementById('cartDropdown');
+  
+  if (cartBtnElement) {
+    console.log('Cart button element found');
+  } else {
+    console.log('Cart button element not found on this page - this is normal for admin/vendor pages');
+  }
+  
+  if (cartDropElement) {
+    console.log('Cart dropdown element found');
+  } else {
+    console.log('Cart dropdown element not found on this page - this is normal for admin/vendor pages');
+  }
 });
 
 // Function to close modal (used by vendor signup link)
@@ -230,40 +286,137 @@ function closeModal() {
   }
 }
 
-// Function to switch from login to signup modal
-function switchToSignup() {
-  const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-  const signupModal = new bootstrap.Modal(document.getElementById('signupModal'));
-
-  if (loginModal) {
-    loginModal.hide();
+// Function to handle authentication modal tabs and forms
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle password visibility toggles
+  const togglePasswordButtons = [
+    { buttonId: 'toggleCustomerPassword', inputId: 'loginPassword' },
+    { buttonId: 'toggleVendorPassword', inputId: 'vendorLoginPassword' },
+    { buttonId: 'toggleSignupPassword', inputId: 'signupPassword' },
+    { buttonId: 'toggleVendorSignupPassword', inputId: 'vendorSignupPassword' }
+  ];
+  
+  togglePasswordButtons.forEach(item => {
+    const button = document.getElementById(item.buttonId);
+    if (button) {
+      button.addEventListener('click', function() {
+        const input = document.getElementById(item.inputId);
+        const icon = this.querySelector('i');
+        
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    }
+  });
+  
+  // Handle login type switching
+  const loginTypeRadios = document.querySelectorAll('input[name="loginType"]');
+  if (loginTypeRadios.length > 0) {
+    loginTypeRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        const customerForm = document.getElementById('customerLoginForm');
+        const vendorForm = document.getElementById('vendorLoginForm');
+        
+        if (this.value === 'customer') {
+          customerForm.style.display = 'block';
+          vendorForm.style.display = 'none';
+        } else {
+          customerForm.style.display = 'none';
+          vendorForm.style.display = 'block';
+        }
+      });
+    });
   }
-
-  setTimeout(() => {
-    signupModal.show();
-  }, 300);
-}
-
-// Function to switch from signup to login modal
-function switchToLogin() {
-  const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
-  const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-
-  if (signupModal) {
-    signupModal.hide();
+  
+  // Handle signup type switching
+  const signupTypeRadios = document.querySelectorAll('input[name="signupType"]');
+  if (signupTypeRadios.length > 0) {
+    signupTypeRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        const customerForm = document.getElementById('customerSignupForm');
+        const vendorForm = document.getElementById('vendorSignupForm');
+        
+        if (this.value === 'customer') {
+          customerForm.style.display = 'block';
+          vendorForm.style.display = 'none';
+        } else {
+          customerForm.style.display = 'none';
+          vendorForm.style.display = 'block';
+        }
+      });
+    });
   }
+  
+  // Handle tab switching
+  const authModal = document.getElementById('loginModal');
+  if (authModal) {
+    authModal.addEventListener('shown.bs.modal', function() {
+      // Reset to login tab when modal is shown
+      const loginTab = document.getElementById('login-tab');
+      if (loginTab) {
+        const tabInstance = new bootstrap.Tab(loginTab);
+        tabInstance.show();
+      }
+      
+      // Reset to customer type when modal is shown
+      const customerLoginRadio = document.getElementById('customerLogin');
+      if (customerLoginRadio) {
+        customerLoginRadio.checked = true;
+        const event = new Event('change');
+        customerLoginRadio.dispatchEvent(event);
+      }
+      
+      const customerSignupRadio = document.getElementById('customerSignup');
+      if (customerSignupRadio) {
+        customerSignupRadio.checked = true;
+        const event = new Event('change');
+        customerSignupRadio.dispatchEvent(event);
+      }
+    });
+  }
+});
 
-  setTimeout(() => {
-    loginModal.show();
-  }, 300);
-}
-
-// Authentication System
-function initializeAuth() {
-  // Check if user is already logged in
-  const currentUser = getCurrentUser();
-  if (currentUser) {
-    updateUIForLoggedInUser(currentUser);
+// Authentication System using Supabase
+async function initializeAuth() {
+  // Initialize Supabase
+  initSupabase();
+  
+  // Initialize user authentication system
+  if (typeof initializeUserAuth === 'function') {
+    await initializeUserAuth();
+  } else {
+    console.warn('initializeUserAuth function not found. Auth UI may not be updated correctly.');
+    
+    // Fallback to basic auth check if user-auth.js is not loaded
+    try {
+      // Define fallback functions if they don't exist
+      const isLoggedIn = window.isLoggedIn || (async function() {
+        console.log('Using fallback isLoggedIn function');
+        return localStorage.getItem('user') !== null || sessionStorage.getItem('user') !== null;
+      });
+      
+      const isVendor = window.isVendor || (async function() {
+        console.log('Using fallback isVendor function');
+        return localStorage.getItem('vendor') !== null || sessionStorage.getItem('vendor') !== null;
+      });
+      
+      const isUserLoggedIn = await isLoggedIn();
+      const isUserVendor = await isVendor();
+      
+      // Only update UI if user-auth.js isn't handling it
+      if (isUserLoggedIn && !window.userAuthHandlingUI && typeof updateUIForLoggedInUser === 'function') {
+        updateUIForLoggedInUser(isUserVendor);
+      }
+    } catch (err) {
+      console.warn('Error checking login status:', err);
+    }
   }
 
   // Login type switching
@@ -286,19 +439,126 @@ function initializeAuth() {
   // Customer login form handler
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
-    loginForm.addEventListener('submit', handleLogin);
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      try {
+        const { session, user, error } = await userAuth.signIn(email, password);
+        
+        if (error) {
+          showToast(error.message, 'error');
+          return;
+        }
+        
+        // Close modal
+        const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        if (loginModal) loginModal.hide();
+        
+        // Show success message
+        const { profile } = await userAuth.getProfile();
+        showToast(`Welcome back, ${profile.first_name}!`);
+        
+        // Update UI
+        updateUIForLoggedInUser(false);
+        
+        // Reset form
+        loginForm.reset();
+        
+      } catch (err) {
+        console.error('Login error:', err);
+        showToast('An error occurred during login. Please try again.', 'error');
+      }
+    });
   }
 
   // Vendor login form handler (from modal)
   const vendorLoginFormModal = document.getElementById('vendorLoginFormModal');
   if (vendorLoginFormModal) {
-    vendorLoginFormModal.addEventListener('submit', handleVendorLoginModal);
+    vendorLoginFormModal.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('vendorLoginEmail').value;
+      const password = document.getElementById('vendorLoginPassword').value;
+      
+      try {
+        const { session, user, error, vendor } = await vendorAuth.signIn(email, password);
+        
+        if (error) {
+          showToast(error.message, 'error');
+          return;
+        }
+        
+        // Close modal
+        const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        if (loginModal) loginModal.hide();
+        
+        // Show success message
+        showToast(`Welcome back, ${vendor.business_name}!`, 'success');
+        
+        // Redirect to vendor dashboard
+        setTimeout(() => {
+          window.location.href = 'vendor-dashboard.html';
+        }, 1500);
+        
+        // Reset form
+        vendorLoginFormModal.reset();
+        
+      } catch (err) {
+        console.error('Login error:', err);
+        showToast('An error occurred during login. Please try again.', 'error');
+      }
+    });
   }
 
   // Signup form handler
   const signupForm = document.getElementById('signupForm');
   if (signupForm) {
-    signupForm.addEventListener('submit', handleSignup);
+    signupForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const firstName = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      // Validate passwords match
+      if (password !== confirmPassword) {
+        showToast('Passwords do not match', 'error');
+        return;
+      }
+      
+      try {
+        const { user, error } = await userAuth.signUp(
+          email,
+          password,
+          firstName,
+          '', // Last name (empty for now)
+          null // Phone (null for now)
+        );
+        
+        if (error) {
+          showToast(error.message, 'error');
+          return;
+        }
+        
+        // Close modal
+        const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+        if (signupModal) signupModal.hide();
+        
+        // Show success message
+        showToast('Account created successfully! Please check your email to confirm your account.', 'success');
+        
+        // Reset form
+        signupForm.reset();
+        
+      } catch (err) {
+        console.error('Signup error:', err);
+        showToast('An error occurred during signup. Please try again.', 'error');
+      }
+    });
   }
 
   // Password confirmation validation
@@ -508,50 +768,93 @@ async function getStoredVendors() {
   return JSON.parse(localStorage.getItem('vendors') || '[]');
 }
 
-function updateUIForLoggedInUser(user) {
-  const userAuthSection = document.getElementById('userAuthSection');
-  if (userAuthSection) {
-    const userName = user.first_name || user.name || user.email;
-    userAuthSection.innerHTML = `
+async function updateUIForLoggedInUser(isVendor) {
+  const authContainer = document.getElementById('authContainer');
+  if (!authContainer) return;
+
+  try {
+    const user = await getCurrentUser();
+    if (!user) return;
+
+    const profile = isVendor ?
+      await vendorAuth.getProfile() :
+      await userAuth.getProfile();
+
+    const displayName = profile?.profile?.first_name || user?.email || 'User';
+
+    authContainer.innerHTML = `
       <div class="dropdown">
-        <button class="btn btn-primary dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="fa-solid fa-user me-2"></i> ${userName}
+        <button class="btn btn-link text-decoration-none p-1" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <div class="user-avatar-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
         </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user me-2"></i>Profile</a></li>
-          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-clock me-2"></i>Order History</a></li>
-          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-heart me-2"></i>Wishlist</a></li>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+          <li class="dropdown-header">${displayName}</li>
+          ${isVendor ? 
+            '<li><a class="dropdown-item" href="vendor-dashboard.html"><i class="fa-solid fa-gauge me-2"></i>Dashboard</a></li>' : 
+            '<li><a class="dropdown-item" href="#"><i class="fa-solid fa-user me-2"></i>My Profile</a></li>'
+          }
+          <li><a class="dropdown-item" href="#"><i class="fa-solid fa-shopping-bag me-2"></i>My Orders</a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fa-solid fa-sign-out-alt me-2"></i>Logout</a></li>
+          <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fa-solid fa-sign-out-alt me-2"></i>Logout</a></li>
         </ul>
       </div>
     `;
+    
+    // Add logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      await logout();
+    });
+  } catch (err) {
+    console.error('Error updating UI for logged in user:', err);
   }
 }
 
-function logout() {
-  // Clear user session
-  if (window.supabaseService) {
-    window.supabaseService.clearSession();
-  } else {
-    sessionStorage.removeItem('currentUser');
-    localStorage.removeItem('currentUser');
-    sessionStorage.removeItem('currentVendor');
-    localStorage.removeItem('currentVendor');
-  }
+async function logout() {
+  try {
+    let error = null;
 
-  // Reset UI
-  const userAuthSection = document.getElementById('userAuthSection');
-  if (userAuthSection) {
-    userAuthSection.innerHTML = `
-      <a href="#" class="btn btn-primary d-flex align-items-center" id="loginBtn" data-bs-toggle="modal" data-bs-target="#loginModal">
-        <i class="fa-solid fa-user me-2"></i> Login
-      </a>
-    `;
-  }
+    // If user-auth.js is handling auth, use its functions
+    if (window.userAuthHandlingUI) {
+      const isUserVendor = await isVendor();
 
-  // Show logout message
-  showToast('You have been logged out successfully');
+      const result = isUserVendor ?
+        await vendorAuth.signOut() :
+        await userAuth.signOut();
+
+      error = result.error;
+    } else {
+      // Legacy logout - just for fallback
+      sessionStorage.removeItem('currentUser');
+      localStorage.removeItem('currentUser');
+      sessionStorage.removeItem('currentVendor');
+      localStorage.removeItem('currentVendor');
+    }
+
+    if (error) {
+      showToast(error.message, 'error');
+      return;
+    }
+
+    // Reset UI
+    const authContainer = document.getElementById('authContainer');
+    if (authContainer) {
+      authContainer.innerHTML = `
+        <a href="auth.html" class="btn btn-primary">
+          <i class="fa-solid fa-user-circle me-1"></i> Account
+        </a>
+      `;
+    }
+
+    // Show logout message
+    showToast('You have been logged out successfully');
+
+  } catch (err) {
+    console.error('Logout error:', err);
+    showToast('An error occurred during logout', 'error');
+  }
 }
 
 // Initialize demo users if none exist
@@ -700,15 +1003,29 @@ function setupCartIcon() {
 
 // Setup Add to Cart Buttons
 function setupAddToCartButtons() {
+  // Check if we're on a page that should have Add to Cart buttons
+  // This function might be called on admin/vendor pages where these buttons don't exist
+  if (window.location.pathname.includes('vendor-dashboard') || 
+      window.location.pathname.includes('admin') ||
+      window.location.pathname.includes('supabase-test')) {
+    console.log('Not setting up Add to Cart buttons on admin/vendor page');
+    return;
+  }
+
   console.log('Setting up Add to Cart buttons...'); // Debug log
 
   // Find all "Add to Cart" buttons
   const allButtons = document.querySelectorAll('button');
   console.log('Total buttons found:', allButtons.length); // Debug log
 
+  if (allButtons.length === 0) {
+    console.log('No buttons found on this page - this may be normal depending on the page');
+    return;
+  }
+
   let addToCartCount = 0;
   allButtons.forEach(button => {
-    if (button.textContent.trim().includes('Add to Cart')) {
+    if (button && button.textContent && button.textContent.trim().includes('Add to Cart')) {
       addToCartCount++;
       console.log('Found Add to Cart button:', button.textContent.trim()); // Debug log
 
@@ -720,6 +1037,10 @@ function setupAddToCartButtons() {
   });
 
   console.log('Total Add to Cart buttons set up:', addToCartCount); // Debug log
+  
+  if (addToCartCount === 0) {
+    console.log('No Add to Cart buttons found - this may be normal depending on the page');
+  }
 }
 
 function handleAddToCart(e) {
@@ -897,7 +1218,7 @@ function updateCartDisplay() {
             <div style="text-align: right;">
               <div><strong>₹${itemTotal}</strong></div>
               <button
-                onclick="removeFromCart(${index})"
+                onclick="removeFromCart(${index}, event)"
                 style="
                   background: #dc3545;
                   color: white;
@@ -944,6 +1265,7 @@ window.showCartDropdown = showCartDropdown;
 window.addToSimpleCart = addToSimpleCart;
 window.removeFromCart = removeFromCart;
 window.proceedToCheckout = proceedToCheckout;
+window.logout = logout;
 
 // Shopping Cart Functions
 let cart = [];
@@ -978,17 +1300,29 @@ function addToCart(product) {
   updateCartDisplay();
 }
 
-function removeFromCart(productId) {
+function removeFromCart(productId, event) {
+  // Prevent event bubbling to avoid closing cart
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
   cart = cart.filter(item => item.id !== productId);
   saveCart();
   updateCartDisplay();
 }
 
-function updateQuantity(productId, newQuantity) {
+function updateQuantity(productId, newQuantity, event) {
+  // Prevent event bubbling to avoid closing cart
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
   const item = cart.find(item => item.id === productId);
   if (item) {
     if (newQuantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, event);
     } else {
       item.quantity = newQuantity;
       saveCart();
@@ -1055,14 +1389,14 @@ function updateCartDisplay() {
             </div>
             <div class="col-3">
               <div class="input-group input-group-sm">
-                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('${item.id}', ${item.quantity - 1})">-</button>
+                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('${item.id}', ${item.quantity - 1}, event)">-</button>
                 <input type="text" class="form-control text-center" value="${item.quantity}" readonly>
-                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('${item.id}', ${item.quantity + 1})">+</button>
+                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('${item.id}', ${item.quantity + 1}, event)">+</button>
               </div>
             </div>
             <div class="col-2 text-end">
               <div class="fw-bold">₹${(item.price * item.quantity).toFixed(2)}</div>
-              <button class="btn btn-sm btn-outline-danger mt-1" onclick="removeFromCart('${item.id}')">
+              <button class="btn btn-sm btn-outline-danger mt-1" onclick="removeFromCart('${item.id}', event)">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </div>
