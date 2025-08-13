@@ -1105,7 +1105,7 @@
       let isLoadingStores = false;
 
       // Fetch real pharmacies and hospitals with enhanced data enrichment
-      async function fetchNearbyPharmaciesAndHospitals(lat, lng, radiusKm = 10) {
+      async function fetchNearbyPharmaciesAndHospitals(lat, lng, radiusKm = 1) {
         if (isLoadingStores) {
           console.log('Already loading stores, waiting...');
           // Wait for current loading to complete with timeout
@@ -1131,7 +1131,7 @@
 
         try {
           // Optimized Overpass API query - smaller radius and prioritize nodes
-          const searchRadius = Math.min(radiusKm * 1000, 5000); // Max 5km for performance
+          const searchRadius = Math.min(radiusKm * 1000, 1000); // Max 1km as requested for performance
           const overpassQuery = `
             [out:json][timeout:25];
             (
@@ -1790,18 +1790,25 @@
             },
             async function(error) {
               console.log('❌ Location error:', error);
-              showErrorMessage('Could not get your location. Showing nearby stores from a default location.');
-
-              try {
-                // Use a default location (Mumbai) to fetch stores
-                const defaultLocation = { lat: 19.0760, lng: 72.8777 };
-                await fetchNearbyPharmaciesAndHospitals(defaultLocation.lat, defaultLocation.lng);
-                console.log('✅ Default location stores fetched, updating modal...');
-                updateStoreLocatorWithData();
-              } catch (error) {
-                console.error('❌ Error fetching default stores:', error);
-                storeDatabase = getFallbackStores(19.0760, 72.8777);
-                updateStoreLocatorWithData();
+              showErrorMessage('Could not get your location. Please enable location services or try refreshing.');
+              
+              // Don't automatically use Mumbai - let user know they need to enable location
+              storeDatabase = [];
+              updateStoreLocatorWithData();
+              
+              // Show helpful message in the modal
+              const storesList = document.getElementById('storesList');
+              if (storesList) {
+                storesList.innerHTML = `
+                  <div class="text-center py-5">
+                    <i class="fa-solid fa-location-crosshairs" style="font-size: 48px; color: #94a3b8; margin-bottom: 16px;"></i>
+                    <h5 style="color: #64748b;">Location Access Required</h5>
+                    <p style="color: #94a3b8;">Please enable location services to find nearby pharmacies and hospitals within 1km of your location.</p>
+                    <button class="btn btn-primary" onclick="refreshUserLocation()">
+                      <i class="fa-solid fa-location-crosshairs me-2"></i>Try Again
+                    </button>
+                  </div>
+                `;
               }
             },
             {
@@ -1814,17 +1821,23 @@
           // Browser doesn't support geolocation
           console.log('❌ Geolocation not supported');
           showErrorMessage('Geolocation is not supported by this browser.');
-
-          try {
-            // Use a default location (Mumbai) to fetch stores
-            const defaultLocation = { lat: 19.0760, lng: 72.8777 };
-            await fetchNearbyPharmaciesAndHospitals(defaultLocation.lat, defaultLocation.lng);
-            console.log('✅ Default location stores fetched, updating modal...');
-            updateStoreLocatorWithData();
-          } catch (error) {
-            console.error('❌ Error fetching default stores:', error);
-            storeDatabase = getFallbackStores(19.0760, 72.8777);
-            updateStoreLocatorWithData();
+          
+          // Show helpful message instead of using fallback
+          storeDatabase = [];
+          updateStoreLocatorWithData();
+          
+          const storesList = document.getElementById('storesList');
+          if (storesList) {
+            storesList.innerHTML = `
+              <div class="text-center py-5">
+                <i class="fa-solid fa-map" style="font-size: 48px; color: #94a3b8; margin-bottom: 16px;"></i>
+                <h5 style="color: #64748b;">Location Services Not Available</h5>
+                <p style="color: #94a3b8;">Your browser doesn't support location services. Please use a modern browser or manually search for healthcare facilities.</p>
+                <button class="btn btn-outline-primary" onclick="showAllStoresOnMap()">
+                  <i class="fa-solid fa-globe me-2"></i>Show All Available Locations
+                </button>
+              </div>
+            `;
           }
         }
       }
@@ -2419,6 +2432,20 @@
       async function refreshUserLocation() {
         if (navigator.geolocation) {
           showSuccessMessage('Getting your location...');
+          
+          // Show loading state in the modal
+          const storesList = document.getElementById('storesList');
+          if (storesList) {
+            storesList.innerHTML = `
+              <div class="text-center p-4" id="loadingIndicator">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted">Finding nearby pharmacies and hospitals within 1km...</p>
+              </div>
+            `;
+          }
+
           navigator.geolocation.getCurrentPosition(
             async function(position) {
               userLocation = {
@@ -2426,8 +2453,8 @@
                 lng: position.coords.longitude
               };
 
-              // Fetch new stores near the updated location
-              await fetchNearbyPharmaciesAndHospitals(userLocation.lat, userLocation.lng);
+              // Fetch new stores near the updated location with 1km radius
+              await fetchNearbyPharmaciesAndHospitals(userLocation.lat, userLocation.lng, 1);
 
               // Update user marker on map
               if (storeMap) {
@@ -2457,20 +2484,34 @@
                 // Update store list
                 document.getElementById('storesList').innerHTML = generateCompactStoresList(storeDatabase);
 
-                // Update map view
-                storeMap.setView([userLocation.lat, userLocation.lng], 12);
+                // Update map view to 1km radius (zoom level 15)
+                storeMap.setView([userLocation.lat, userLocation.lng], 15);
 
-                showSuccessMessage(`Location updated! Found ${storeDatabase.length} nearby pharmacies and hospitals.`);
+                showSuccessMessage(`✅ Found ${storeDatabase.length} healthcare facilities within 1km of your location!`);
               }
             },
             function(error) {
               console.log('Location error:', error);
-              showErrorMessage('Could not get your location. Please try again.');
+              showErrorMessage('Could not get your location. Please enable location services and try again.');
+              
+              // Show helpful error message in modal
+              if (storesList) {
+                storesList.innerHTML = `
+                  <div class="text-center py-5">
+                    <i class="fa-solid fa-location-crosshairs" style="font-size: 48px; color: #94a3b8; margin-bottom: 16px;"></i>
+                    <h5 style="color: #64748b;">Location Access Required</h5>
+                    <p style="color: #94a3b8;">Please enable location services to find nearby pharmacies and hospitals within 1km of your location.</p>
+                    <button class="btn btn-primary" onclick="refreshUserLocation()">
+                      <i class="fa-solid fa-location-crosshairs me-2"></i>Try Again
+                    </button>
+                  </div>
+                `;
+              }
             },
             {
               enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 60000 // 1 minute
+              timeout: 15000,
+              maximumAge: 0 // Always get fresh location
             }
           );
         } else {
